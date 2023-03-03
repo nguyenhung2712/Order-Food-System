@@ -14,19 +14,19 @@ router.get("/:type", async (req, res) => {
         if (!orders || orders.length === 0){
             res.json({ 
                 status: "error",
-                text: "Doesn't exist!" 
+                message: "Doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get orders successfully.",
+                message: "Get orders successfully.",
                 payload: orders
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -42,19 +42,19 @@ router.get("/user-order/:id", validateToken, async (req, res) => {
         if (!orders || orders.length === 0) {
             res.json({ 
                 status: "error",
-                text: "Doesn't exist!" 
+                message: "Doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get orders successfully.",
+                message: "Get orders successfully.",
                 payload: orders
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -67,19 +67,19 @@ router.get("/:id", validateToken, async (req, res) => {
         if (!order) {
             res.json({ 
                 status: "error",
-                text: "Order doesn't exist!" 
+                message: "Order doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get order Successfully.",
+                message: "Get order Successfully.",
                 payload: order
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -95,13 +95,13 @@ router.post("/add", validateToken, async (req, res) => {
                 orderRes.setPayment(payment);
                 res.json({
                     status: "success",
-                    text: "Add Successfully"
+                    message: "Add Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -116,7 +116,7 @@ router.put("/update/:id", validateToken, async (req, res) => {
         if (!order) {
             res.json({
                 status: "error",
-                text: "This type doesn't exist!"
+                message: "This type doesn't exist!"
             });
         }
         Order.update(
@@ -128,13 +128,13 @@ router.put("/update/:id", validateToken, async (req, res) => {
                 orderRes.setPayment(payment);
                 res.json({
                     status: "success",
-                    text: "Update Successfully"
+                    message: "Update Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -146,7 +146,7 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
         if (!order) {
             res.json({
                 status: "error",
-                text: "This type doesn't exist!"
+                message: "This type doesn't exist!"
             });
         }
         Order.update(
@@ -156,13 +156,13 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
             .then(orderRes => {
                 res.json({
                     status: "success",
-                    text: "Successfully"
+                    message: "Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });

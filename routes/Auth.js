@@ -26,13 +26,13 @@ router.post("/register", checkExistedUsernameOrEmail, async (req, res) => {
     if (isExistedUsername) {
         res.json({
             status: "error",
-            text: "Your username has been used, Please enter another username!"
+            message: "Your username has been used, Please enter another username!"
         });
     }
     if (isExistedEmail) {
         res.json({
             status: "error",
-            text: "Your email has been used, Please enter another email!"
+            message: "Your email has been used, Please enter another email!"
         });
     }
     bcrypt.hash(password, 10).then((hash) => {
@@ -53,7 +53,7 @@ router.post("/register", checkExistedUsernameOrEmail, async (req, res) => {
                     lastLogin: new Date(),
                     registeredAt: new Date(),
                     isActived: 0,
-                    isOTP: 0,
+                    is2FA: 0,
                     isEnabled: 1,
                 })
 					.then(userRes => {
@@ -69,7 +69,7 @@ router.post("/register", checkExistedUsernameOrEmail, async (req, res) => {
                                 userRes.setRoles(roles);
                             });
                         } else {
-                            userRes.setRoles(["13266a91-b2c7-11ed-913b-d8d09055bd1c"]);
+                            userRes.setRoles(["e26325f5-b969-11ed-b33e-d8d09055bd1c"]);
                         }
                         Token.create({
                             token: uuidv4(),
@@ -79,12 +79,12 @@ router.post("/register", checkExistedUsernameOrEmail, async (req, res) => {
                                 res.setUser(userRes);
                                 const link = `${config.base_url}/confirm-email/${userRes.id}/${res.token}`;
                                 await sendEmail(userRes.email, "Confirm your account's email address", link);
-                            });;
+                            });
 					});
             });
         res.json({
             status: "success",
-            text: "Register Successful"
+            message: "Register Successful"
         });
     });
 });
@@ -97,7 +97,7 @@ router.post("/confirm-email/:userId/:token", async (req, res) => {
     if (!user) {
         return res.json({ 
             status: "error",
-            text: "Invalid link" 
+            message: "Invalid link" 
         });
     }
 
@@ -111,7 +111,7 @@ router.post("/confirm-email/:userId/:token", async (req, res) => {
     if (!currToken) {
         return res.json({ 
             status: "error",
-            text: "Invalid link" 
+            message: "Invalid link" 
         });
     }
     User.update(
@@ -120,7 +120,7 @@ router.post("/confirm-email/:userId/:token", async (req, res) => {
     )
     res.json({
         status: "success",
-        text: "Confirm email successfully"
+        message: "Confirm email successfully"
     });
 });
 
@@ -137,7 +137,7 @@ router.post("/login", async (req, res) => {
 
     if (!user) res.json({ 
         status: "error",
-        text: "User Doesn't Exist" 
+        message: "User Doesn't Exist" 
     });
                         
     bcrypt.compare(password, user.password).then(async (match) => {
@@ -246,7 +246,7 @@ router.post("/reset-password/:userId/:token", validateToken, async (req, res) =>
     if (!currToken) {
         return res.json({ 
             status: "error",
-            text: "Invalid link" 
+            message: "Invalid link" 
         });
     }
     bcrypt.hash(password, 10).then((hash) => {
@@ -259,10 +259,9 @@ router.post("/reset-password/:userId/:token", validateToken, async (req, res) =>
         })
         res.json({
             status: "success",
-            text: "Reset password successfully"
+            message: "Reset password successfully"
         });
     });
-
 });
 
 module.exports = router;

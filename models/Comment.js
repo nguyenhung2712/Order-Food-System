@@ -1,38 +1,41 @@
 module.exports = (sequelize, DataTypes) => {
-    const Rate = sequelize.define("Rate", {
+    const Comment = sequelize.define("Comment", {
         id: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
 			primaryKey: true
 		},
-		score: {
-			type: DataTypes.DECIMAL,
+		commentDate: {
+			type: DataTypes.DATE,
 			allowNull: false,
 		},
-		remarks: {
+		message: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		ratingDate: {
-			type: DataTypes.DATE,
+		image: {
+			type: DataTypes.STRING,
 			allowNull: false,
 		},
 		isEnabled: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	},
+    }, 
 	{
 		timestamps: false,
 		createdAt: false,
 		updatedAt: false,
 	});
 
-	Rate.associate = (models) => {
-		Rate.belongsTo(models.Dish);
-		Rate.belongsTo(models.User);
+	Comment.associate = (models) => {
+		Comment.hasMany(models.CommentReply , {
+			onDelete: "cascade",
+		});
+		Comment.belongsTo(models.Blog);
+		Comment.belongsTo(models.User);
     };
 
-    return Rate;
+    return Comment;
 };

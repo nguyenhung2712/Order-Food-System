@@ -13,19 +13,19 @@ router.get("/:type", async (req, res) => {
         if (!dishTypes || dishTypes.length === 0) {
             res.json({ 
                 status: "error",
-                text: "This type doesn't exist!" 
+                message: "This type doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get dish types successfully.",
+                message: "Get dish types successfully.",
                 payload: dishTypes
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -38,19 +38,19 @@ router.get("/:id", async (req, res) => {
         if (!dishType) {
             res.json({ 
                 status: "error",
-                text: "This type doesn't exist!" 
+                message: "This type doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get dish type Successfully.",
+                message: "Get dish type Successfully.",
                 payload: dishType
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -61,13 +61,13 @@ router.post("/add", validateToken, async (req, res) => {
             .then(dishTypeRes => {
                 res.json({
                     status: "success",
-                    text: "Add Successfully"
+                    message: "Add Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -79,7 +79,7 @@ router.put("/update/:id", validateToken, async (req, res) => {
         if (!dishType) {
             res.json({
                 status: "error",
-                text: "This type doesn't exist!"
+                message: "This type doesn't exist!"
             });
         }
         DishType.update(
@@ -89,13 +89,13 @@ router.put("/update/:id", validateToken, async (req, res) => {
             .then(dishTypeRes => {
                 res.json({
                     status: "success",
-                    text: "Update Successfully"
+                    message: "Update Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -107,7 +107,7 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
         if (!dishType) {
             res.json({
                 status: "error",
-                text: "This type doesn't exist!"
+                message: "This type doesn't exist!"
             });
         }
         DishType.update(
@@ -117,13 +117,13 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
             .then(dishTypeRes => {
                 res.json({
                     status: "success",
-                    text: "Successfully"
+                    message: "Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });

@@ -1,20 +1,24 @@
 module.exports = (sequelize, DataTypes) => {
-    const Rate = sequelize.define("Rate", {
+    const Address = sequelize.define("Address", {
         id: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
 			primaryKey: true
 		},
-		score: {
-			type: DataTypes.DECIMAL,
-			allowNull: false,
-		},
-		remarks: {
+		address: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		ratingDate: {
+		receiverName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		phoneNum: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		createdAt: {
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
@@ -22,17 +26,20 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	},
+    }, 
 	{
 		timestamps: false,
 		createdAt: false,
 		updatedAt: false,
 	});
 
-	Rate.associate = (models) => {
-		Rate.belongsTo(models.Dish);
-		Rate.belongsTo(models.User);
+    Address.associate = (models) => {
+		Address.belongsToMany(models.User, { 
+			through: 'User_Address' 
+		});
+		Address.belongsTo(models.Ward);
+		
     };
 
-    return Rate;
+    return Address;
 };

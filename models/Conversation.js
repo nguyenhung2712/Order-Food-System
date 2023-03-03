@@ -1,38 +1,30 @@
 module.exports = (sequelize, DataTypes) => {
-    const Rate = sequelize.define("Rate", {
+    const Conversation = sequelize.define("Conversation", {
         id: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
 			primaryKey: true
 		},
-		score: {
-			type: DataTypes.DECIMAL,
-			allowNull: false,
-		},
-		remarks: {
+		name: {
 			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		ratingDate: {
-			type: DataTypes.DATE,
 			allowNull: false,
 		},
 		isEnabled: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	},
+    }, 
 	{
 		timestamps: false,
 		createdAt: false,
 		updatedAt: false,
 	});
 
-	Rate.associate = (models) => {
-		Rate.belongsTo(models.Dish);
-		Rate.belongsTo(models.User);
+	Conversation.associate = (models) => {
+		Conversation.hasMany(models.ConverReply);
+		Conversation.hasMany(models.ConverJoining, { foreignKey: 'converId'});
     };
 
-    return Rate;
+    return Conversation;
 };

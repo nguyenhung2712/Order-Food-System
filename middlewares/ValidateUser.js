@@ -1,7 +1,7 @@
 const { User } = require("../models");
 
-const checkLoginUsername = async (req, res, next) => {
-
+const comparePassword = async (req, res, next) => {
+    
     User.findOne({ 
         where: { username: req.body.username }
     })
@@ -16,4 +16,4 @@ const checkLoginUsername = async (req, res, next) => {
         });
 }
 
-module.exports = { checkLoginUsername }
+module.exports = { comparePassword }

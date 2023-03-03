@@ -16,19 +16,19 @@ router.get("/order-details/:type/:id", validateToken, async (req, res) => {
         if (!details || details.length === 0) {
             res.json({ 
                 status: "error",
-                text: "Doesn't exist!" 
+                message: "Doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: `Get order details of order ${id} successfully.`,
+                message: `Get order details of order ${id} successfully.`,
                 payload: details
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -47,19 +47,19 @@ router.get("/:orderId/:dishId", validateToken, async (req, res) => {
         if (!detail) {
             res.json({ 
                 status: "error",
-                text: "Doesn't exist!" 
+                message: "Doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get detail Successfully.",
+                message: "Get detail Successfully.",
                 payload: detail
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -75,13 +75,13 @@ router.post("/add", validateToken, async (req, res) => {
                 detailRes.setDish(dish);
                 res.json({
                     status: "success",
-                    text: "Add Successfully"
+                    message: "Add Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -101,7 +101,7 @@ router.put("/update", validateToken, async (req, res) => {
         if (!detail) {
             res.json({
                 status: "error",
-                text: "This type doesn't exist!"
+                message: "This type doesn't exist!"
             });
         }
         OrderDetails.update(
@@ -118,13 +118,13 @@ router.put("/update", validateToken, async (req, res) => {
                 detailRes.setDish(dish);
                 res.json({
                     status: "success",
-                    text: "Update Successfully"
+                    message: "Update Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -142,7 +142,7 @@ router.put("/:toggle/:orderId/:dishId", validateToken, async (req, res) => {
         if (!detail) {
             res.json({
                 status: "error",
-                text: "This detail doesn't exist!"
+                message: "This detail doesn't exist!"
             });
         }
         OrderDetails.update(
@@ -152,13 +152,13 @@ router.put("/:toggle/:orderId/:dishId", validateToken, async (req, res) => {
             .then(detailRes => {
                 res.json({
                     status: "success",
-                    text: "Successfully"
+                    message: "Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });

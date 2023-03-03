@@ -14,19 +14,19 @@ router.get("/:type", async (req, res) => {
         if (!rates || rates.length === 0) {
             res.json({ 
                 status: "error",
-                text: "These rates doesn't exist!" 
+                message: "These rates doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get rates successfully.",
+                message: "Get rates successfully.",
                 payload: rates
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -39,19 +39,19 @@ router.get("/:id", async (req, res) => {
         if (!rate) {
             res.json({ 
                 status: "error",
-                text: "This rate doesn't exist!" 
+                message: "This rate doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get rate successfully.",
+                message: "Get rate successfully.",
                 payload: rate
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -67,13 +67,13 @@ router.post("/add", validateToken, async (req, res) => {
                 rateRes.setDish(dish);
                 res.json({
                     status: "success",
-                    text: "Add Successfully"
+                    message: "Add Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -88,7 +88,7 @@ router.put("/update/:id", validateToken, async (req, res) => {
         if (!rate) {
             res.json({
                 status: "error",
-                text: "This rate doesn't exist!"
+                message: "This rate doesn't exist!"
             });
         }
         Rate.update(
@@ -100,13 +100,13 @@ router.put("/update/:id", validateToken, async (req, res) => {
                 rateRes.setDish(dish);
                 res.json({
                     status: "success",
-                    text: "Update Successfully"
+                    message: "Update Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -118,7 +118,7 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
         if (!rate) {
             res.json({
                 status: "error",
-                text: "This rate doesn't exist!"
+                message: "This rate doesn't exist!"
             });
         }
         Rate.update(
@@ -128,13 +128,13 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
             .then(rateRes => {
                 res.json({
                     status: "success",
-                    text: "Successfully"
+                    message: "Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });

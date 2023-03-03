@@ -19,7 +19,10 @@ app.use("/api/order-details", controller.orderDetailsRouter);
 app.use("/api/rate", controller.ratesRouter);
 app.use("/api/payment", controller.paymentsRouter);
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({
+    force : false,
+    alter : true
+}).then(() => {
     app.listen(3001, () => {
         console.log("Server running on port 3001");
     });

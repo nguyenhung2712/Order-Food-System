@@ -1,20 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-    const Rate = sequelize.define("Rate", {
+    const Follow = sequelize.define("Follow", {
         id: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
 			primaryKey: true
 		},
-		score: {
-			type: DataTypes.DECIMAL,
-			allowNull: false,
-		},
-		remarks: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		ratingDate: {
+		folowedDate: {
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
@@ -22,17 +14,17 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	},
+    }, 
 	{
 		timestamps: false,
 		createdAt: false,
 		updatedAt: false,
 	});
 
-	Rate.associate = (models) => {
-		Rate.belongsTo(models.Dish);
-		Rate.belongsTo(models.User);
+	Follow.associate = (models) => {
+		Follow.belongsTo(models.User, { foreignKey: 'followedId' });
+		Follow.belongsTo(models.User, { foreignKey: 'followingId' });
     };
 
-    return Rate;
+    return Follow;
 };

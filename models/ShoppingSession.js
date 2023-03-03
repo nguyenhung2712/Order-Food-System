@@ -1,20 +1,16 @@
 module.exports = (sequelize, DataTypes) => {
-    const Rate = sequelize.define("Rate", {
+    const ShoppingSession = sequelize.define("ShoppingSession", {
         id: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
 			primaryKey: true
 		},
-		score: {
-			type: DataTypes.DECIMAL,
+		total: {
+			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-		remarks: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		ratingDate: {
+		createdAt: {
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
@@ -22,17 +18,19 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	},
+    },
 	{
 		timestamps: false,
 		createdAt: false,
 		updatedAt: false,
 	});
 
-	Rate.associate = (models) => {
-		Rate.belongsTo(models.Dish);
-		Rate.belongsTo(models.User);
+	ShoppingSession.associate = (models) => {
+		ShoppingSession.hasOne(models.User, {
+			onDelete: "cascade",
+		});
+		ShoppingSession.hasMany(models.CartItems);
     };
 
-    return Rate;
+    return ShoppingSession;
 };

@@ -13,19 +13,19 @@ router.get("/:type", async (req, res) => {
         if (!dishes || dishes.length === 0) {
             res.json({ 
                 status: "error",
-                text: "Doesn't Exist!" 
+                message: "Doesn't Exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get dishes successfully.",
+                message: "Get dishes successfully.",
                 payload: dishes
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -37,19 +37,19 @@ router.get("/:id", async (req, res) => {
         if (!dish) {
             res.json({ 
                 status: "error",
-                text: "Dish Doesn't Exist!" 
+                message: "Dish Doesn't Exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get dish successfully.",
+                message: "Get dish successfully.",
                 payload: dish
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -61,7 +61,7 @@ router.post("/add", validateToken, async (req, res) => {
         if (!dishType) {
             res.json({
                 status: "error",
-                text: "This type doesn't exist!"
+                message: "This type doesn't exist!"
             });
         }
         Dish.create({
@@ -72,13 +72,13 @@ router.post("/add", validateToken, async (req, res) => {
                 dishRes.setDishType(dishType);
                 res.json({
                     status: "success",
-                    text: "Add Successfully"
+                    message: "Add Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -92,7 +92,7 @@ router.put("/update/:id", validateToken, async (req, res) => {
         if (!dish) {
             res.json({
                 status: "error",
-                text: "Dish doesn't exist!"
+                message: "Dish doesn't exist!"
             });
         }
         Dish.update(
@@ -106,13 +106,13 @@ router.put("/update/:id", validateToken, async (req, res) => {
                 dishRes.setDishType(dishType);
                 res.json({
                     status: "success",
-                    text: "Update Successfully"
+                    message: "Update Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -124,7 +124,7 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
         if (!dish) {
             res.json({
                 status: "error",
-                text: "Dish doesn't exist!"
+                message: "Dish doesn't exist!"
             });
         }
         Dish.update(
@@ -134,13 +134,13 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
             .then(dishRes => {
                 res.json({
                     status: "success",
-                    text: "Successfully"
+                    message: "Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });

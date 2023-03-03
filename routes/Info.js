@@ -13,19 +13,19 @@ router.get("/:type", validateToken, async (req, res) => {
         if (!infos || infos.length === 0) {
             res.json({ 
                 status: "error",
-                text: "These infos doesn't exist!" 
+                message: "These infos doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get infos successfully.",
+                message: "Get infos successfully.",
                 payload: infos
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -38,19 +38,19 @@ router.get("/:id", validateToken, async (req, res) => {
         if (!info) {
             res.json({ 
                 status: "error",
-                text: "This info doesn't exist!" 
+                message: "This info doesn't exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get info successfully.",
+                message: "Get info successfully.",
                 payload: info
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -62,7 +62,7 @@ router.put("/update/:id", validateToken, async (req, res) => {
         if (!info) {
             res.json({
                 status: "error",
-                text: "This info doesn't exist!"
+                message: "This info doesn't exist!"
             });
         }
         Info.update(
@@ -72,13 +72,13 @@ router.put("/update/:id", validateToken, async (req, res) => {
             .then(infoRes => {
                 res.json({
                     status: "success",
-                    text: "Update Successfully"
+                    message: "Update Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -90,7 +90,7 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
         if (!info) {
             res.json({
                 status: "error",
-                text: "This info doesn't exist!"
+                message: "This info doesn't exist!"
             });
         }
         Info.update(
@@ -100,13 +100,13 @@ router.put("/:toggle/:id", validateToken, async (req, res) => {
             .then(infoRes => {
                 res.json({
                     status: "success",
-                    text: "Successfully"
+                    message: "Successfully"
                 });
             });
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });

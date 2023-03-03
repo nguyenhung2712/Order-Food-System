@@ -1,10 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const { validateToken } = require("../middlewares/Auth");
+const { validateToken, isAdmin } = require("../middlewares/Auth");
 const router = express.Router();
-const { User } = require("../models");
+const { User, Token } = require("../models");
 
-router.get("/:type", validateToken, async (req, res) => {
+router.get("/:type", [validateToken], async (req, res) => {
     try {
         const type = req.params.type;
         const users = await User.findAll({
@@ -15,19 +15,19 @@ router.get("/:type", validateToken, async (req, res) => {
         if (!users || users.length === 0) {
             res.json({ 
                 status: "error",
-                text: "Doesn't Exist!" 
+                message: "Doesn't Exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get users successfully.",
+                message: "Get users successfully.",
                 payload: users
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
@@ -39,40 +39,89 @@ router.get("/:id", validateToken, async (req, res) => {
         if (!user) {
             res.json({ 
                 status: "error",
-                text: "User Doesn't Exist!" 
+                message: "User Doesn't Exist!" 
             });
         } else {
             res.json({ 
                 status: "success",
-                text: "Get user successfully.",
+                message: "Get user successfully.",
                 payload: user
             });
         }
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
 
-router.put("/change-password/:id", validateToken, async (req, res) => {
+/* router.post("/change-password/:id/:token", validateToken, async (req, res) => {
     try {
-        const { oldPassword, newPassword } = req.body;
-        const id = req.params.id;
-        const user = await User.findByPk(id);
+		const { userId, token } = req.params;
+		const { password } = req.body;
+		const user = await User.findByPk(userId);
+        let currToken = await Token.findOne({ 
+			where: { 
+				UserId: user.id, 
+				token: token
+			} 
+		});
+
+		if (!currToken) {
+			return res.json({ 
+				status: "error",
+				message: "Invalid link" 
+			});
+		}
     
         if (!user) {
             res.json({ 
                 status: "error",
-                text: "User Doesn't Exist!" 
+                message: "User Doesn't Exist!" 
             });
+        } else {
+            bcrypt.hash(password, 10).then((hash) => {
+                User.update(
+                    { password: hash, },
+                    { where: { username: user.username } }
+                )
+                res.json({ 
+                    status: "success",
+                    message: "Change account's password successfully.",
+                });
+            });
+        }
+    } catch (err) {
+        res.json({
+            status: "error",
+            message: err
+        });
+    }
+}); */
+
+router.put("/change-password/:id", validateToken, async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        const user = await User.findByPk(req.params.id);
+
+        if (!user) {
+            res.json({ 
+                status: "error",
+                message: "User Doesn't Exist!" 
+            });
+        }
+
+        if (user.is2FA) {
+            
+            // send
+
         } else {
             bcrypt.compare(oldPassword, user.password).then(async (match) => {
                 if (!match) {
                     res.json({ 
                         status: "error",
-                        text: "Wrong Password Entered!" 
+                        message: "Wrong Password Entered!" 
                     });
                 }
                 bcrypt.hash(newPassword, 10).then((hash) => {
@@ -82,7 +131,7 @@ router.put("/change-password/:id", validateToken, async (req, res) => {
                     )
                     res.json({ 
                         status: "success",
-                        text: "Change account's password successfully.",
+                        message: "Change account's password successfully.",
                     });
                 });
             });
@@ -90,9 +139,11 @@ router.put("/change-password/:id", validateToken, async (req, res) => {
     } catch (err) {
         res.json({
             status: "error",
-            text: err
+            message: err
         });
     }
 });
+
+
 
 module.exports = router;

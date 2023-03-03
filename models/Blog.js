@@ -1,20 +1,20 @@
 module.exports = (sequelize, DataTypes) => {
-    const Rate = sequelize.define("Rate", {
+    const Blog = sequelize.define("Blog", {
         id: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
 			primaryKey: true
 		},
-		score: {
-			type: DataTypes.DECIMAL,
-			allowNull: false,
-		},
-		remarks: {
+		header: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		ratingDate: {
+		content: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		publishedDate: {
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
@@ -22,17 +22,22 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	},
+    }, 
 	{
 		timestamps: false,
 		createdAt: false,
 		updatedAt: false,
 	});
 
-	Rate.associate = (models) => {
-		Rate.belongsTo(models.Dish);
-		Rate.belongsTo(models.User);
+	Blog.associate = (models) => {
+		Blog.hasMany(models.BlogPref, { foreignKey: 'blogId' });
+		Blog.hasMany(models.Comment , {
+			onDelete: "cascade",
+		});
+        Blog.belongsTo(models.User, {
+			onDelete: "cascade",
+		});
     };
 
-    return Rate;
+    return Blog;
 };

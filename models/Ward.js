@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-    const Dish = sequelize.define("Dish", {
-        id: {
+    const Ward = sequelize.define("Ward", {
+        code: {
 			type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
 			allowNull: false,
@@ -10,28 +10,20 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		price: {
+		name_en: {
 			type: DataTypes.DECIMAL,
 			allowNull: false,
 		},
-		image: {
+		full_name: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		ingredients: {
+		full_name_en: {
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		description: {
+		code_name: {
 			type: DataTypes.STRING,
-			allowNull: false,
-		},
-        status: {
-			type: DataTypes.INTEGER,
-			allowNull: false,
-		},
-		isEnabled: {
-			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
     }, 
@@ -41,16 +33,12 @@ module.exports = (sequelize, DataTypes) => {
 		updatedAt: false,
 	});
 
-	Dish.associate = (models) => {
-		Dish.hasMany(models.OrderDetails, { foreignKey: 'dishId'});
-		Dish.hasMany(models.Rate , {
+	Ward.associate = (models) => {
+		Ward.hasMany(models.Address, {
 			onDelete: "cascade",
 		});
-		Dish.hasOne(models.CartItems, {
-			onDelete: "cascade",
-		});
-		Dish.belongsTo(models.DishType);
+		Ward.belongsTo(models.District);
     };
 
-    return Dish;
+    return Ward;
 };
