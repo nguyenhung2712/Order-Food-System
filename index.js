@@ -1,29 +1,21 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
+require("dotenv").config()
+require('./connectdb')
 
+const app = express();
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"]
+}));
 app.use(express.json());
-app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 
-const db = require("./models");
+//routes
+const initRoutes = require("./src/routes");
+initRoutes(app);
 
-// Router
-const controller = require("./routes");
-app.use("/api/auth", controller.authsRouter);
-app.use("/api/user", controller.usersRouter);
-app.use("/api/info", controller.infosRouter);
-app.use("/api/dish", controller.dishesRouter);
-app.use("/api/dishtype", controller.dishTypesRouter);
-app.use("/api/order", controller.ordersRouter);
-app.use("/api/order-details", controller.orderDetailsRouter);
-app.use("/api/rate", controller.ratesRouter);
-app.use("/api/payment", controller.paymentsRouter);
-
-db.sequelize.sync({
-    force : false,
-    alter : true
-}).then(() => {
-    app.listen(3001, () => {
-        console.log("Server running on port 3001");
-    });
-});
+const PORT = process.env.PORT || 8888;
+const listener = app.listen(PORT, () => {
+    console.log('Server is running on the port ' + listener.address().port);
+})
