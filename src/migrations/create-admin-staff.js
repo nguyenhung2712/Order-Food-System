@@ -21,7 +21,6 @@ module.exports = {
                 type: Sequelize.STRING
             },
             lastLogin: {
-                allowNull: false,
                 type: Sequelize.DATE
             },
             deletedAt: {

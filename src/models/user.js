@@ -9,15 +9,15 @@ module.exports = (sequelize, DataTypes) => {
 
 			User.hasOne(models.Cart);
             User.hasOne(models.Token);
-            
+            User.hasOne(models.Conversation);
+
 			User.hasMany(models.UserAddress, { foreignKey: 'userId' });
 			User.hasMany(models.Rate, { foreignKey: 'userId' });
 			User.hasMany(models.Order, { foreignKey: 'userId' });
-			User.hasMany(models.Notification, { foreignKey: 'userId' });
+			User.hasMany(models.Notification, { foreignKey: 'receiverId' });
 			User.hasMany(models.Blog, { foreignKey: 'userId' });
 			User.hasMany(models.Comment, { foreignKey: 'userId' });
 			User.hasMany(models.CommentRep, { foreignKey: 'userId' });
-			User.hasMany(models.Conversation, { foreignKey: 'userId' });
 			User.hasMany(models.Message, { foreignKey: 'userId' });
 			User.hasMany(models.Follow, { foreignKey: 'followingId' });
 			User.hasMany(models.Follow, { foreignKey: 'followedId' });

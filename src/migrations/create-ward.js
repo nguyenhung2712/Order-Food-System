@@ -7,13 +7,13 @@ module.exports = {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
-				type: Sequelize.INTEGER
+				type: Sequelize.STRING
 			},
-			provinceName: {
+			wardName: {
 				allowNull: false,
 				type: Sequelize.STRING
 			},
-			provinceNameEn: {
+			wardNameEn: {
 				allowNull: false,
 				type: Sequelize.STRING
 			},
@@ -29,21 +29,22 @@ module.exports = {
 				allowNull: false,
 				type: Sequelize.STRING
 			},
-			createdAt: {
-				allowNull: false,
-				type: Sequelize.DATE
-			},
-			updatedAt: {
-				allowNull: false,
-				type: Sequelize.DATE
-			},
 			districtId: {
 				allowNull: false,
-				type: Sequelize.INTEGER,
+				type: Sequelize.STRING,
 				references: {
 					model: 'Districts',
 					key: 'id',
 					as: 'districtId',
+				}
+			},
+            unitId: {
+				allowNull: false,
+				type: Sequelize.INTEGER,
+				references: {
+					model: 'Unit',
+					key: 'id',
+					as: 'unitId',
 				}
 			},
 		});

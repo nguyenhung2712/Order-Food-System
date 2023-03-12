@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	}
 	District.init({
-		provinceName: DataTypes.STRING,
-		provinceNameEn: DataTypes.STRING,
+		districtName: DataTypes.STRING,
+		districtNameEn: DataTypes.STRING,
 		fullname: DataTypes.STRING,
 		fullnameEn: DataTypes.STRING,
 		codeName: DataTypes.STRING

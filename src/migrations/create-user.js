@@ -41,9 +41,12 @@ module.exports = {
 				allowNull: false
 			},
 			lastLogin: {
-				type: Sequelize.DATE,
-				allowNull: false
+				type: Sequelize.DATE
 			},
+            is2Fa: {
+                type: Sequelize.TINYINT,
+				allowNull: false
+            },
 			deletedAt: {
 				type: Sequelize.DATE
 			},

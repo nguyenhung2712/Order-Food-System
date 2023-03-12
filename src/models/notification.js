@@ -5,11 +5,10 @@ const {
 module.exports = (sequelize, DataTypes) => {
     class Notification extends Model {
         static associate(models) {
-            Notification.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
+            Notification.belongsTo(models.User, { foreignKey: 'receiverId', targetKey: 'id', as: 'receiver' });
         }
     }
     Notification.init({
-        sentTime: DataTypes.DATE,
         isRead: DataTypes.TINYINT,
         checkTime: DataTypes.DATE,
         notifyType: DataTypes.STRING,

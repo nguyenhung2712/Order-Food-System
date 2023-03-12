@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	}
 	Ward.init({
-		provinceName: DataTypes.STRING,
-		provinceNameEn: DataTypes.STRING,
+		wardName: DataTypes.STRING,
+		wardNameEn: DataTypes.STRING,
 		fullname: DataTypes.STRING,
 		fullnameEn: DataTypes.STRING,
 		codeName: DataTypes.STRING

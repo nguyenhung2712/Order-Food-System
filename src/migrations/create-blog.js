@@ -24,10 +24,6 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.TINYINT
             },
-            publishedTime: {
-                allowNull: false,
-                type: Sequelize.DATE
-            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE

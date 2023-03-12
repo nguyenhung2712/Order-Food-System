@@ -2,22 +2,14 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable('Provinces', {
+		await queryInterface.createTable('Units', {
 			id: {
 				allowNull: false,
 				autoIncrement: true,
 				primaryKey: true,
-				type: Sequelize.STRING
+				type: Sequelize.INTEGER
 			},
-			provinceName: {
-				type: Sequelize.STRING,
-				allowNull: false
-			},
-			provinceNameEn: {
-				type: Sequelize.STRING,
-				allowNull: false
-			},
-			fullname: {
+            fullname: {
 				type: Sequelize.STRING,
 				allowNull: false
 			},
@@ -25,31 +17,25 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false
 			},
+			shortName: {
+				type: Sequelize.STRING,
+				allowNull: false
+			},
+			shortNameEn: {
+				type: Sequelize.STRING,
+				allowNull: false
+			},
 			codeName: {
 				type: Sequelize.STRING,
 				allowNull: false
 			},
-            unitId: {
-				allowNull: false,
-				type: Sequelize.INTEGER,
-				references: {
-					model: 'Unit',
-					key: 'id',
-					as: 'unitId',
-				}
-			},
-            regionId: {
-				allowNull: false,
-				type: Sequelize.INTEGER,
-				references: {
-					model: 'Regions',
-					key: 'id',
-					as: 'regionId',
-				}
-			},
+            codeNameEn: {
+				type: Sequelize.STRING,
+				allowNull: false
+			}
 		});
 	},
 	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable('Provinces');
+		await queryInterface.dropTable('Units');
 	}
-};
+}; 

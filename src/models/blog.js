@@ -17,7 +17,6 @@ module.exports = (sequelize, DataTypes) => {
         content: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT,
-        publishedTime: DataTypes.DATE
     }, {
         sequelize,
         modelName: 'Blog',

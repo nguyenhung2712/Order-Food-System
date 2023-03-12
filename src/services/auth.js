@@ -28,6 +28,7 @@ const register = ({ ...reqBody}) => new Promise(async (resolve, reject) => {
                 .then(async (response) => {
                     let user = response.payload;
                     await Cart.create({
+                        id: uuidv4(),
                         total: 0,
                         deletedAt: null,
                         status: 1,

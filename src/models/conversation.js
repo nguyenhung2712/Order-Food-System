@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Conversation.belongsTo(models.AdminStaff, { foreignKey: 'adminId', targetKey: 'id', as: 'admin' });
 
-            Conversation.hasOne(models.User);
+            Conversation.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
 
 			Conversation.hasMany(models.Message, { foreignKey: 'converId' });
         }

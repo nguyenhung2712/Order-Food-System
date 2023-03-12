@@ -31,7 +31,6 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-				allowNull: false,
 				type: Sequelize.UUID,
 				references: {
 					model: 'Users',
@@ -40,7 +39,6 @@ module.exports = {
 				}
 			},
             adminId: {
-				allowNull: false,
 				type: Sequelize.UUID,
 				references: {
 					model: 'AdminStaffs',

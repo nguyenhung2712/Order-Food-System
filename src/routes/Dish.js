@@ -4,7 +4,7 @@ const router = express.Router();
 const { Auth, VerifyExists } = require("../middlewares");
 const { dishController } = require("../controllers");
 
-router.get('/all', dishController.getAll);
+router.get('/all', [VerifyExists.areExistedDishes], dishController.getAll);
 router.get('/:id', VerifyExists.isExistedDish, dishController.getById);
 router.post('/create', [Auth.validateToken, VerifyExists.isExistedDishType], dishController.createDish);
 router.put('/update/:id', 

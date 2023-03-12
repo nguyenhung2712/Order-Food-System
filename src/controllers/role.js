@@ -1,9 +1,9 @@
-const { dishService } = require('../services');
+const { roleService } = require('../services');
 const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
-        const response = await dishService.getAll();
+        const response = await roleService.getAll();
         res.json(response);
     } catch (error) {
         return interalServerError(res);
@@ -12,38 +12,37 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
     try {
-        const response = await dishService.getById(req.params.id);
+        const response = await roleService.getById(req.params.id);
         res.json(response);
     } catch (error) {
         return interalServerError(res);
     }
 }
 
-const createDish = async (req, res) => {
+const createRole = async (req, res) => {
     try {
-        const { typeId, ...body } = req.body;
-        const response = await dishService.createDish(typeId, body);
+        const response = await roleService.createRole(req.body);
         res.json(response);
     } catch (error) {
         return interalServerError(res);
     }
 }
 
-const updateDish = async (req, res) => {
+const updateRole = async (req, res) => {
     try {
-        const response = await dishService.updateDish(req.params.id, req.body);
+        const response = await roleService.updateRole(req.params.id, req.body);
         res.json(response);
     } catch (error) {
         return interalServerError(res);
     }
 }
 
-const toggleDish = async (req, res) => {
+const toggleRole = async (req, res) => {
     try {
         const { type, id } = req.params;
-        const response =  type === "delete"
-        ? await dishService.deleteDish(id)
-        : await dishService.recoverDish(id);
+        const response = type === "delete"
+        ? await roleService.deleteRole(id)
+        : await roleService.recoverRole(id);
         res.json(response);
     } catch (error) {
         return interalServerError(res);
@@ -53,7 +52,7 @@ const toggleDish = async (req, res) => {
 module.exports = {
     getAll,
     getById,
-    createDish,
-    updateDish,
-    toggleDish
+    createRole,
+    updateRole,
+    toggleRole
 }

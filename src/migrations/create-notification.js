@@ -9,7 +9,7 @@ module.exports = {
                 type: Sequelize.UUID,
 				defaultValue: Sequelize.UUIDV4
             },
-            sentTime: {
+            createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE
             },
@@ -18,11 +18,10 @@ module.exports = {
                 type: Sequelize.TINYINT
             },
             checkTime: {
-                allowNull: false,
                 type: Sequelize.DATE
             },
             notifyType: {
-                allowNull: false,
+                allowNull: false,   
                 type: Sequelize.STRING
             },
             deletedAt: {
@@ -39,10 +38,6 @@ module.exports = {
             content: {
                 allowNull: false,
                 type: Sequelize.STRING
-            },
-            createdAt: {
-                allowNull: false,
-                type: Sequelize.DATE
             },
             updatedAt: {
                 allowNull: false,

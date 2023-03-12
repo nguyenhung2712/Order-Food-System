@@ -8,6 +8,18 @@ const controller = {
     paymentController: require('./payment'),
     orderController: require('./order'),
     orderDetailController: require('./orderdetail'),
+    blogController: require('./blog'),
+    commentController: require('./comment'),
+    commentRepController: require('./commentrep'),
+    notifController: require('./notification'),
+    followController: require('./follow'),
+    locationController: require('./location'),
+    addressController: require('./address'),
+    adminController: require('./admin'),
+    roleController: require('./role'),
+    permissController: require('./permiss'),
+    messageController: require('./message'),
+    converController: require('./conver'),
 }
 
 module.exports = controller;

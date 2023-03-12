@@ -1,6 +1,6 @@
 const middlewares = {
     Auth: require('./Auth'),
-    VerifyExists: require('./VerifyExists'),
+    VerifyExists: require('./VerifyExisted'),
     VerifySignup: require('./VerifySignup'),
 }
 

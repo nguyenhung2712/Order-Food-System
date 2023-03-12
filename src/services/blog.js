@@ -1,17 +1,14 @@
-const { User, Blog } = require("../models");
+const { Blog } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
         const response = await Blog.findAll();
-        if (!response || response.length === 0) {
-            reject({
-                status: "error",
-                message: "Don't Exist!" 
-            });
-        } else {
-            
-        }
+        resolve({
+            status: "success",
+            message: "Get blogs successfully.",
+            payload: response
+        });
     } catch (error) {
         reject(error);
     }
@@ -22,18 +19,11 @@ const getByUserId = (userId) => new Promise(async (resolve, reject) => {
         const response = await Blog.findAll({
             where: { userId }
         });
-        if (!response || response.length === 0) {
-            reject({ 
-                status: "error",
-                message: "Don't Exist!" 
-            });
-        } else {
-            resolve({ 
-                status: "success",
-                message: "Get blogs successfully.",
-                payload: response
-            });
-        }
+        resolve({ 
+            status: "success",
+            message: "Get blogs successfully.",
+            payload: response
+        });
     } catch (error) {
         reject(error);
     }
@@ -44,18 +34,11 @@ const getById = (blogId) => new Promise(async (resolve, reject) => {
         const blog = await Blog.findOne({
             where: { id: blogId }
         });
-        if (!blog) {
-            reject({ 
-                status: "error",
-                message: "Blog Doesn't Exist!" 
-            });
-        } else {
-            resolve({ 
-                status: "success",
-                message: "Get blog successfully.",
-                payload: blog
-            });
-        }
+        resolve({ 
+            status: "success",
+            message: "Get blog successfully.",
+            payload: blog
+        });
     } catch (error) {
         reject(error);
     }
@@ -63,21 +46,13 @@ const getById = (blogId) => new Promise(async (resolve, reject) => {
 
 const createBlog = (userId, blogBody) => new Promise(async (resolve, reject) => {
     try {
-        const user = await User.findByPk(userId);
-
-        if (!user) {
-            reject({ 
-                status: "error",
-                message: "User Doesn't Exist!" 
-            });
-        }
         await Blog.create(
             {
                 id: uuidv4(),
                 ...blogBody,
                 deletedAt: null,
                 status: 1,
-                userId: userId
+                userId
             }
         )
             .then(blog => {
@@ -94,15 +69,6 @@ const createBlog = (userId, blogBody) => new Promise(async (resolve, reject) => 
 
 const updateBlog = (blogId, blogBody) => new Promise(async (resolve, reject) => {
     try {
-        const blog = await Blog.findOne({
-            where: { id: blogId }
-        });
-        if (!blog) {
-            reject({ 
-                status: "error",
-                message: "Blog Doesn't Exist!" 
-            });
-        }
         await Blog.update(
             { ...blogBody },
             { where: { id: blogId } }
@@ -121,16 +87,6 @@ const updateBlog = (blogId, blogBody) => new Promise(async (resolve, reject) => 
 
 const deleteBlog = (blogId) => new Promise(async (resolve, reject) => {
     try {
-        const dish = await Dish.findOne({
-            where: { id: dishId }
-        });
-        if (!dish) {
-            reject({ 
-                status: "error",
-                message: "Dish Doesn't Exist!" 
-            });
-        }
-
         await Blog.update(
             {
                 deletedAt: new Date(),
@@ -152,16 +108,6 @@ const deleteBlog = (blogId) => new Promise(async (resolve, reject) => {
 
 const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
     try {
-        const dish = await Dish.findOne({
-            where: { id: blogId }
-        });
-        if (!dish) {
-            reject({ 
-                status: "error",
-                message: "Dish Doesn't Exist!" 
-            });
-        }
-
         await Blog.update(
             {
                 deletedAt: null,
