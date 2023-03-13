@@ -1,4 +1,4 @@
-const { Blog } = require("../models");
+const { Blog, Like_Blog } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
@@ -127,6 +127,38 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
     }
 });
 
+const interactBlog = (userId, blogId) => new Promise(async (resolve, reject) => {
+    try {
+        await Like_Blog.findOrCreate({ 
+            where: { userId, blogId },
+            default: { 
+                userId, blogId, 
+                deletedAt: null,
+                status: 1
+            }
+        })
+            .then(async (interact, isExisted) => {
+                let updatedInteraction;
+                if (isExisted) {
+                    updatedInteraction = await Like_Blog.update(
+                        {
+                            deletedAt: interact.deletedAt ? new Date() : null,
+                            status: interact.status === 1 ? 0 : 1
+                        },
+                        { where: { userId, blogId, } }
+                    );
+                }
+                resolve({ 
+                    status: "success",
+                    message: "Interact blog successfully.",
+                    payload: updatedInteraction ? updatedInteraction : interact
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+})
+
 module.exports = {
     getAll,
     getById,
@@ -134,5 +166,6 @@ module.exports = {
     createBlog,
     updateBlog,
     deleteBlog,
-    recoverBlog
+    recoverBlog,
+    interactBlog
 }

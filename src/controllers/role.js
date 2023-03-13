@@ -49,10 +49,38 @@ const toggleRole = async (req, res) => {
     }
 }
 
+const getAdminRoleByAdminId = async (req, res) => {
+    try {
+        const response = await roleService.getAdminRoleByAdminId(req.params.id);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
+const cdrAdminRole = async (req, res) => {
+    try {
+        const type = req.params.type;
+        const { adminId, roleId } = req.body
+        let response;
+        switch(type) {
+            case "create": response = await roleService.createAdminRole(adminId, roleId); break;
+            case "delete": response = await roleService.deleteAdminRole(adminId, roleId); break;
+            case "recover": response = await roleService.recoverAdminRole(adminId, roleId); break;
+        }
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
 module.exports = {
     getAll,
     getById,
     createRole,
     updateRole,
-    toggleRole
+    toggleRole,
+
+    getAdminRoleByAdminId,
+    cdrAdminRole
 }

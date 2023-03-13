@@ -5,11 +5,14 @@ const {
 module.exports = (sequelize, DataTypes) => {
     class Like_Blog extends Model {
         static associate(models) {
-            Like_Blog.belongsTo(models.User, { foreignKey: 'followedId', targetKey: 'id', as: 'followed' });
-            Like_Blog.belongsTo(models.User, { foreignKey: 'followingId', targetKey: 'id', as: 'following' });
+            Like_Blog.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
+            Like_Blog.belongsTo(models.Blog, { foreignKey: 'blogId', targetKey: 'id', as: 'blog' });
         }
     }
-    Like_Blog.init({}, {
+    Like_Blog.init({
+        deletedAt: DataTypes.DATE,
+        status: DataTypes.TINYINT
+    }, {
         sequelize,
         modelName: 'Like_Blog',
     });

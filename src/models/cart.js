@@ -10,7 +10,6 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     Cart.init({
-        total: DataTypes.DECIMAL,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT
     }, {

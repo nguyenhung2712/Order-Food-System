@@ -58,11 +58,22 @@ const toggleBlog = async (req, res) => {
     }
 }
 
+const interactBlog = async (req, res) => {
+    try {
+        const { userId, blogId } = req.params;
+        const response = await blogService.interactBlog(userId, blogId);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
 module.exports = {
     getAll,
     getByUserId,
     getById,
     createBlog,
     updateBlog,
-    toggleBlog
+    toggleBlog,
+    interactBlog
 }

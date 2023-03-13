@@ -1,4 +1,4 @@
-const { Role } = require("../models");
+const { Role, Admin_Role } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
@@ -111,11 +111,94 @@ const recoverRole = (roleId) => new Promise(async (resolve, reject) => {
     }
 });
 
+const getAdminRoleByAdminId = (adminId) => new Promise(async (resolve, reject) => {
+    try {
+        await Admin_Role.findAll({ where: { adminId } })
+            .then(role => {
+                resolve({ 
+                    status: "success",
+                    message: "Get admin's roles successfully.",
+                    payload: role
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const createAdminRole = (adminId, roleId) => new Promise(async (resolve, reject) => {
+    try {
+        await Admin_Role.create(
+            {
+                adminId, roleId,
+                deletedAt: null,
+                status: 1
+            }
+        )
+            .then(role => {
+                resolve({ 
+                    status: "success",
+                    message: "Create admin's role successfully.",
+                    payload: role
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const deleteAdminRole = (adminId, roleId) => new Promise(async (resolve, reject) => {
+    try {
+        await Admin_Role.update(
+            {
+                deletedAt: new Date(),
+                status: 0
+            },
+            { where: { adminId, roleId } }
+        )
+            .then(role => {
+                resolve({ 
+                    status: "success",
+                    message: "Delete admin's role successfully.",
+                    payload: role
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const recoverAdminRole = (adminId, roleId) => new Promise(async (resolve, reject) => {
+    try {
+        await Admin_Role.update(
+            {
+                deletedAt: null,
+                status: 1
+            },
+            { where: { adminId, roleId } }
+        )
+            .then(role => {
+                resolve({ 
+                    status: "success",
+                    message: "Recover admin's role successfully.",
+                    payload: role
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     getAll,
     getById,
     createRole,
     updateRole,
     deleteRole,
-    recoverRole
+    recoverRole,
+
+    getAdminRoleByAdminId,
+    createAdminRole,
+    deleteAdminRole,
+    recoverAdminRole
 }

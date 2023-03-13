@@ -60,11 +60,58 @@ const toggleAddress = async (req, res) => {
     }
 }
 
+const getUserAddressById = async (req, res) => {
+    try {
+        const response = await addressService.getUserAddressById(req.params.id);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
+const createUserAddress = async (req, res) => {
+    try {
+        const { userId, addressId } = req.body;
+        const response = await addressService.createUserAddress(userId, addressId);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
+const updateUserAddress = async (req, res) => {
+    try {
+        const { userId, addressId, newAddressId } = req.body;
+        const response = await addressService.updateUserAddress(userId, addressId, newAddressId);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
+const toggleUserAddress = async (req, res) => {
+    try {
+        const { type } = req.params;
+        const { userId, addressId } = req.body;
+        const response = type === "delete"
+        ? await addressService.deleteUserAddress(userId, addressId)
+        : await addressService.recoverUserAddress(userId, addressId);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
 module.exports = {
     getAll,
     getByFKId,
     getById,
     createAddress,
     updateAddress,
-    toggleAddress
+    toggleAddress,
+
+    getUserAddressById,
+    createUserAddress,
+    updateUserAddress,
+    toggleUserAddress
 }

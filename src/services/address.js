@@ -1,4 +1,4 @@
-const { Address } = require("../models");
+const { Address, UserAddress } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
@@ -133,6 +133,105 @@ const recoverAddress = (addressId) => new Promise(async (resolve, reject) => {
     }
 });
 
+const getUserAddressById = (userId) => new Promise(async (resolve, reject) => {
+    try {
+        await UserAddress.findAll({
+            where: { userId }
+        })
+            .then(addresses => {
+                resolve({ 
+                    status: "success",
+                    message: "Get addresses successfully.",
+                    payload: addresses
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const createUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
+    try {
+        const addresses = await getUserAddressById(userId);
+        await UserAddress.create({
+            userId, 
+            addressId,
+            deletedAt: null,
+            status: 1,
+            isDefault: (addresses || addresses.length) === 0 ? true : false
+        })
+            .then(address => {
+                resolve({ 
+                    status: "success",
+                    message: "Create user's address successfully.",
+                    payload: address
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const updateUserAddress = (userId, addressId, newAddressId) => new Promise(async (resolve, reject) => {
+    try {
+        await UserAddress.update(
+            { addressId: newAddressId },
+            { where: { userId, addressId } }
+        )
+            .then(address => {
+                resolve({ 
+                    status: "success",
+                    message: "Update user's address successfully.",
+                    payload: address
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const deleteUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
+    try {
+        await UserAddress.update(
+            { 
+                deletedAt: new Date(),
+                status: 1,
+            },
+            { where: { userId, addressId } }
+        )
+            .then(address => {
+                resolve({ 
+                    status: "success",
+                    message: "Delete user's address successfully.",
+                    payload: address
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const recoverUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
+    try {
+        await UserAddress.update(
+            { 
+                deletedAt: null,
+                status: 0,
+            },
+            { where: { userId, addressId } }
+        )
+            .then(address => {
+                resolve({ 
+                    status: "success",
+                    message: "Recover user's address successfully.",
+                    payload: address
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     getAll,
     getById,
@@ -140,5 +239,11 @@ module.exports = {
     createAddress,
     updateAddress,
     deleteAddress,
-    recoverAddress
+    recoverAddress,
+
+    getUserAddressById,
+    createUserAddress,
+    updateUserAddress,
+    deleteUserAddress,
+    recoverUserAddress
 }

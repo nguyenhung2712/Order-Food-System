@@ -7,7 +7,7 @@ const { addressController } = require("../controllers");
 router.get('/all', VerifyExists.areExistedAddresses, addressController.getAll);
 router.get('/fk', VerifyExists.isExistedLocation, addressController.getByFKId);
 router.get('/:id', VerifyExists.isExistedAddress, addressController.getById);
-router.post('/create', [Auth.validateToken, VerifyExists.isExistedLocation], addressController.createAddress);
+router.post('/create', [Auth.validateToken, VerifyExists.isExistedLocation, VerifyExists.isExistedAddressByL], addressController.createAddress);
 router.put('/update/:id', [Auth.validateToken, VerifyExists.isExistedAddress], addressController.updateAddress );
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedAddress], addressController.toggleAddress);
 

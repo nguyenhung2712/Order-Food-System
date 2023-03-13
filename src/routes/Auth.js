@@ -7,6 +7,8 @@ const session = require('express-session');
 
 const { authController } = require("../controllers");
 
+
+
 /* function isLoggedIn(req, res, next) {
     req.user ? next() : res.sendStatus(401);
 } */

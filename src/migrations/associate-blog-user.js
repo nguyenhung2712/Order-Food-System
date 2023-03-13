@@ -14,6 +14,13 @@ module.exports = {
                     allowNull: false,
                     type: Sequelize.DATE,
                 },
+                deletedAt: {
+                    type: Sequelize.DATE
+                },
+                status: {
+                    allowNull: false,
+                    type: Sequelize.TINYINT
+                },
                 userId: {
                     allowNull: false,
                     type: Sequelize.UUID,

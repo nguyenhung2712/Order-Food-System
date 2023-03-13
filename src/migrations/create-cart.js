@@ -9,10 +9,6 @@ module.exports = {
                 type: Sequelize.UUID,
 				defaultValue: Sequelize.UUIDV4
             },
-            total: {
-                allowNull: false,
-                type: Sequelize.DECIMAL
-            },
             deletedAt: {
                 type: Sequelize.DATE
             },

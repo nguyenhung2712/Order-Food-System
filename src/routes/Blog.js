@@ -13,5 +13,6 @@ router.put('/update/:id',
     blogController.updateBlog
 );
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedBlog], blogController.toggleBlog);
+router.post('/interact', [Auth.validateToken, VerifyExists.isExistedBlog, VerifyExists.isExistedUser], blogController.interactBlog);
 
 module.exports = router;

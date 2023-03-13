@@ -16,6 +16,19 @@ const getById = async (req, res) => {
     }
 }
 
+const getListsByFKId  = async (req, res) => {
+    try {
+        const { type, id } = req.params;
+        const response = type === "wards"
+        ? await locationService.getWardsByDistrictId(id)
+        : await locationService.getDistrictsByProvinceId(id);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
 module.exports = {
-    getById
+    getById,
+    getListsByFKId
 }

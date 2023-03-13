@@ -49,10 +49,38 @@ const togglePermiss = async (req, res) => {
     }
 }
 
+const getRolePermissionByAdminId = async (req, res) => {
+    try {
+        const response = await permissService.getRolePermissionByRoleId(req.params.id);
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
+const cdrRolePermission = async (req, res) => {
+    try {
+        const type = req.params.type;
+        const { permissionId, roleId } = req.body
+        let response;
+        switch(type) {
+            case "create": response = await permissService.createRolePermission(permissionId, roleId); break;
+            case "delete": response = await permissService.deleteRolePermission(permissionId, roleId); break;
+            case "recover": response = await permissService.recoverRolePermission(permissionId, roleId); break;
+        }
+        res.json(response);
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
 module.exports = {
     getAll,
     getById,
     createPermiss,
     updatePermiss,
-    togglePermiss
+    togglePermiss,
+
+    getRolePermissionByAdminId,
+    cdrRolePermission
 }

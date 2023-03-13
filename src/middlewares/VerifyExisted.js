@@ -503,7 +503,7 @@ const isExistedLocation = async (req, res, next) => {
         if (!response) {
             return res.status(404).json({
                 status: "error",
-                message: "Location Does't Exist!"
+                message: "Location Doesn't Exist!"
             });
         }
         next();
@@ -545,7 +545,24 @@ const isExistedLocation = async (req, res, next) => {
             });
     }
 }
-//areexistedlocations
+
+const areExistedLocations = async (req, res, next) => {
+    const { type, id } = req.params;
+    const response = type === "wards"
+        ? await Ward.findAll({ 
+            where: { districtId: id }
+        })
+        : await District.findAll({ 
+            where: { provinceId: id }
+        });
+    if (!response) {
+        return res.status(404).json({
+            status: "error",
+            message: "Don't Exist!"
+        });
+    }
+    next();
+}
 
 const isExistedAddress = async (req, res, next) => {
     const { id } = req.params.id;
@@ -557,6 +574,22 @@ const isExistedAddress = async (req, res, next) => {
                 return res.status(404).json({
                     status: "error",
                     message: "Address Doesn't Exist!"
+                });
+            }
+            next();
+        });
+}
+
+const isExistedAddressByL = async (req, res, next) => {
+    const { districtId, provinceId, wardId } = req.body;
+    await Address.findOne({ 
+        where: { districtId, provinceId, wardId }
+    })
+        .then(address => {
+            if (address) {
+                return res.status(404).json({
+                    status: "error",
+                    message: "Address Existed!"
                 });
             }
             next();
@@ -771,8 +804,10 @@ module.exports = {
     areExistedFollows,
 
     isExistedLocation,
+    areExistedLocations,
     isExistedAddress,
     areExistedAddresses,
+    isExistedAddressByL,
 
     isExistedPermiss,
     areExistedPermiss,
