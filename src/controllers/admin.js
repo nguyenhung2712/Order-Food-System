@@ -1,4 +1,6 @@
 const { adminService } = require('../services');
+const dataExporter = require('json2csv').Parser;
+
 const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
@@ -38,12 +40,16 @@ const updateStaff = async (req, res) => {
     }
 }
 
-const toggleStaff = async (req, res) => {
+const udraStaff = async (req, res) => {
     try {
         const { type, id } = req.params;
-        const response = type === "delete"
-        ? await adminService.deleteStaff(id)
-        : await adminService.recoverStaff(id);
+        let response;
+        switch(type) {
+            case "delete": response = await adminService.deleteStaff(id); break;
+            case "recover": response = await adminService.recoverStaff(id); break;
+            case "remove": response = await adminService.removeStaff(id); break;
+            case "approve": response = await adminService.approveStaff(id); break;
+        }
         res.json(response);
     } catch (error) {
         return interalServerError(res);
@@ -55,5 +61,5 @@ module.exports = {
     getById,
     createStaff,
     updateStaff,
-    toggleStaff
+    udraStaff
 }

@@ -9,7 +9,10 @@ module.exports = (sequelize, DataTypes) => {
             Role_Permission.belongsTo(models.Role, { foreignKey: 'roleId', targetKey: 'id', as: 'role' });
         }
     }
-    Role_Permission.init({}, {
+    Role_Permission.init({
+        deletedAt: DataTypes.DATE,
+        status: DataTypes.TINYINT
+    }, {
         sequelize,
         modelName: 'Role_Permission',
     });

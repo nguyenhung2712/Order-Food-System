@@ -5,9 +5,8 @@ const passport = require("passport");
 /* require("../utils/googleAuth"); */
 const session = require('express-session');
 
+const { VerifyUserUpsert } = require("../middlewares");
 const { authController } = require("../controllers");
-
-
 
 /* function isLoggedIn(req, res, next) {
     req.user ? next() : res.sendStatus(401);
@@ -46,8 +45,10 @@ router.get('/google/failure', (req, res) => {
     res.send('Failed to authenticate..');
 }); */
 
-router.post('/register', authController.register);
-router.post('/login', authController.login);
+router.get('/admin/profile', authController.staffProfile);
+router.post('/register/staff', authController.staffRegister);
+router.post('/register/user', [VerifyUserUpsert.checkExistedEmail], authController.userRegister);
+router.post('/login/:type', authController.login);
 router.put('/confirm-mail/:id/:token', authController.confirmMail);
 
 module.exports = router;

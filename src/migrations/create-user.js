@@ -10,8 +10,7 @@ module.exports = {
 				defaultValue: Sequelize.UUIDV4
 			},
 			username: {
-				type: Sequelize.STRING,
-				allowNull: false
+				type: Sequelize.STRING
 			},
 			email: {
 				type: Sequelize.STRING,
@@ -48,6 +47,9 @@ module.exports = {
 				allowNull: false
             },
 			deletedAt: {
+				type: Sequelize.DATE
+			},
+            disabledAt: {
 				type: Sequelize.DATE
 			},
 			status: {

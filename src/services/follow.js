@@ -67,6 +67,7 @@ const deleteFollow = (followId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: followId } }
         )
+            .then(() => Follow.findByPk(followId))
             .then(follow => {
                 resolve({ 
                     status: "success",
@@ -84,10 +85,11 @@ const recoverFollow = (followId) => new Promise(async (resolve, reject) => {
         await Follow.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: followId } }
         )
+            .then(() => Follow.findByPk(followId))
             .then(follow => {
                 resolve({ 
                     status: "success",

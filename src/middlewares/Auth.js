@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { User } = require("../models");
+const { User, Tracker, AdminStaff } = require("../models");
 
 /* const validateToken = (req, res, next) => {
 	const accessToken = req.header("accessToken");
@@ -22,28 +22,49 @@ const { TokenExpiredError } = jwt;
 
 const catchError = (err, res) => {
 	if (err instanceof TokenExpiredError) {
-		return res.status(401).send({ message: "Unauthorized! Access Token was expired!" });
+		return res.status(401).send({ message: "Access Token đã hết hạn" });
 	}
-	return res.sendStatus(401).send({ message: "Unauthorized!" });
+	return res.sendStatus(401).send({ message: "Không được phép" });
 }
 
 const validateToken = (req, res, next) => {
-	let token = req.headers["access-token"];
+	let token = req.headers["authorization"].split(' ')[1];
 
 	if (!token) {
-		return res.status(403).send({ message: "No token provided!" });
+		return res.status(403).send({ message: "Token không tồn tại" });
 	}
 
 	jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
 		if (err) {
 			return catchError(err, res);
 		}
-		req.userId = decoded.id;
+        /* console.log(decoded, req.statusCode); */
+        let id = decoded.id;
+		req.userId = id;
 		next();
+        req.headers['if-none-match'] = 'no-match-for-this';
+        res.on('finish', async () => {
+            let typeApi = req.method;
+            let ipAddress = req.ip;
+            let statusCode = res.statusCode;
+            let admin = await AdminStaff.findByPk(id);
+            let user = await User.findByPk(id);
+            let apiText = req.originalUrl;
+            let apiParts = apiText.split("/");
+            if (apiParts[apiParts.length - 1].length === 36) {
+                apiParts[apiParts.length - 1] = ":id";
+            }
+            apiText = apiParts.join("/");
+            /* await Tracker.create({
+                typeApi, apiText, statusCode, ipAddress,
+                userId: user ? user.id : null,
+                adminId: admin ? admin.id : null,
+            }); */
+        });
 	});
 };
 
-const isAdmin = (req, res, next) => {
+/* const isAdmin = (req, res, next) => {
 	User.findByPk(req.userId).then(user => {
 		user.getRoles().then(roles => {
 			for (let i = 0; i < roles.length; i++) {
@@ -51,14 +72,14 @@ const isAdmin = (req, res, next) => {
 					next();
 				}
 			}
-			res.status(403).send({
+			return res.status(403).send({
 				message: "Require Admin Role!"
 			});
 		});
 	});
-  };
+}; */
   
-const isModerator = (req, res, next) => {
+/* const isModerator = (req, res, next) => {
 	User.findByPk(req.userId).then(user => {
 		user.getRoles().then(roles => {
 			for (let i = 0; i < roles.length; i++) {
@@ -89,13 +110,13 @@ const isModeratorOrAdmin = (req, res, next) => {
 			});
 		});
 	});
-};
+}; */
 
 module.exports = { 
 	validateToken,
-	isModeratorOrAdmin,
-	isAdmin,
-	isModerator
+	/* isAdmin, */
+	/* isModeratorOrAdmin,
+	isModerator */
  };
 
 

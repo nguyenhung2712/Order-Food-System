@@ -1,5 +1,7 @@
 const { Permission, Role_Permission } = require("../models");
 const { v4: uuidv4 } = require("uuid");
+const { QueryTypes } = require('sequelize');
+const sequelize = require("../../connectdb");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
@@ -58,6 +60,7 @@ const updatePermiss = (permissId, permissBody) => new Promise(async (resolve, re
             { ...permissBody },
             { where: { id: permissId } }
         )
+            .then(() => Permission.findByPk(permissId))
             .then(permission => {
                 resolve({ 
                     status: "success",
@@ -79,6 +82,7 @@ const deletePermiss = (permissId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: permissId } }
         )
+            .then(() => Permission.findByPk(permissId))
             .then(permiss => {
                 resolve({ 
                     status: "success",
@@ -96,10 +100,11 @@ const recoverPermiss = (permissId) => new Promise(async (resolve, reject) => {
         await Permission.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: permissId } }
         )
+            .then(() => Permission.findByPk(permissId))
             .then(permiss => {
                 resolve({ 
                     status: "success",
@@ -112,16 +117,25 @@ const recoverPermiss = (permissId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const getRolePermissionByRoleId = (roleId) => new Promise(async (resolve, reject) => {
+const getPermissionByRoleId = (roleId) => new Promise(async (resolve, reject) => {
+
     try {
-        await Role_Permission.findAll({ where: { roleId } })
-            .then(permiss => {
-                resolve({ 
-                    status: "success",
-                    message: "Get role's permissions successfully.",
-                    payload: permiss
-                });
+        let queryString = "select * from `permissions` " + 
+            "where `name` in ( select p.name from " + 
+            "`role_permissions` rp join permissions p " +
+            "on p.id = rp.permissionId " + 
+            `where roleId = '${roleId}')`;
+        const permission = await sequelize.query(
+            queryString, 
+            { 
+                raw: true,
+                type: QueryTypes.SELECT,
             });
+        resolve({ 
+            status: "success",
+            message: "Get role's permissions successfully.",
+            payload: permission
+        });
     } catch (error) {
         reject(error);
     }
@@ -129,7 +143,7 @@ const getRolePermissionByRoleId = (roleId) => new Promise(async (resolve, reject
 
 const createRolePermission = (permissionId, roleId) => new Promise(async (resolve, reject) => {
     try {
-        await Admin_Role.create(
+        await Role_Permission.create(
             {
                 permissionId, roleId,
                 deletedAt: null,
@@ -150,38 +164,11 @@ const createRolePermission = (permissionId, roleId) => new Promise(async (resolv
 
 const deleteRolePermission = (permissionId, roleId) => new Promise(async (resolve, reject) => {
     try {
-        await Admin_Role.update(
-            {
-                deletedAt: new Date(),
-                status: 0
-            },
-            { where: { permissionId, roleId } }
-        )
+        await Role_Permission.destroy({ where: { permissionId, roleId } })
             .then(permiss => {
                 resolve({ 
                     status: "success",
                     message: "Delete role's permissions successfully.",
-                    payload: permiss
-                });
-            });
-    } catch (error) {
-        reject(error);
-    }
-});
-
-const recoverRolePermission = (permissionId, roleId) => new Promise(async (resolve, reject) => {
-    try {
-        await Admin_Role.update(
-            {
-                deletedAt: null,
-                status: 1
-            },
-            { where: { permissionId, roleId } }
-        )
-            .then(permiss => {
-                resolve({ 
-                    status: "success",
-                    message: "Recover role's permissions successfully.",
                     payload: permiss
                 });
             });
@@ -198,8 +185,7 @@ module.exports = {
     deletePermiss,
     recoverPermiss,
 
-    getRolePermissionByRoleId,
+    getPermissionByRoleId,
     createRolePermission,
-    deleteRolePermission,
-    recoverRolePermission
+    deleteRolePermission
 }

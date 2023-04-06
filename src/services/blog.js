@@ -1,9 +1,14 @@
-const { Blog, Like_Blog } = require("../models");
+const { Blog, Like_Blog, User } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await Blog.findAll();
+        const response = await Blog.findAll({
+            include: [
+                { model: User, as: "user" }
+            ],
+            attributes: { attributes: { exclude: ['userId'] } }
+        });
         resolve({
             status: "success",
             message: "Get blogs successfully.",
@@ -17,7 +22,10 @@ const getAll = () => new Promise(async (resolve, reject) => {
 const getByUserId = (userId) => new Promise(async (resolve, reject) => {
     try {
         const response = await Blog.findAll({
-            where: { userId }
+            where: { userId },
+            include: [
+                { model: User, as: "user" }
+            ]
         });
         resolve({ 
             status: "success",
@@ -32,7 +40,10 @@ const getByUserId = (userId) => new Promise(async (resolve, reject) => {
 const getById = (blogId) => new Promise(async (resolve, reject) => {
     try {
         const blog = await Blog.findOne({
-            where: { id: blogId }
+            where: { id: blogId },
+            include: [
+                { model: User, as: "user" }
+            ]
         });
         resolve({ 
             status: "success",
@@ -71,8 +82,13 @@ const updateBlog = (blogId, blogBody) => new Promise(async (resolve, reject) => 
     try {
         await Blog.update(
             { ...blogBody },
-            { where: { id: blogId } }
+            { where: { id: "blogId" } }
         )
+            .then(() => Blog.findByPk(blogId, {
+                include: [
+                    { model: User, as: "user" }
+                ]
+            }))
             .then(blog => {
                 resolve({ 
                     status: "success",
@@ -94,6 +110,11 @@ const deleteBlog = (blogId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: blogId } }
         )
+            .then(() => Blog.findByPk(blogId, {
+                include: [
+                    { model: User, as: "user" }
+                ]
+            }))
             .then(blog => {
                 resolve({ 
                     status: "success",
@@ -111,10 +132,15 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
         await Blog.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: blogId } }
         )
+            .then(() => Blog.findByPk(blogId, {
+                include: [
+                    { model: User, as: "user" }
+                ]
+            }))
             .then(blog => {
                 resolve({ 
                     status: "success",

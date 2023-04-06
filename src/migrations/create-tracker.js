@@ -2,44 +2,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('AdminStaffs', {
+        await queryInterface.createTable('Trackers', {
             id: {
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true,
-                type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                type: Sequelize.INTEGER
             },
-            username: {
-                type: Sequelize.STRING
-            },
-            password: {
+            statusCode: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            email: {
+            apiText: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            fullname: {
+            ipAddress: {
+                allowNull: false,
                 type: Sequelize.STRING
             },
-            lastLogin: {
-                type: Sequelize.DATE
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            disabledAt: {
-                type: Sequelize.DATE
-            },
-            status: {
+            typeApi: {
                 allowNull: false,
-                type: Sequelize.TINYINT
+                type: Sequelize.STRING
             },
-            isActived: {
-				type: Sequelize.TINYINT,
-				allowNull: false
-			},
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE
@@ -47,10 +32,26 @@ module.exports = {
             updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE
-            }
+            },
+            userId: {
+				type: Sequelize.UUID,
+				references: {
+					model: 'Users',
+					key: 'id',
+					as: 'userId',
+				}
+			},
+            adminId: {
+				type: Sequelize.UUID,
+				references: {
+					model: 'AdminStaffs',
+					key: 'id',
+					as: 'adminId',
+				}
+			},
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('AdminStaffs');
+        await queryInterface.dropTable('Trackers');
     }
 };

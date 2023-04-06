@@ -34,6 +34,13 @@ module.exports = {
                     },
                     primaryKey: true,
                 },
+                deletedAt: {
+                    type: Sequelize.DATE
+                },
+                status: {
+                    allowNull: false,
+                    type: Sequelize.TINYINT
+                },
             }
         );
     },

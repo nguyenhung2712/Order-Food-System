@@ -3,19 +3,16 @@ const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await Dish.findAll();
-        if (!response || response.length === 0) {
-            reject({ 
-                status: "error",
-                message: "Don't Exist!" 
-            });
-        } else {
-            resolve({ 
-                status: "success",
-                message: "Get dishes successfully.",
-                payload: response
-            });
-        }
+        const response = await Dish.findAll({
+            include: [
+                { model: DishType, as: "type" }
+            ]
+        });
+        resolve({ 
+            status: "success",
+            message: "Get dishes successfully.",
+            payload: response
+        });
     } catch (error) {
         reject(error);
     }
@@ -24,7 +21,10 @@ const getAll = () => new Promise(async (resolve, reject) => {
 const getById = (dishId) => new Promise(async (resolve, reject) => {
     try {
         const dish = await Dish.findOne({
-            where: { id: dishId }
+            where: { id: dishId },
+            include: [
+                { model: DishType, as: "type" }
+            ]
         });
         resolve({ 
             status: "success",
@@ -38,7 +38,7 @@ const getById = (dishId) => new Promise(async (resolve, reject) => {
 
 const createDish = (typeId, dishBody) => new Promise(async (resolve, reject) => {
     try {
-        await DishType.create(
+        await Dish.create(
             {
                 id: uuidv4(),
                 ...dishBody,
@@ -59,10 +59,16 @@ const createDish = (typeId, dishBody) => new Promise(async (resolve, reject) => 
 
 const updateDish = (dishId, dishBody) => new Promise(async (resolve, reject) => {
     try {
+        
         await Dish.update(
             { ...dishBody },
             { where: { id: dishId } }
         )
+            .then(() => Dish.findByPk(dishId, { where: {
+                include: [
+                    { model: DishType, as: "type" }
+                ]
+            }}))
             .then(dish => {
                 resolve({ 
                     status: "success",
@@ -84,6 +90,11 @@ const deleteDish = (dishId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: dishId } }
         )
+            .then(() => Dish.findByPk(dishId, { where: {
+                include: [
+                    { model: DishType, as: "type" }
+                ]
+            }}))
             .then(dish => {
                 resolve({ 
                     status: "success",
@@ -101,10 +112,15 @@ const recoverDish = (dishId) => new Promise(async (resolve, reject) => {
         await Dish.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: dishId } }
         )
+            .then(() => Dish.findByPk(dishId, { where: {
+                include: [
+                    { model: DishType, as: "type" }
+                ]
+            }}))
             .then(dish => {
                 resolve({ 
                     status: "success",

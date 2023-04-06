@@ -44,19 +44,11 @@ const createRate = (userId, dishId, rateBody) => new Promise(async (resolve, rej
 
 const updateRate = (rateId, rateBody) => new Promise(async (resolve, reject) => {
     try {
-        const rate = await Rate.findOne({
-            where: { id: rateId }
-        });
-        if (!rate) {
-            reject({ 
-                status: "error",
-                message: "This Rate Doesn't Exist!" 
-            });
-        }
         await Rate.update(
             { ...rateBody },
             { where: { id: rateId } }
         )
+            .then(() => Rate.findByPk(rateId))
             .then(rate => {
                 resolve({ 
                     status: "success",
@@ -71,16 +63,6 @@ const updateRate = (rateId, rateBody) => new Promise(async (resolve, reject) => 
 
 const deleteRate = (rateId) => new Promise(async (resolve, reject) => {
     try {
-        const rate = await Rate.findOne({
-            where: { id: rateId }
-        });
-        if (!rate) {
-            reject({ 
-                status: "error",
-                message: "Rate Doesn't Exist!" 
-            });
-        }
-
         await Rate.update(
             {
                 deletedAt: new Date(),
@@ -88,6 +70,7 @@ const deleteRate = (rateId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: rateId } }
         )
+            .then(() => Rate.findByPk(rateId))
             .then(rate => {
                 resolve({ 
                     status: "success",
@@ -102,23 +85,14 @@ const deleteRate = (rateId) => new Promise(async (resolve, reject) => {
 
 const recoverRate = (rateId) => new Promise(async (resolve, reject) => {
     try {
-        const rate = await Rate.findOne({
-            where: { id: rateId }
-        });
-        if (!rate) {
-            reject({ 
-                status: "error",
-                message: "Rate Doesn't Exist!" 
-            });
-        }
-
         await Rate.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: rateId } }
         )
+            .then(() => Rate.findByPk(rateId))
             .then(rate => {
                 resolve({ 
                     status: "success",

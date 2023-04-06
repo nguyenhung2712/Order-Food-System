@@ -9,9 +9,12 @@ module.exports = (sequelize, DataTypes) => {
             Admin_Role.belongsTo(models.Role, { foreignKey: 'roleId', targetKey: 'id', as: 'role' });
         }
     }
-    Admin_Role.init({}, {
+    Admin_Role.init({
+        
+    }, {
         sequelize,
         modelName: 'Admin_Role',
     });
+    Admin_Role.removeAttribute("id");
     return Admin_Role;
 };

@@ -1,7 +1,8 @@
 const middlewares = {
     Auth: require('./Auth'),
     VerifyExists: require('./VerifyExisted'),
-    VerifySignup: require('./VerifySignup'),
+    VerifyUserUpsert: require('./VerifyUserUpsert'),
+    VerifyAdminUpsert: require('./VerifyAdminUpsert'),
 }
 
 module.exports = middlewares;

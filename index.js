@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require('body-parser');
 require("dotenv").config()
 require('./connectdb')
 
@@ -9,7 +10,9 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+/* app.use(express.urlencoded({ extended: true })); */
+app.use(bodyParser.urlencoded({ extended: true })); //this line is already mentioned above
+app.use(bodyParser.json());
 
 //routes
 const initRoutes = require("./src/routes");

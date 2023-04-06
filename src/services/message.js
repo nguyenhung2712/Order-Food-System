@@ -62,6 +62,7 @@ const updateMessage = (messageId, messageBody) => new Promise(async (resolve, re
             { ...messageBody },
             { where: { id: messageId } }
         )
+            .then(() => Message.findByPk(messageId))
             .then(message => {
                 resolve({ 
                     status: "success",
@@ -83,6 +84,7 @@ const deleteMessage = (messageId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: messageId } }
         )
+            .then(() => Message.findByPk(messageId))
             .then(message => {
                 resolve({ 
                     status: "success",
@@ -100,10 +102,11 @@ const recoverConver = (messageId) => new Promise(async (resolve, reject) => {
         await Message.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: messageId } }
         )
+            .then(() => Message.findByPk(messageId))
             .then(message => {
                 resolve({ 
                     status: "success",

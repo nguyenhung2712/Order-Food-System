@@ -55,6 +55,7 @@ const updateDishType = (typeId, typeName) => new Promise(async (resolve, reject)
             { typeName },
             { where: { id: typeId } }
         )
+            .then(() => DishType.findByPk(typeId))
             .then(type => {
                 resolve({ 
                     status: "success",
@@ -76,6 +77,7 @@ const deleteDishType = (typeId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: typeId } }
         )
+            .then(() => DishType.findByPk(typeId))
             .then(type => {
                 resolve({ 
                     status: "success",
@@ -93,10 +95,11 @@ const recoverDishType = (typeId) => new Promise(async (resolve, reject) => {
         await DishType.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: typeId } }
         )
+            .then(() => DishType.findByPk(typeId))
             .then(type => {
                 resolve({ 
                     status: "success",

@@ -74,6 +74,7 @@ const updateNotif = (notifyId, notifBody) => new Promise(async (resolve, reject)
             { ...notifBody },
             { where: { id: notifyId } }
         )
+            .then(() => Notification.findByPk(notifyId))
             .then(notif => {
                 resolve({ 
                     status: "success",
@@ -95,6 +96,7 @@ const deleteNotif = (notifId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: notifId } }
         )
+            .then(() => Notification.findByPk(notifyId))
             .then(notif => {
                 resolve({ 
                     status: "success",
@@ -107,15 +109,16 @@ const deleteNotif = (notifId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const recoverNotif = (notifId) => new Promise(async (resolve, reject) => {
+const recoverNotif = (notifyId) => new Promise(async (resolve, reject) => {
     try {
         await Notification.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
-            { where: { id: notifId } }
+            { where: { id: notifyId } }
         )
+            .then(() => Notification.findByPk(notifyId))
             .then(notif => {
                 resolve({ 
                     status: "success",

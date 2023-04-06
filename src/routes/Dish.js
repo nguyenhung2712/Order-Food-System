@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const fileUploader = require('../config/cloudinary.config');
 
 const { Auth, VerifyExists } = require("../middlewares");
 const { dishController } = require("../controllers");
@@ -12,5 +13,7 @@ router.put('/update/:id',
     dishController.updateDish
 );
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedDish], dishController.toggleDish);
+
+router.post('/upload-image/:id', [Auth.validateToken, VerifyExists.isExistedDish, fileUploader.array('files')], dishController.uploadDishImage);
 
 module.exports = router;

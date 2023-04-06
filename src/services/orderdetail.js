@@ -33,20 +33,6 @@ const getById = (detailId) => new Promise(async (resolve, reject) => {
 
 const createDetail = (dishId, orderId, detailBody) => new Promise(async (resolve, reject) => {
     try {
-        const dish = await Dish.findByPk(dishId);
-        const order = await Order.findByPk(orderId);
-        if (!dish) {
-            reject({ 
-                status: "error",
-                message: "Dish Doesn't Exist!" 
-            });
-        }
-        if (!order) {
-            reject({ 
-                status: "error",
-                message: "Order Doesn't Exist!" 
-            });
-        }
         await OrderDetail.create(
             { 
                 id: uuidv4(),
@@ -73,6 +59,7 @@ const updateDetail = (detailId, detailBody) => new Promise(async (resolve, rejec
             { ...detailBody },
             { where: { id: detailId } }
         )
+            .then(() => OrderDetail.findByPk(detailId))
             .then(detail => {
                 resolve({ 
                     status: "success",
@@ -94,6 +81,7 @@ const deleteDetail = (detailId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: detailId } }
         )
+            .then(() => OrderDetail.findByPk(detailId))
             .then(detail => {
                 resolve({ 
                     status: "success",
@@ -111,10 +99,11 @@ const recoverDetail = (detailId) => new Promise(async (resolve, reject) => {
         await OrderDetail.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: detailId } }
         )
+            .then(() => OrderDetail.findByPk(detailId))
             .then(detail => {
                 resolve({ 
                     status: "success",

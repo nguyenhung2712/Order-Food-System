@@ -24,12 +24,19 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-				allowNull: false,
 				type: Sequelize.UUID,
 				references: {
 					model: 'Users',
 					key: 'id',
 					as: 'userId',
+				}
+			},
+            adminId: {
+				type: Sequelize.UUID,
+				references: {
+					model: 'AdminStaffs',
+					key: 'id',
+					as: 'adminId',
 				}
 			},
         });

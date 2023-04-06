@@ -78,6 +78,7 @@ const updateComment = (commentId, commentBody) => new Promise(async (resolve, re
             { ...commentBody },
             { where: { id: commentId } }
         )
+            .then(() => Comment.findByPk(commentId))
             .then(comment => {
                 resolve({ 
                     status: "success",
@@ -99,6 +100,7 @@ const deleteComment = (commentId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: commentId } }
         )
+            .then(() => Comment.findByPk(commentId))
             .then(comment => {
                 resolve({ 
                     status: "success",
@@ -116,10 +118,11 @@ const recoverComment = (commentId) => new Promise(async (resolve, reject) => {
         await Comment.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: commentId } }
         )
+            .then(() => Comment.findByPk(commentId))
             .then(comment => {
                 resolve({ 
                     status: "success",

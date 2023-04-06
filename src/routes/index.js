@@ -29,6 +29,7 @@ const initRoutes = (app) => {
     app.use("/api/permiss", require("./Permiss"));
     app.use("/api/role", require("./Role"));
     app.use("/api/rate", require("./Rate"));
+    app.use("/api/tracker", require("./Tracker"));
 }
 
 module.exports = initRoutes;

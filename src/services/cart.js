@@ -90,6 +90,11 @@ const updateItem = (cartId, item) => new Promise(async (resolve, reject) => {
                 } 
             }
         )
+            .then(() => CartItem.findOne({ where: { 
+                    id: item.id,
+                    cartId
+                }})
+            )
             .then(item => {
                 resolve({ 
                     status: "success",
@@ -135,6 +140,7 @@ const deleteItem = (itemId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: itemId } }
         )
+            .then(() => CartItem.findByPk(itemId))
             .then(item => {
                 resolve({ 
                     status: "success",
@@ -152,10 +158,11 @@ const recoverItem = (itemId) => new Promise(async (resolve, reject) => {
         await CartItem.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: itemId } }
         )
+            .then(() => CartItem.findByPk(itemId))
             .then(item => {
                 resolve({ 
                     status: "success",

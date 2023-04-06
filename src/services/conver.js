@@ -74,6 +74,7 @@ const updateConver = (converId, converBody) => new Promise(async (resolve, rejec
             { ...converBody },
             { where: { id: converId } }
         )
+            .then(() => Conversation.findByPk(converId))
             .then(conver => {
                 resolve({ 
                     status: "success",
@@ -95,6 +96,7 @@ const deleteConver = (converId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: converId } }
         )
+            .then(() => Conversation.findByPk(converId))
             .then(conver => {
                 resolve({ 
                     status: "success",
@@ -112,10 +114,11 @@ const recoverConver = (converId) => new Promise(async (resolve, reject) => {
         await Conversation.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: converId } }
         )
+            .then(() => Conversation.findByPk(converId))
             .then(conver => {
                 resolve({ 
                     status: "success",

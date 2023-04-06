@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const fileUploader = require('../config/cloudinary.config');
 
 const { Auth, VerifyExists } = require("../middlewares");
 const { blogController } = require("../controllers");
@@ -14,5 +15,8 @@ router.put('/update/:id',
 );
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedBlog], blogController.toggleBlog);
 router.post('/interact', [Auth.validateToken, VerifyExists.isExistedBlog, VerifyExists.isExistedUser], blogController.interactBlog);
+
+router.post('/upload-image', [fileUploader.single('file')], blogController.uploadBlogImage);
+
 
 module.exports = router;

@@ -1,9 +1,12 @@
+const cloudinary = require('cloudinary').v2;
+
 const { blogService } = require('../services');
 const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await blogService.getAll();
+        console.log(JSON.stringify(response.payload));
         res.json(response);
     } catch (error) {
         return interalServerError(res);
@@ -23,6 +26,7 @@ const getById = async (req, res) => {
     try {
         const response = await blogService.getById(req.params.id);
         res.json(response);
+        
     } catch (error) {
         return interalServerError(res);
     }
@@ -30,7 +34,8 @@ const getById = async (req, res) => {
 
 const createBlog = async (req, res) => {
     try {
-        const response = await blogService.createBlog(req.body);
+        const { userId, ...blogBody } = req.body;
+        const response = await blogService.createBlog(userId, blogBody);
         res.json(response);
     } catch (error) {
         return interalServerError(res);
@@ -68,6 +73,19 @@ const interactBlog = async (req, res) => {
     }
 }
 
+const uploadBlogImage = async (req, res) => {
+    try {
+        let pictureFile = req.file;
+        
+        if (!pictureFile)
+            return res.status(400).json({ message: "No picture attached!" });
+
+        res.json({ location : pictureFile.path }); 
+    } catch (error) {
+        return interalServerError(res);
+    }
+}
+
 module.exports = {
     getAll,
     getByUserId,
@@ -75,5 +93,6 @@ module.exports = {
     createBlog,
     updateBlog,
     toggleBlog,
-    interactBlog
+    interactBlog,
+    uploadBlogImage
 }

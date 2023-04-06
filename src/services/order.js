@@ -64,6 +64,7 @@ const updateOrder = (orderId, orderBody) => new Promise(async (resolve, reject) 
             { ...orderBody },
             { where: { id: orderId } }
         )
+            .then(() => Order.findByPk(orderId))
             .then(order => {
                 resolve({ 
                     status: "success",
@@ -85,6 +86,7 @@ const deleteOrder = (orderId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: orderId } }
         )
+            .then(() => Order.findByPk(orderId))
             .then(order => {
                 resolve({ 
                     status: "success",
@@ -102,10 +104,11 @@ const recoverOrder = (orderId) => new Promise(async (resolve, reject) => {
         await Order.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: orderId } }
         )
+            .then(() => Order.findByPk(orderId))
             .then(order => {
                 resolve({ 
                     status: "success",

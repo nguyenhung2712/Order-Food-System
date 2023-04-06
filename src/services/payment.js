@@ -49,6 +49,7 @@ const updatePayment = (paymentId, paymentBody) => new Promise(async (resolve, re
             { ...paymentBody },
             { where: { id: paymentId } }
         )
+            .then(() => Payment.findByPk(paymentId))
             .then(payment => {
                 resolve({ 
                     status: "success",
@@ -70,6 +71,7 @@ const deletePayment = (paymentId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: paymentId } }
         )
+            .then(() => Payment.findByPk(paymentId))
             .then(payment => {
                 resolve({ 
                     status: "success",
@@ -87,10 +89,11 @@ const recoverPayment = (paymentId) => new Promise(async (resolve, reject) => {
         await Payment.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: paymentId } }
         )
+            .then(() => Payment.findByPk(paymentId))
             .then(payment => {
                 resolve({ 
                     status: "success",

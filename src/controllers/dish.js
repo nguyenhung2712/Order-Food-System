@@ -1,3 +1,5 @@
+const cloudinary = require('cloudinary').v2;
+
 const { dishService } = require('../services');
 const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
@@ -50,10 +52,46 @@ const toggleDish = async (req, res) => {
     }
 }
 
+const uploadDishImage = async (req, res) => {
+    try {
+        let pictureFiles = req.files;
+        let id = req.params.id;
+
+        if (!pictureFiles)
+            return res.status(400).json({ message: "No picture attached!" });
+        
+        let imageUploadRes = pictureFiles.map((image) => 
+            cloudinary.uploader.upload(
+                image.path,
+                { 
+                    use_filename: true, 
+                    unique_filename: false
+                }
+            )
+        );
+        
+        let imageResponses = await Promise.all(imageUploadRes);
+
+        let imageStr = imageResponses.reduce((imageStr, image) => {
+            return imageStr + "|" + image.url;
+        }, "");
+        
+        const dishRes = await dishService.getById(id);
+        const response = await dishService.updateDish(id, 
+            { image: dishRes.payload.image + imageStr }
+        );
+        res.json(response); 
+    } catch (error) {
+        res.json(error); 
+        
+    }
+}
+
 module.exports = {
     getAll,
     getById,
     createDish,
     updateDish,
-    toggleDish
+    toggleDish,
+    uploadDishImage
 }

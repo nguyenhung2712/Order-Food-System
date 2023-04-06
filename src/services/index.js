@@ -20,6 +20,7 @@ const services = {
     permissService: require('./permiss'),
     messageService: require('./message'),
     converService: require('./conver'),
+    trackerService: require('./tracker'),
 };
 
 module.exports = services;

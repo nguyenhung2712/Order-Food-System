@@ -10,4 +10,8 @@ router.post('/create', [Auth.validateToken], roleController.createRole);
 router.put('/update/:id', [Auth.validateToken, VerifyExists.isExistedRole], roleController.updateRole);
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedRole], roleController.toggleRole);
 
+router.get('/staff-role/:id', [Auth.validateToken, VerifyExists.isExistedStaff], roleController.getAdminRoleByAdminId);
+router.get('/staff-other-role/:id', [Auth.validateToken, VerifyExists.isExistedStaff], roleController.getOtherAdminRoleByAdminId);
+router.post('/staff-role/:type', [Auth.validateToken, VerifyExists.isExistedStaff, VerifyExists.isExistedRole], roleController.cdrAdminRole);
+
 module.exports = router;

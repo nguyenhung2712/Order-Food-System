@@ -78,6 +78,7 @@ const updateRep = (repId, repBody) => new Promise(async (resolve, reject) => {
             { ...repBody },
             { where: { id: repId } }
         )
+            .then(() => CommentRep.findById(repId))
             .then(rep => {
                 resolve({ 
                     status: "success",
@@ -99,6 +100,7 @@ const deleteRep = (repId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: repId } }
         )
+            .then(() => CommentRep.findById(repId))
             .then(rep => {
                 resolve({ 
                     status: "success",
@@ -111,7 +113,7 @@ const deleteRep = (repId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const recoverRep = (repId) => new Promise(async (resolve, reject) => {
+const findByPk = (repId) => new Promise(async (resolve, reject) => {
     try {
         await CommentRep.update(
             {
@@ -120,10 +122,11 @@ const recoverRep = (repId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: repId } }
         )
+            .then(() => CommentRep.findById(repId))
             .then(comment => {
                 resolve({ 
                     status: "success",
-                    message: "Recover comment reply successfully.",
+                    message: "Get comment reply successfully.",
                     payload: comment
                 });
             });
@@ -139,5 +142,5 @@ module.exports = {
     createRep,
     updateRep,
     deleteRep,
-    recoverRep
+    findByPk
 }

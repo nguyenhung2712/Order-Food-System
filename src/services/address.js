@@ -79,6 +79,7 @@ const updateAddress = (addressId, addressBody) => new Promise(async (resolve, re
             { ...addressBody },
             { where: { id: addressId } }
         )
+            .then(() => Address.findByPk(addressId))
             .then(address => {
                 resolve({ 
                     status: "success",
@@ -100,6 +101,7 @@ const deleteAddress = (addressId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: addressId } }
         )
+            .then(() => Address.findByPk(addressId))
             .then(address => {
                 resolve({ 
                     status: "success",
@@ -117,10 +119,11 @@ const recoverAddress = (addressId) => new Promise(async (resolve, reject) => {
         await Address.update(
             {
                 deletedAt: null,
-                status: 1
+                status: 2
             },
             { where: { id: addressId } }
         )
+            .then(() => Address.findByPk(addressId))
             .then(address => {
                 resolve({ 
                     status: "success",
@@ -178,6 +181,7 @@ const updateUserAddress = (userId, addressId, newAddressId) => new Promise(async
             { addressId: newAddressId },
             { where: { userId, addressId } }
         )
+            .then(() => UserAddress.findOne({ where: { userId, addressId } }))
             .then(address => {
                 resolve({ 
                     status: "success",
@@ -199,6 +203,7 @@ const deleteUserAddress = (userId, addressId) => new Promise(async (resolve, rej
             },
             { where: { userId, addressId } }
         )
+            .then(() => UserAddress.findOne({ where: { userId, addressId } }))
             .then(address => {
                 resolve({ 
                     status: "success",
@@ -220,6 +225,7 @@ const recoverUserAddress = (userId, addressId) => new Promise(async (resolve, re
             },
             { where: { userId, addressId } }
         )
+            .then(() => UserAddress.findOne({ where: { userId, addressId } }))
             .then(address => {
                 resolve({ 
                     status: "success",

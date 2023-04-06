@@ -3,43 +3,70 @@ const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
 
 require("dotenv").config();
-const { User, Token, RefreshToken, Cart } = require("../models");
+const { User, Token, RefreshToken, Cart, AdminStaff } = require("../models");
 const sendEmail = require("../utils/sendEmail");
-const userService = require("./user");
-/* const tokenService = require("./Token"); */
+const { getAdminRoleByAdminId } = require("./role");
 
-const register = ({ ...reqBody}) => new Promise(async (resolve, reject) => {
+const userRegister = ({ ...reqBody}) => new Promise(async (resolve, reject) => {
     try {
-        const {roles, password, ...body} = reqBody;
+        const {password, ...body} = reqBody;
         bcrypt.hash(password, 10).then(async (hash) => {
-            await userService.createUser({
+            await User.create({
                 ...body,
                 id: uuidv4(),
                 password: hash,
+                username: null,
                 phoneNum: null,
                 lastLogin: null,
                 deletedAt: null,
+                disabledAt: null,
                 gender: null,
                 avatar: null,
                 isActived: 0,
                 is2FA: 0,
                 status: 1,
             })
-                .then(async (response) => {
-                    let user = response.payload;
-                    await Cart.create({
-                        id: uuidv4(),
-                        deletedAt: null,
-                        status: 1,
-                        userId: user.id
-                    });
-                    const token = Token.createToken(user);
-                    const link = `${process.env.MAIL_BASE_URL}/confirm-email/${user.id}/${token.token}`;
-                    await sendEmail(user.email, "Confirm your account's email address", link);
+                .then(async (user) => {
+                    await Token.createToken(user)
+                        .then(async (token) => {
+                            let { password, ...res } = user;
+                            const link = `${process.env.MAIL_BASE_URL}/confirm-email/${user.id}/${token}`;
+                            await sendEmail(user.email, "Confirm your account's email address", link);
+                            resolve({
+                                status: "success",
+                                message: "Register Successful",
+                                payload: res
+                            });
+                        });
+                        
+                });
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const staffRegister = ({ ...reqBody}) => new Promise(async (resolve, reject) => {
+    try {
+        const {password, ...body} = reqBody;
+        bcrypt.hash(password, 10).then(async (hash) => {
+            await AdminStaff.create({
+                ...body,
+                id: uuidv4(),
+                password: hash,
+                username: null,
+                phoneNum: null,
+                lastLogin: null,
+                deletedAt: null,
+                disabledAt: null,
+                isActived: 0,
+                status: 1,
+            })
+                .then(async (staff) => {
                     resolve({
                         status: "success",
                         message: "Register Successful",
-                        payload: response
+                        payload: staff
                     });
                 });
         });
@@ -50,25 +77,9 @@ const register = ({ ...reqBody}) => new Promise(async (resolve, reject) => {
 
 const confirmMail = (token, userId) => new Promise(async (resolve, reject) => {
     try {
-        const user = await User.findOne({
-            where: { id: userId },
-            attributes: {
-                exclude: ['CartId', 'ConversationId']
-            },
-        });
-
-        if (!user) {
-            reject({ 
-                status: "error",
-                message: "Invalid link" 
-            });
-        }
         
         let currToken = await Token.findOne({ 
-            where: { 
-                userId: user.id, 
-                token: token
-            }
+            where: { userId, token }
         });
 
         if (!currToken) {
@@ -77,10 +88,15 @@ const confirmMail = (token, userId) => new Promise(async (resolve, reject) => {
                 message: "Invalid link" 
             });
         }
-    
+        await Cart.create({
+            id: uuidv4(),
+            deletedAt: null,
+            status: 1,
+            userId
+        });
         await User.update(
             { isActived: 1, },
-            { where: { username: user.username } }
+            { where: { id: userId } }
         ).then(user => {
             resolve({
                 status: "success",
@@ -91,16 +107,23 @@ const confirmMail = (token, userId) => new Promise(async (resolve, reject) => {
     } catch (error) {
         reject(error);
     }
-})
+});
 
-const login = (username, password) => new Promise(async (resolve, reject) => {
+const userLogin = (username, password) => new Promise(async (resolve, reject) => {
     try {
-        const user = await User.findOne({
-            where: { username: username },
-            attributes: {
-                exclude: ['CartId', 'ConversationId']
-            },
-        });
+        const user = !username.includes("@")
+            ?   await User.findOne({
+                    where: { username: username },
+                    attributes: {
+                        exclude: ['CartId', 'ConversationId']
+                    },
+                })
+            :   await User.findOne({
+                    where: { email: username },
+                    attributes: {
+                        exclude: ['CartId', 'ConversationId']
+                    },
+            });
         if (!user) {
             resolve({ 
                 status: "error",
@@ -111,15 +134,15 @@ const login = (username, password) => new Promise(async (resolve, reject) => {
             //gửi otp mail
         } else {
             bcrypt.compare(password, user.password).then(async (match) => {
-                if (!match) reject({ 
+                if (!match) resolve({ 
                     status: "error" ,
                     message: "Wrong Username And Password Combination" 
                 });
     
                 let token = jwt.sign({ username: user.username, id: user.id }, process.env.SECRET_KEY, {
-                    expiresIn: process.env.JWT_EXPIRATION,
+                    expiresIn: process.env.JWT_EXPIRATION_TEXT,
                 });
-                let refreshToken = await RefreshToken.createToken(user);
+                let refreshToken = await RefreshToken.createToken("user", user.id);
     
                 resolve({
                     status: "success",
@@ -135,7 +158,77 @@ const login = (username, password) => new Promise(async (resolve, reject) => {
     } catch (error) {
         reject(error);
     }
-})
+});
+
+const staffLogin = (username, password) => new Promise(async (resolve, reject) => {
+    try {
+        const staff = await AdminStaff.findOne({
+            where: { username: username }
+        });
+        if (!staff) {
+            resolve({ 
+                status: "error",
+                message: "Staff Doesn't Exist!" 
+            });
+        }
+        bcrypt.compare(password, staff.password).then(async (match) => {
+            if (!match) reject({ 
+                status: "error" ,
+                message: "Wrong Username And Password Combination" 
+            });
+
+            let token = jwt.sign({ username: staff.username, id: staff.id }, process.env.SECRET_KEY, {
+                expiresIn: process.env.JWT_EXPIRATION_TEXT,
+            });
+            let refreshToken = await RefreshToken.createToken("admin", staff.id);
+            await AdminStaff.update(
+                { lastLogin: new Date() },
+                { where: { id: staff.id } }
+            );
+            let roles = await getAdminRoleByAdminId(staff.id);
+
+            resolve({
+                status: "success",
+                message: "Login successfully",
+                payload: {
+                    staff,
+                    accessToken: token,
+                    refreshToken: refreshToken,
+                    roles: roles.payload
+                }
+            });
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const staffProfile = (Authorization) => new Promise(async (resolve, reject) => {
+    try {
+        if (!Authorization) {
+            reject({ 
+                status: "error" ,
+                message: "Invalid Authorization token" 
+            });
+        }
+        const accessToken = Authorization.split(' ')[1];
+        const { id } = jwt.verify(accessToken, process.env.SECRET_KEY);
+        const staff = await AdminStaff.findOne({ where: { id } });
+        if (!staff) {
+            reject({ 
+                status: "error" ,
+                message: "Invalid Authorization token" 
+            });
+        }
+        resolve({
+            status: "success",
+            message: "Get staff profile successfully",
+            payload: { staff }
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
 
 const refreshToken = (requestToken) => new Promise(async (resolve, reject) => {
     if (!requestToken) {
@@ -181,8 +274,13 @@ const refreshToken = (requestToken) => new Promise(async (resolve, reject) => {
 });
 
 module.exports = {
-    login,
-    register,
+    userLogin,
+    userRegister,
     confirmMail,
-    refreshToken
+
+    refreshToken,
+
+    staffRegister,
+    staffLogin,
+    staffProfile
 }

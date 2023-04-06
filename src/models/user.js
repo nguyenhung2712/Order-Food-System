@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
 			User.hasMany(models.Message, { foreignKey: 'userId' });
 			User.hasMany(models.Follow, { foreignKey: 'followingId' });
 			User.hasMany(models.Follow, { foreignKey: 'followedId' });
-            
+			User.hasMany(models.Tracker, { foreignKey: 'userId' });
 		}
 	}
 	User.init({
@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
 		isActived: DataTypes.INTEGER,
 		lastLogin: DataTypes.DATE,
 		deletedAt: DataTypes.DATE,
+		disabledAt: DataTypes.DATE,
 		status: DataTypes.INTEGER,
 		is2FA: DataTypes.TINYINT
 	}, {

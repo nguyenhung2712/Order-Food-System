@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     class RefreshToken extends Model {
         static associate(models) {
             RefreshToken.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
+            RefreshToken.belongsTo(models.AdminStaff, { foreignKey: 'adminId', targetKey: 'id', as: 'admin' });
         }
     }
     RefreshToken.init({
@@ -18,18 +19,20 @@ module.exports = (sequelize, DataTypes) => {
         modelName: 'RefreshToken',
     });
 
-    RefreshToken.createToken = async function (user) {
+    RefreshToken.createToken = async function (type, userId) {
         let expiredAt = new Date();
         expiredAt.setSeconds(expiredAt.getSeconds() + process.env.JWT_REFRESH_EXPIRATION);
 
-        let refreshToken = await this.create({
+        let refreshToken = await RefreshToken.create({
             token: uuidv4(),
-            userId: user.id,
+            userId: type === "user" ? userId : null,
+            adminId: type === "user" ? null : userId,
             expiryDate: expiredAt.getTime(),
         });
-
+        
         return refreshToken.token;
     } 
+    
     RefreshToken.verifyExpiration = (token) => {
         return token.expiryDate.getTime() < new Date().getTime();
     };

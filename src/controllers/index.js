@@ -20,6 +20,7 @@ const controller = {
     permissController: require('./permiss'),
     messageController: require('./message'),
     converController: require('./conver'),
+    trackerController: require('./tracker'),
 }
 
 module.exports = controller;

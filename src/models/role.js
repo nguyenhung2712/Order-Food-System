@@ -5,8 +5,8 @@ const {
 module.exports = (sequelize, DataTypes) => {
     class Role extends Model {
         static associate(models) {
-            Role.belongsToMany(models.AdminStaff, { through: 'Admin_Role' });
-            Role.belongsToMany(models.Permission, { through: 'Role_Permissions' });
+            Role.hasMany(models.Admin_Role, { foreignKey: 'roleId' });
+            Role.hasMany(models.Role_Permission, { foreignKey: 'roleId' });
         }
     }
     Role.init({

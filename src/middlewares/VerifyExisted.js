@@ -19,9 +19,9 @@ const isExistedUser = async (req, res, next) => {
         })
             .then(user => {
                 if (!user) {
-                    return res.status(404).json({
+                    return res.json({
                         status: "error",
-                        message: "Doesn't Exist!"
+                        message: "Không tồn tại"
                     });
                 }
                 next();
@@ -33,9 +33,9 @@ const isExistedUser = async (req, res, next) => {
         })
             .then(async (followed) => {
                 if (!followed) {
-                    return res.status(404).json({
+                    return res.json({
                         status: "error",
-                        message: "Followed Users Doesn't Exist!"
+                        message: "Followed Users Không tồn tại"
                     });
                 }
                 await User.findOne({ 
@@ -43,9 +43,9 @@ const isExistedUser = async (req, res, next) => {
                 })
                     .then(async (following) => {
                         if (!following) {
-                            return res.status(404).json({
+                            return res.json({
                                 status: "error",
-                                message: "Following Users Doesn't Exist!"
+                                message: "Người dùng đang theo dõi không tồn tại"
                             });
                         }
                         next();
@@ -58,9 +58,9 @@ const areExistedUsers = async (req, res, next) => {
     await User.findAll()
         .then(users => {
             if (!users || users.length === 0) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Don't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -74,9 +74,9 @@ const isExistedOrder = async (req, res, next) => {
     })
         .then(order => {
             if (!order) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Order Doesn't Exist!"
+                    message: "Đơn hàng hhông tồn tại"
                 });
             }
             next();
@@ -95,9 +95,9 @@ const areExistedOrders = async (req, res, next) => {
     }
 
     if (!orders || !orders.length === 0){
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -110,9 +110,9 @@ const isExistedOrderDetail = async (req, res, next) => {
     })
         .then(detail => {
             if (!detail) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Order item Doesn't Exist!"
+                    message: "Chi tiết đơn không tồn tại"
                 });
             }
             next();
@@ -126,9 +126,9 @@ const areExistedOrderDetails = async (req, res, next) => {
     })
         .then(details => {
             if (!details || details.length === 0) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Don't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -136,15 +136,17 @@ const areExistedOrderDetails = async (req, res, next) => {
 }
 
 const isExistedDish = async (req, res, next) => {
-    const dishId = req.body.dishId ? req.body.dishId : req.params.id;
+    const dishId = req.body.dishId 
+        ? req.body.dishId 
+        : req.params.id;
     await Dish.findOne({ 
         where: { id: dishId }
     })
         .then(dish => {
             if (!dish) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Dish Doesn't Exist!"
+                    message: "Sản phẩm Không tồn tại"
                 });
             }
             next();
@@ -160,24 +162,24 @@ const areExistedDishes = async (req, res, next) => {
         : await Dish.findAll();
 
     if (!dishes || dishes.length === 0) { 
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
 }
 
 const isExistedDishType = async (req, res, next) => {
-    const { id } = req.params;
+    const typeId = req.body.typeId ? req.body.typeId : req.params.id;
     await DishType.findOne({ 
-        where: { id }
+        where: { id: typeId }
     })
         .then(type => {
             if (!type) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Type Doesn't Exist!"
+                    message: "Loại sản phẩm không tồn tại"
                 });
             }
             next();
@@ -188,9 +190,9 @@ const areExistedDishTypes = async (req, res, next) => {
     await DishType.findAll()
         .then(types => {
             if (!types || types.length === 0){
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Don't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -204,9 +206,9 @@ const isExistedPayment = async (req, res, next) => {
     })
         .then(payment => {
             if (!payment) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Payment Doesn't Exist!"
+                    message: "Hóa đơn không tồn tại"
                 });
             }
             next();
@@ -224,9 +226,9 @@ const areExistedPayments = async (req, res, next) => {
         payments = await Payment.findAll();
     }
     if (!payments || payments.length === 0){
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -239,9 +241,9 @@ const isExistedRate = async (req, res, next) => {
     })
         .then(rate => {
             if (!rate) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Rate Doesn't Exist!"
+                    message: "Đánh giá đơn không tồn tại"
                 });
             }
             next();
@@ -258,9 +260,9 @@ const areExistedRates = async (req, res, next) => {
             where: { dishId: id }
         });
     if (!rates) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -273,9 +275,9 @@ const isExistedCart = async (req, res, next) => {
     })
         .then(cart => {
             if (!cart) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Cart Doesn't Exist!"
+                    message: "Giỏ hàng không tồn tại"
                 });
             }
             next();
@@ -289,9 +291,9 @@ const isExistedCartItem = async (req, res, next) => {
     })
         .then(item => {
             if (!item) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Item Doesn't Exist!"
+                    message: "Sản phẩm giỏ hàng không tồn tại"
                 });
             }
             next();
@@ -305,9 +307,9 @@ const areExistedCartItems = async (req, res, next) => {
     })
         .then(item => {
             if (!item) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Item Doesn't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -321,9 +323,9 @@ const isExistedBlog = async (req, res, next) => {
     })
         .then(blog => {
             if (!blog) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Blog Doesn't Exist!"
+                    message: "Blog Không tồn tại"
                 });
             }
             next();
@@ -341,9 +343,9 @@ const areExistedBlogs = async (req, res, next) => {
         blogs = await Blog.findAll();
     }
     if (!blogs || blogs.length === 0){
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -356,9 +358,9 @@ const isExistedComment = async (req, res, next) => {
     })
         .then(comment => {
             if (!comment) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Comment Doesn't Exist!"
+                    message: "Bình luận không tồn tại"
                 });
             }
             next();
@@ -375,9 +377,9 @@ const areExistedComments = async (req, res, next) => {
             where: { blogId: id }
         });
     if (!comments || comments.length === 0) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -390,9 +392,9 @@ const isExistedCommentRep = async (req, res, next) => {
     })
         .then(rep => {
             if (!rep) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Comment Reply Doesn't Exist!"
+                    message: "Bình luận không tồn tại"
                 });
             }
             next();
@@ -409,9 +411,9 @@ const areExistedCommentReps = async (req, res, next) => {
             where: { commentId: id }
         });
     if (!reps || reps.length === 0) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -424,9 +426,9 @@ const isExistedNotif = async (req, res, next) => {
     })
         .then(rep => {
             if (!rep) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Comment Reply Doesn't Exist!"
+                    message: "Thông báo không tồn tại"
                 });
             }
             next();
@@ -444,9 +446,9 @@ const areExistedNotifs = async (req, res, next) => {
         notifs = await Notification.findAll();
     }
     if (!notifs || notifs.length === 0) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -459,9 +461,9 @@ const isExistedFollow = async (req, res, next) => {
     })
         .then(follow => {
             if (!follow) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Follow Doesn't Exist!"
+                    message: "Lượt theo dõi không tồn tại"
                 });
             }
             next();
@@ -478,9 +480,9 @@ const areExistedFollows = async (req, res, next) => {
             where: { followingId: id }
         });
     if (!follows || follows.length === 0) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -501,9 +503,9 @@ const isExistedLocation = async (req, res, next) => {
                     where: { id }
                 });
         if (!response) {
-            return res.status(404).json({
+            return res.json({
                 status: "error",
-                message: "Location Doesn't Exist!"
+                message: "Địa điểm không tồn tại"
             });
         }
         next();
@@ -514,9 +516,9 @@ const isExistedLocation = async (req, res, next) => {
         }) 
             .then(async (province) => {
                 if (!province) {
-                    return res.status(404).json({
+                    return res.json({
                         status: "error",
-                        message: "Province Don't Exist!"
+                        message: "Tỉnh không tồn tại"
                     });
                 }
                 await District.findOne({ 
@@ -524,9 +526,9 @@ const isExistedLocation = async (req, res, next) => {
                 })
                     .then(async (district) => {
                         if (!district) {
-                            return res.status(404).json({
+                            return res.json({
                                 status: "error",
-                                message: "District Don't Exist!"
+                                message: "Huyện không tồn tại"
                             });
                         }
                         await Ward.findOne({ 
@@ -534,9 +536,9 @@ const isExistedLocation = async (req, res, next) => {
                         })
                             .then(async (ward) => {
                                 if (!ward) {
-                                    return res.status(404).json({
+                                    return res.json({
                                         status: "error",
-                                        message: "Ward Don't Exist!"
+                                        message: "Quận không tồn tại"
                                     });
                                 }
                                 next();
@@ -556,24 +558,24 @@ const areExistedLocations = async (req, res, next) => {
             where: { provinceId: id }
         });
     if (!response) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
 }
 
 const isExistedAddress = async (req, res, next) => {
-    const { id } = req.params.id;
+    let addressId = req.body.addressId ? req.body.addressId : req.params.id;
     await Address.findOne({ 
-        where: { id }
+        where: { id: addressId }
     })
         .then(address => {
             if (!address) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Address Doesn't Exist!"
+                    message: "Địa chỉ Không tồn tại"
                 });
             }
             next();
@@ -587,9 +589,9 @@ const isExistedAddressByL = async (req, res, next) => {
     })
         .then(address => {
             if (address) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Address Existed!"
+                    message: "Địa chỉ đã tồn tại"
                 });
             }
             next();
@@ -606,24 +608,24 @@ const areExistedAddresses = async (req, res, next) => {
         default: addresses = await Address.findAll(); break;
     }
     if (!addresses || addresses.length === 0) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
 }
 
 const isExistedPermiss = async (req, res, next) => {
-    const { id } = req.params.id;
+    let permissId = req.body.permissId ? req.body.permissId : req.params.id;
     await Permission.findOne({ 
-        where: { id }
+        where: { id: permissId }
     })
         .then(permiss => {
             if (!permiss) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Permission Doesn't Exist!"
+                    message: "Quyền truy cập không tồn tại"
                 });
             }
             next();
@@ -634,9 +636,9 @@ const areExistedPermiss = async (req, res, next) => {
     await Permission.findAll()
         .then(permiss => {
             if (!permiss) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Don't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -644,15 +646,15 @@ const areExistedPermiss = async (req, res, next) => {
 }
 
 const isExistedRole = async (req, res, next) => {
-    const { id } = req.params.id;
+    const roleId = req.body.roleId ? req.body.roleId : req.params.id;
     await Role.findOne({ 
-        where: { id }
+        where: { id: roleId }
     })
         .then(role => {
             if (!role) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Role Doesn't Exist!"
+                    message: "Quyền không tồn tại"
                 });
             }
             next();
@@ -663,9 +665,9 @@ const areExistedRoles = async (req, res, next) => {
     await Role.findAll()
         .then(roles => {
             if (!roles) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Don't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -679,9 +681,9 @@ const isExistedStaff = async (req, res, next) => {
     })
         .then(staff => {
             if (!staff) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Staff Doesn't Exist!"
+                    message: "Nhân viên không tồn tại"
                 });
             }
             next();
@@ -692,9 +694,9 @@ const areExistedStaffs = async (req, res, next) => {
     await AdminStaff.findAll()
         .then(staffs => {
             if (!staffs) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Don't Exist!"
+                    message: "Không tồn tại"
                 });
             }
             next();
@@ -708,9 +710,9 @@ const isExistedConver = async (req, res, next) => {
     })
         .then(conver => {
             if (!conver) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Conversation Doesn't Exist!"
+                    message: "Cuộc thoại không tồn tại"
                 });
             }
             next();
@@ -725,9 +727,9 @@ const areExistedConvers = async (req, res, next) => {
         })
         : await Conversation.findAll();
     if (!convers) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
@@ -739,9 +741,9 @@ const isExistedMessage = async (req, res, next) => {
     })
         .then(message => {
             if (!message) {
-                return res.status(404).json({
+                return res.json({
                     status: "error",
-                    message: "Message Doesn't Exist!"
+                    message: "Tin nhắn không tồn tại"
                 });
             }
             next();
@@ -754,9 +756,9 @@ const areExistedMessages = async (req, res, next) => {
             where: { converId }
         })
     if (!messages) {
-        return res.status(404).json({
+        return res.json({
             status: "error",
-            message: "Don't Exist!"
+            message: "Không tồn tại"
         });
     }
     next();
