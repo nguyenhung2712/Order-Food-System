@@ -1,44 +1,40 @@
 const { followService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getByFKId = async (req, res) => {
     try {
         const { type, id } = req.params;
         const response = await followService.getByFKId(type, id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await followService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const createFollow = async (req, res) => {
     try {
-        const { followedId, followingId, ...body } = req.body;
-        const response = await followService.createFollow(followedId, followingId, body);
-        res.json(response);
+        const { followedId, followingId } = req.body;
+        const response = await followService.createFollow(followingId, followedId);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
-const toggleFollow = async (req, res) => {
+const deleteFollow = async (req, res) => {
     try {
-        const { type, id } = req.params;
-        const response =  type === "delete"
-        ? await followService.deleteFollow(id)
-        : await followService.recoverFollow(id);
-        res.json(response);
+        const response = await followService.deleteFollow(req.params.id);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -46,5 +42,5 @@ module.exports = {
     getByFKId,
     getById,
     createFollow,
-    toggleFollow
+    deleteFollow,
 }

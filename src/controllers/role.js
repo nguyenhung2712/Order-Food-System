@@ -1,39 +1,38 @@
 const { roleService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await roleService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await roleService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const createRole = async (req, res) => {
     try {
         const response = await roleService.createRole(req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updateRole = async (req, res) => {
     try {
         const response = await roleService.updateRole(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -43,9 +42,9 @@ const toggleRole = async (req, res) => {
         const response = type === "delete"
         ? await roleService.deleteRole(id)
         : await roleService.recoverRole(id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -54,17 +53,16 @@ const getAdminRoleByAdminId = async (req, res) => {
         const response = await roleService.getAdminRoleByAdminId(req.params.id);
         return res.json(response);
     } catch (error) {
-        return res.json(error)
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getOtherAdminRoleByAdminId = async (req, res) => {
     try {
         const response = await roleService.getOtherAdminRoleByAdminId(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -77,9 +75,9 @@ const cdrAdminRole = async (req, res) => {
             case "create": response = await roleService.createAdminRole(adminId, roleId); break;
             case "delete": response = await roleService.deleteAdminRole(adminId, roleId); break;
         }
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 

@@ -1,9 +1,15 @@
-const { CommentRep } = require("../models");
+const { CommentRep, User, Comment } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await CommentRep.findAll();
+        const response = await CommentRep.findAll({
+            include: [
+                { model: User, as: "user" },
+                { model: Comment, as: "comment" },
+                { model: CommentRep, as: "rep" }
+            ]
+        });
         resolve({
             status: "success",
             message: "Get comment replies successfully.",
@@ -16,14 +22,24 @@ const getAll = () => new Promise(async (resolve, reject) => {
 
 const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
     try {
-        const response = type === "user" 
+        const response = type === "user"
             ? await Comment.findAll({
-                where: { userId: id }
+                where: { userId: id },
+                include: [
+                    { model: User, as: "user" },
+                    { model: Comment, as: "comment" },
+                    { model: CommentRep, as: "rep" }
+                ]
             })
             : await Comment.findAll({
-                where: { commentId: id }
+                where: { commentId: id },
+                include: [
+                    { model: User, as: "user" },
+                    { model: Comment, as: "comment" },
+                    { model: CommentRep, as: "rep" }
+                ]
             });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get comment replies successfully.",
             payload: response
@@ -36,7 +52,12 @@ const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
 const getById = (repId) => new Promise(async (resolve, reject) => {
     try {
         const rep = await CommentRep.findOne({
-            where: { id: repId }
+            where: { id: repId },
+            include: [
+                { model: User, as: "user" },
+                { model: Comment, as: "comment" },
+                { model: CommentRep, as: "rep" }
+            ]
         });
         resolve({
             status: "success",
@@ -48,7 +69,7 @@ const getById = (repId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const createRep = (userId, commentId, repBody) => new Promise(async (resolve, reject) => {
+const createRep = (userId, commentId, repId, repBody) => new Promise(async (resolve, reject) => {
     try {
         await CommentRep.create(
             {
@@ -57,11 +78,12 @@ const createRep = (userId, commentId, repBody) => new Promise(async (resolve, re
                 deletedAt: null,
                 status: 1,
                 userId,
-                commentId
+                commentId,
+                repId
             }
         )
             .then(rep => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create comment reply successfully.",
                     payload: rep
@@ -78,9 +100,15 @@ const updateRep = (repId, repBody) => new Promise(async (resolve, reject) => {
             { ...repBody },
             { where: { id: repId } }
         )
-            .then(() => CommentRep.findById(repId))
+            .then(() => CommentRep.findByPk(repId, {
+                include: [
+                    { model: User, as: "user" },
+                    { model: Comment, as: "comment" },
+                    { model: CommentRep, as: "rep" }
+                ]
+            }))
             .then(rep => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update comment reply successfully.",
                     payload: rep
@@ -93,16 +121,9 @@ const updateRep = (repId, repBody) => new Promise(async (resolve, reject) => {
 
 const deleteRep = (repId) => new Promise(async (resolve, reject) => {
     try {
-        await CommentRep.update(
-            {
-                deletedAt: new Date(),
-                status: 0
-            },
-            { where: { id: repId } }
-        )
-            .then(() => CommentRep.findById(repId))
+        await CommentRep.destroy({ where: { id: repId } })
             .then(rep => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete comment reply successfully.",
                     payload: rep
@@ -113,7 +134,7 @@ const deleteRep = (repId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const findByPk = (repId) => new Promise(async (resolve, reject) => {
+/* const findByPk = (repId) => new Promise(async (resolve, reject) => {
     try {
         await CommentRep.update(
             {
@@ -122,9 +143,15 @@ const findByPk = (repId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: repId } }
         )
-            .then(() => CommentRep.findById(repId))
+            .then(() => CommentRep.findByPk(repId, {
+                include: [
+                    { model: User, as: "user" },
+                    { model: Comment, as: "comment" },
+                    { model: CommentRep, as: "rep" }
+                ]
+            }))
             .then(comment => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Get comment reply successfully.",
                     payload: comment
@@ -133,7 +160,7 @@ const findByPk = (repId) => new Promise(async (resolve, reject) => {
     } catch (error) {
         reject(error);
     }
-});
+}); */
 
 module.exports = {
     getAll,
@@ -142,5 +169,5 @@ module.exports = {
     createRep,
     updateRep,
     deleteRep,
-    findByPk
+    /* findByPk */
 }

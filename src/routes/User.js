@@ -1,12 +1,19 @@
 const express = require("express");
 const router = express.Router();
+const fileUploader = require('../config/cloudinary.config');
 
 const { Auth } = require("../middlewares");
 const { userController } = require("../controllers");
+const { VerifyUserUpsert, VerifyExists } = require("../middlewares");
 
 router.get('/all', Auth.validateToken, userController.getAll);
 router.get('/:id', userController.getUser);
 router.put('/change-password/:id', userController.changePassword);
+router.put('/update/:id', [VerifyUserUpsert.checkExistedUsername], userController.updateUser);
+router.put('/upload-avatar/:id', 
+    [Auth.validateToken, VerifyExists.isExistedUser, 
+        fileUploader.single('image')], 
+    userController.uploadAvatarUser);
 
 /* router.get("/:type", [validateToken], async (req, res) => {
     try {

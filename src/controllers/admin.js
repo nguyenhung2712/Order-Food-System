@@ -1,23 +1,20 @@
 const { adminService } = require('../services');
-const dataExporter = require('json2csv').Parser;
-
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await adminService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await adminService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -25,18 +22,18 @@ const createStaff = async (req, res) => {
     try {
         const { password, ...body } = req.body;
         const response = await adminService.createStaff(password, body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updateStaff = async (req, res) => {
     try {
         const response = await adminService.updateStaff(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -50,9 +47,9 @@ const udraStaff = async (req, res) => {
             case "remove": response = await adminService.removeStaff(id); break;
             case "approve": response = await adminService.approveStaff(id); break;
         }
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 

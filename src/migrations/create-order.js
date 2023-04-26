@@ -7,7 +7,7 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             predictDate: {
                 allowNull: false,
@@ -28,24 +28,40 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             },
+            number: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            note: {
+                type: Sequelize.STRING
+            },
             userId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Users',
-					key: 'id',
-					as: 'userId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Users',
+                    key: 'id',
+                    as: 'userId',
+                }
+            },
             paymentId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Payments',
-					key: 'id',
-					as: 'paymentId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Payments',
+                    key: 'id',
+                    as: 'paymentId',
+                }
+            },
+            addressId: {
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Addresses',
+                    key: 'id',
+                    as: 'addressId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {

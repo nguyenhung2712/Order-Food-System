@@ -1,39 +1,38 @@
 const { permissService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await permissService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await permissService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const createPermiss = async (req, res) => {
     try {
         const response = await permissService.createPermiss(req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updatePermiss = async (req, res) => {
     try {
         const response = await permissService.updatePermiss(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -43,18 +42,18 @@ const togglePermiss = async (req, res) => {
         const response = type === "delete"
         ? await permissService.deletePermiss(id)
         : await permissService.recoverPermiss(id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getPermissionByRoleId = async (req, res) => {
     try {
         const response = await permissService.getPermissionByRoleId(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -67,9 +66,9 @@ const cdrRolePermission = async (req, res) => {
             case "create": response = await permissService.createRolePermission(permissionId, roleId); break;
             case "delete": response = await permissService.deleteRolePermission(permissionId, roleId); break;
         }
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 

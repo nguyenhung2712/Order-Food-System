@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Like_Blog extends Model {
@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     Like_Blog.init({
+        type: DataTypes.TINYINT,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT
     }, {

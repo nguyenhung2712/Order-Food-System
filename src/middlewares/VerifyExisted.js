@@ -1,11 +1,11 @@
-const { 
+const {
     User, AdminStaff,
     OrderDetail, Order, Payment,
     DishType, Dish, Rate,
     Cart, CartItem,
     Blog, Comment, CommentRep,
     Notification, Follow,
-    Province, District, Ward, Address, 
+    Province, District, Ward, Address,
     Role, Permission,
     Conversation, Message
 } = require("../models");
@@ -14,7 +14,7 @@ const isExistedUser = async (req, res, next) => {
     const userId = req.body.userId ? req.body.userId : req.params.id;
     const { followedId, followingId } = req.body;
     if (userId) {
-        await User.findOne({ 
+        await User.findOne({
             where: { id: userId }
         })
             .then(user => {
@@ -28,7 +28,7 @@ const isExistedUser = async (req, res, next) => {
             });
     }
     if (followedId && followingId) {
-        await User.findOne({ 
+        await User.findOne({
             where: { id: followedId }
         })
             .then(async (followed) => {
@@ -38,7 +38,7 @@ const isExistedUser = async (req, res, next) => {
                         message: "Followed Users Không tồn tại"
                     });
                 }
-                await User.findOne({ 
+                await User.findOne({
                     where: { id: followingId }
                 })
                     .then(async (following) => {
@@ -69,7 +69,7 @@ const areExistedUsers = async (req, res, next) => {
 
 const isExistedOrder = async (req, res, next) => {
     const orderId = req.body.orderId ? req.body.orderId : req.params.id;
-    await Order.findOne({ 
+    await Order.findOne({
         where: { id: orderId }
     })
         .then(order => {
@@ -94,7 +94,7 @@ const areExistedOrders = async (req, res, next) => {
         orders = await Order.findAll();
     }
 
-    if (!orders || !orders.length === 0){
+    if (!orders || !orders.length === 0) {
         return res.json({
             status: "error",
             message: "Không tồn tại"
@@ -105,7 +105,7 @@ const areExistedOrders = async (req, res, next) => {
 
 const isExistedOrderDetail = async (req, res, next) => {
     const { id } = req.params;
-    await OrderDetail.findOne({ 
+    await OrderDetail.findOne({
         where: { id }
     })
         .then(detail => {
@@ -121,7 +121,7 @@ const isExistedOrderDetail = async (req, res, next) => {
 
 const areExistedOrderDetails = async (req, res, next) => {
     const orderId = req.body.orderId ? req.body.orderId : req.params.id;
-    await OrderDetail.findAll({ 
+    await OrderDetail.findAll({
         where: { orderId }
     })
         .then(details => {
@@ -136,10 +136,10 @@ const areExistedOrderDetails = async (req, res, next) => {
 }
 
 const isExistedDish = async (req, res, next) => {
-    const dishId = req.body.dishId 
-        ? req.body.dishId 
+    const dishId = req.body.dishId
+        ? req.body.dishId
         : req.params.id;
-    await Dish.findOne({ 
+    await Dish.findOne({
         where: { id: dishId }
     })
         .then(dish => {
@@ -161,7 +161,7 @@ const areExistedDishes = async (req, res, next) => {
         })
         : await Dish.findAll();
 
-    if (!dishes || dishes.length === 0) { 
+    if (!dishes || dishes.length === 0) {
         return res.json({
             status: "error",
             message: "Không tồn tại"
@@ -172,7 +172,7 @@ const areExistedDishes = async (req, res, next) => {
 
 const isExistedDishType = async (req, res, next) => {
     const typeId = req.body.typeId ? req.body.typeId : req.params.id;
-    await DishType.findOne({ 
+    await DishType.findOne({
         where: { id: typeId }
     })
         .then(type => {
@@ -189,7 +189,7 @@ const isExistedDishType = async (req, res, next) => {
 const areExistedDishTypes = async (req, res, next) => {
     await DishType.findAll()
         .then(types => {
-            if (!types || types.length === 0){
+            if (!types || types.length === 0) {
                 return res.json({
                     status: "error",
                     message: "Không tồn tại"
@@ -201,7 +201,7 @@ const areExistedDishTypes = async (req, res, next) => {
 
 const isExistedPayment = async (req, res, next) => {
     const paymentId = req.body.paymentId ? req.body.paymentId : req.params.id;
-    await Payment.findOne({ 
+    await Payment.findOne({
         where: { id: paymentId }
     })
         .then(payment => {
@@ -225,7 +225,7 @@ const areExistedPayments = async (req, res, next) => {
     } else {
         payments = await Payment.findAll();
     }
-    if (!payments || payments.length === 0){
+    if (!payments || payments.length === 0) {
         return res.json({
             status: "error",
             message: "Không tồn tại"
@@ -236,7 +236,7 @@ const areExistedPayments = async (req, res, next) => {
 
 const isExistedRate = async (req, res, next) => {
     const { id } = req.params;
-    await Rate.findOne({ 
+    await Rate.findOne({
         where: { id }
     })
         .then(rate => {
@@ -253,7 +253,7 @@ const isExistedRate = async (req, res, next) => {
 const areExistedRates = async (req, res, next) => {
     const { type, id } = req.params;
     const rates = type === "user"
-        ? await Rate.findAll({ 
+        ? await Rate.findAll({
             where: { userId: id }
         })
         : await Rate.findAll({
@@ -270,7 +270,7 @@ const areExistedRates = async (req, res, next) => {
 
 const isExistedCart = async (req, res, next) => {
     const { id } = req.params;
-    await Cart.findOne({ 
+    await Cart.findOne({
         where: { id }
     })
         .then(cart => {
@@ -286,7 +286,7 @@ const isExistedCart = async (req, res, next) => {
 
 const isExistedCartItem = async (req, res, next) => {
     const { id } = req.params;
-    await CartItem.findOne({ 
+    await CartItem.findOne({
         where: { id }
     })
         .then(item => {
@@ -302,7 +302,7 @@ const isExistedCartItem = async (req, res, next) => {
 
 const areExistedCartItems = async (req, res, next) => {
     const { id } = req.params;
-    await CartItem.findAll({ 
+    await CartItem.findAll({
         where: { cartId: id }
     })
         .then(item => {
@@ -318,7 +318,7 @@ const areExistedCartItems = async (req, res, next) => {
 
 const isExistedBlog = async (req, res, next) => {
     let blogId = req.body.blogId ? req.body.blogId : req.params.id;
-    await Blog.findOne({ 
+    await Blog.findOne({
         where: { id: blogId }
     })
         .then(blog => {
@@ -342,7 +342,7 @@ const areExistedBlogs = async (req, res, next) => {
     } else {
         blogs = await Blog.findAll();
     }
-    if (!blogs || blogs.length === 0){
+    if (!blogs || blogs.length === 0) {
         return res.json({
             status: "error",
             message: "Không tồn tại"
@@ -353,7 +353,7 @@ const areExistedBlogs = async (req, res, next) => {
 
 const isExistedComment = async (req, res, next) => {
     let commentId = req.body.commentId ? req.body.commentId : req.params.id;
-    await Comment.findOne({ 
+    await Comment.findOne({
         where: { id: commentId }
     })
         .then(comment => {
@@ -370,7 +370,7 @@ const isExistedComment = async (req, res, next) => {
 const areExistedComments = async (req, res, next) => {
     const { type, id } = req.params;
     const comments = type === "user"
-        ? await Comment.findAll({ 
+        ? await Comment.findAll({
             where: { userId: id }
         })
         : await Comment.findAll({
@@ -387,7 +387,7 @@ const areExistedComments = async (req, res, next) => {
 
 const isExistedCommentRep = async (req, res, next) => {
     let repId = req.body.repId ? req.body.repId : req.params.id;
-    await CommentRep.findOne({ 
+    await CommentRep.findOne({
         where: { id: repId }
     })
         .then(rep => {
@@ -404,7 +404,7 @@ const isExistedCommentRep = async (req, res, next) => {
 const areExistedCommentReps = async (req, res, next) => {
     const { type, id } = req.params;
     const reps = type === "user"
-        ? await CommentRep.findAll({ 
+        ? await CommentRep.findAll({
             where: { userId: id }
         })
         : await CommentRep.findAll({
@@ -421,7 +421,7 @@ const areExistedCommentReps = async (req, res, next) => {
 
 const isExistedNotif = async (req, res, next) => {
     let notifyId = req.body.notifyId ? req.body.notifyId : req.params.id;
-    await Notification.findOne({ 
+    await Notification.findOne({
         where: { id: notifyId }
     })
         .then(rep => {
@@ -439,7 +439,7 @@ const areExistedNotifs = async (req, res, next) => {
     const { id } = req.params;
     let notifs;
     if (id) {
-        notifs = await Notification.findAll({ 
+        notifs = await Notification.findAll({
             where: { receiverId: id }
         });
     } else {
@@ -455,8 +455,8 @@ const areExistedNotifs = async (req, res, next) => {
 }
 
 const isExistedFollow = async (req, res, next) => {
-    const { id } = req.params.id;
-    await Follow.findOne({ 
+    const id = req.params.id;
+    await Follow.findOne({
         where: { id }
     })
         .then(follow => {
@@ -473,10 +473,10 @@ const isExistedFollow = async (req, res, next) => {
 const areExistedFollows = async (req, res, next) => {
     const { type, id } = req.params;
     const follows = type === "followed"
-        ? await Follow.findAll({ 
+        ? await Follow.findAll({
             where: { followedId: id }
         })
-        : await Follow.findAll({ 
+        : await Follow.findAll({
             where: { followingId: id }
         });
     if (!follows || follows.length === 0) {
@@ -492,14 +492,14 @@ const isExistedLocation = async (req, res, next) => {
     if (req.params) {
         const { type, id } = req.params;
         const response = type === "ward"
-            ? await Ward.findOne({ 
+            ? await Ward.findOne({
                 where: { id }
             })
             : type === "ward"
-                ? await District.findOne({ 
+                ? await District.findOne({
                     where: { id }
                 })
-                : await Province.findOne({ 
+                : await Province.findOne({
                     where: { id }
                 });
         if (!response) {
@@ -511,9 +511,9 @@ const isExistedLocation = async (req, res, next) => {
         next();
     } else if (req.body) {
         const { districtId, provinceId, wardId } = req.body;
-        await Province.findOne({ 
+        await Province.findOne({
             where: { id: provinceId }
-        }) 
+        })
             .then(async (province) => {
                 if (!province) {
                     return res.json({
@@ -521,7 +521,7 @@ const isExistedLocation = async (req, res, next) => {
                         message: "Tỉnh không tồn tại"
                     });
                 }
-                await District.findOne({ 
+                await District.findOne({
                     where: { id: districtId }
                 })
                     .then(async (district) => {
@@ -531,7 +531,7 @@ const isExistedLocation = async (req, res, next) => {
                                 message: "Huyện không tồn tại"
                             });
                         }
-                        await Ward.findOne({ 
+                        await Ward.findOne({
                             where: { id: wardId }
                         })
                             .then(async (ward) => {
@@ -551,10 +551,10 @@ const isExistedLocation = async (req, res, next) => {
 const areExistedLocations = async (req, res, next) => {
     const { type, id } = req.params;
     const response = type === "wards"
-        ? await Ward.findAll({ 
+        ? await Ward.findAll({
             where: { districtId: id }
         })
-        : await District.findAll({ 
+        : await District.findAll({
             where: { provinceId: id }
         });
     if (!response) {
@@ -568,7 +568,7 @@ const areExistedLocations = async (req, res, next) => {
 
 const isExistedAddress = async (req, res, next) => {
     let addressId = req.body.addressId ? req.body.addressId : req.params.id;
-    await Address.findOne({ 
+    await Address.findOne({
         where: { id: addressId }
     })
         .then(address => {
@@ -584,7 +584,7 @@ const isExistedAddress = async (req, res, next) => {
 
 const isExistedAddressByL = async (req, res, next) => {
     const { districtId, provinceId, wardId } = req.body;
-    await Address.findOne({ 
+    await Address.findOne({
         where: { districtId, provinceId, wardId }
     })
         .then(address => {
@@ -618,7 +618,7 @@ const areExistedAddresses = async (req, res, next) => {
 
 const isExistedPermiss = async (req, res, next) => {
     let permissId = req.body.permissId ? req.body.permissId : req.params.id;
-    await Permission.findOne({ 
+    await Permission.findOne({
         where: { id: permissId }
     })
         .then(permiss => {
@@ -647,7 +647,7 @@ const areExistedPermiss = async (req, res, next) => {
 
 const isExistedRole = async (req, res, next) => {
     const roleId = req.body.roleId ? req.body.roleId : req.params.id;
-    await Role.findOne({ 
+    await Role.findOne({
         where: { id: roleId }
     })
         .then(role => {
@@ -676,7 +676,7 @@ const areExistedRoles = async (req, res, next) => {
 
 const isExistedStaff = async (req, res, next) => {
     let adminId = req.body.adminId ? req.body.adminId : req.params.id;
-    await AdminStaff.findOne({ 
+    await AdminStaff.findOne({
         where: { id: adminId }
     })
         .then(staff => {
@@ -705,7 +705,7 @@ const areExistedStaffs = async (req, res, next) => {
 
 const isExistedConver = async (req, res, next) => {
     let converId = req.body.converId ? req.body.converId : req.params.id;
-    await Conversation.findOne({ 
+    await Conversation.findOne({
         where: { id: converId }
     })
         .then(conver => {
@@ -736,7 +736,7 @@ const areExistedConvers = async (req, res, next) => {
 }
 
 const isExistedMessage = async (req, res, next) => {
-    await Message.findOne({ 
+    await Message.findOne({
         where: { id: req.params.id }
     })
         .then(message => {
@@ -753,8 +753,8 @@ const isExistedMessage = async (req, res, next) => {
 const areExistedMessages = async (req, res, next) => {
     const { converId } = req.params.id;
     const messages = await Message.findAll({
-            where: { converId }
-        })
+        where: { converId }
+    })
     if (!messages) {
         return res.json({
             status: "error",
@@ -764,10 +764,10 @@ const areExistedMessages = async (req, res, next) => {
     next();
 }
 
-module.exports = { 
+module.exports = {
     isExistedUser,
     areExistedUsers,
-    
+
     isExistedOrder,
     areExistedOrders,
 
@@ -819,7 +819,7 @@ module.exports = {
 
     isExistedStaff,
     areExistedStaffs,
-    
+
     isExistedConver,
     areExistedConvers,
 

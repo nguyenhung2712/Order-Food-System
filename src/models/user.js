@@ -1,47 +1,48 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-	class User extends Model {
-		static associate(models) {
-            User.belongsToMany(models.Blog, { through: 'Like_Blog' });
-
-			User.hasOne(models.Cart);
+    class User extends Model {
+        static associate(models) {
+            User.hasOne(models.Cart);
             User.hasOne(models.Token);
             User.hasOne(models.Conversation);
 
-			User.hasMany(models.UserAddress, { foreignKey: 'userId' });
-			User.hasMany(models.Rate, { foreignKey: 'userId' });
-			User.hasMany(models.Order, { foreignKey: 'userId' });
-			User.hasMany(models.Notification, { foreignKey: 'receiverId' });
-			User.hasMany(models.Blog, { foreignKey: 'userId' });
-			User.hasMany(models.Comment, { foreignKey: 'userId' });
-			User.hasMany(models.CommentRep, { foreignKey: 'userId' });
-			User.hasMany(models.Message, { foreignKey: 'userId' });
-			User.hasMany(models.Follow, { foreignKey: 'followingId' });
-			User.hasMany(models.Follow, { foreignKey: 'followedId' });
-			User.hasMany(models.Tracker, { foreignKey: 'userId' });
-		}
-	}
-	User.init({
-		username: DataTypes.STRING,
-		email: DataTypes.STRING,
-		password: DataTypes.STRING,
-		firstName: DataTypes.STRING,
-		lastName: DataTypes.STRING,
-		avatar: DataTypes.STRING,
-		gender: DataTypes.INTEGER,
-		phoneNum: DataTypes.STRING,
-		isActived: DataTypes.INTEGER,
-		lastLogin: DataTypes.DATE,
-		deletedAt: DataTypes.DATE,
-		disabledAt: DataTypes.DATE,
-		status: DataTypes.INTEGER,
-		is2FA: DataTypes.TINYINT
-	}, {
-		sequelize,
-		modelName: 'User',
-	});
-	return User;
+            User.hasMany(models.UserAddress, { foreignKey: 'userId' });
+            User.hasMany(models.Rate, { foreignKey: 'userId' });
+            User.hasMany(models.Order, { foreignKey: 'userId' });
+            User.hasMany(models.Notification, { foreignKey: 'receiverId' });
+            User.hasMany(models.Blog, { foreignKey: 'userId' });
+            User.hasMany(models.Comment, { foreignKey: 'userId' });
+            User.hasMany(models.CommentRep, { foreignKey: 'userId' });
+            User.hasMany(models.Message, { foreignKey: 'userId' });
+            User.hasMany(models.Follow, { foreignKey: 'followingId' });
+            User.hasMany(models.Follow, { foreignKey: 'followedId' });
+            User.hasMany(models.Tracker, { foreignKey: 'userId' });
+            User.hasMany(models.Like_Blog, { foreignKey: 'userId' });
+        }
+    }
+    User.init({
+        username: DataTypes.STRING,
+        email: DataTypes.STRING,
+        password: DataTypes.STRING,
+        firstName: DataTypes.STRING,
+        lastName: DataTypes.STRING,
+        avatar: DataTypes.STRING,
+        gender: DataTypes.STRING,
+        phoneNum: DataTypes.STRING,
+        isActived: DataTypes.INTEGER,
+        lastLogin: DataTypes.DATE,
+        deletedAt: DataTypes.DATE,
+        disabledAt: DataTypes.DATE,
+        status: DataTypes.INTEGER,
+        is2FA: DataTypes.TINYINT,
+        isShared: DataTypes.TINYINT,
+        fbID: DataTypes.STRING
+    }, {
+        sequelize,
+        modelName: 'User',
+    });
+    return User;
 };

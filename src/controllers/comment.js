@@ -1,31 +1,55 @@
 const { commentService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await commentService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getByFKId = async (req, res) => {
     try {
         const { type, id } = req.params;
+
+        const sortBy = req.query.sort;
         const response = await commentService.getByFKId(type, id);
-        res.json(response);
+        const items = JSON.parse(JSON.stringify(response.payload));
+        const limit = Number(req.query.limit);
+        const page = Number(req.query.page);
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+
+
+        const results = {};
+        if (endIndex < response.payload.length) {
+            results.next = {
+                page: page + 1,
+                limit: limit,
+            };
+        }
+        if (startIndex > 0) {
+            results.previous = {
+                page: page - 1,
+                limit: limit,
+            };
+        }
+        results.itemsLen = items.length;
+        results.results = items.slice(startIndex, endIndex);
+        return res.json(results);
     } catch (error) {
-        return interalServerError(res);
+        console.log(error);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await commentService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -34,30 +58,43 @@ const createComment = async (req, res) => {
     try {
         const { userId, blogId, ...body } = req.body;
         const response = await commentService.createComment(userId, blogId, body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
+    }
+}
+
+const uploadCommentImage = async (req, res) => {
+    try {
+        let pictureFile = req.file;
+        let id = req.params.id;
+        if (!pictureFile)
+            return res.status(400).json({ message: "No picture attached!" });
+        const response = await commentService.updateComment(id,
+            { image: pictureFile.path }
+        );
+
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
     }
 }
 
 const updateComment = async (req, res) => {
     try {
         const response = await commentService.updateComment(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
-const toggleComment = async (req, res) => {
+const deleteComment = async (req, res) => {
     try {
-        const { type, id } = req.params;
-        const response =  type === "delete"
-        ? await commentService.deleteComment(id)
-        : await commentService.recoverComment(id);
-        res.json(response);
+        const response = await commentService.deleteComment(req.params.id);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -66,6 +103,7 @@ module.exports = {
     getByFKId,
     getById,
     createComment,
+    uploadCommentImage,
     updateComment,
-    toggleComment
+    deleteComment
 }

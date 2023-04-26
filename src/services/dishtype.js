@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
         const response = await DishType.findAll();
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get types successfully.",
             payload: response
@@ -19,10 +19,25 @@ const getById = (typeId) => new Promise(async (resolve, reject) => {
         const type = await DishType.findOne({
             where: { id: typeId }
         });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get type successfully.",
             payload: type
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getBySlug = (slug) => new Promise(async (resolve, reject) => {
+    try {
+        const response = await DishType.findOne({
+            where: { slug: slug }
+        });
+        resolve({
+            status: "success",
+            message: "Get type successfully.",
+            payload: response
         });
     } catch (error) {
         reject(error);
@@ -38,7 +53,7 @@ const createDishType = (typeName) => new Promise(async (resolve, reject) => {
             deletedAt: null
         })
             .then(type => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create type successfully.",
                     payload: type
@@ -57,7 +72,7 @@ const updateDishType = (typeId, typeName) => new Promise(async (resolve, reject)
         )
             .then(() => DishType.findByPk(typeId))
             .then(type => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update type successfully.",
                     payload: type
@@ -79,7 +94,7 @@ const deleteDishType = (typeId) => new Promise(async (resolve, reject) => {
         )
             .then(() => DishType.findByPk(typeId))
             .then(type => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete type successfully.",
                     payload: type
@@ -101,7 +116,7 @@ const recoverDishType = (typeId) => new Promise(async (resolve, reject) => {
         )
             .then(() => DishType.findByPk(typeId))
             .then(type => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover type successfully.",
                     payload: type
@@ -115,6 +130,7 @@ const recoverDishType = (typeId) => new Promise(async (resolve, reject) => {
 module.exports = {
     getAll,
     getById,
+    getBySlug,
     createDishType,
     updateDishType,
     deleteDishType,

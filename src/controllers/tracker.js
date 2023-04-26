@@ -6,12 +6,12 @@ const getTrackersById = async (req, res) => {
         const { id, type } = req.params;
         let response;
         switch (type) {
-            case "user": response = await trackerService.getTrackersByUserId(req.params.id);
-            case "staff": response = await trackerService.getTrackersByAdminId(req.params.id);
+            case "user": response = await trackerService.getTrackersByUserId(id);
+            case "staff": response = await trackerService.getTrackersByAdminId(id);
         }
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 

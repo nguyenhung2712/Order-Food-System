@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class DishType extends Model {
@@ -9,7 +9,12 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     DishType.init({
-        typeName: DataTypes.STRING
+        typeName: DataTypes.STRING,
+        typeNameEn: DataTypes.STRING,
+        icon: DataTypes.STRING,
+        unit: DataTypes.STRING,
+        unitEn: DataTypes.STRING,
+        slug: DataTypes.STRING
     }, {
         sequelize,
         modelName: 'DishType',

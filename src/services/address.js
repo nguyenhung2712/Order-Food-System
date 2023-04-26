@@ -1,4 +1,4 @@
-const { Address, UserAddress } = require("../models");
+const { Address, UserAddress, Province, District, Ward, User } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
@@ -17,13 +17,13 @@ const getAll = () => new Promise(async (resolve, reject) => {
 const getByFKId = (districtId, provinceId, wardId) => new Promise(async (resolve, reject) => {
     try {
         const response = await Address.findOne({
-                where: { 
-                    districtId,
-                    provinceId,
-                    wardId
-                }
-            });
-        resolve({ 
+            where: {
+                districtId,
+                provinceId,
+                wardId
+            }
+        });
+        resolve({
             status: "success",
             message: "Get address successfully.",
             payload: response
@@ -56,13 +56,13 @@ const createAddress = (districtId, provinceId, wardId, addressBody) => new Promi
                 ...addressBody,
                 deletedAt: null,
                 status: 1,
-                districtId, 
+                districtId,
                 provinceId,
                 wardId
             }
         )
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create address successfully.",
                     payload: address
@@ -81,7 +81,7 @@ const updateAddress = (addressId, addressBody) => new Promise(async (resolve, re
         )
             .then(() => Address.findByPk(addressId))
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update address successfully.",
                     payload: address
@@ -103,7 +103,7 @@ const deleteAddress = (addressId) => new Promise(async (resolve, reject) => {
         )
             .then(() => Address.findByPk(addressId))
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete address successfully.",
                     payload: address
@@ -125,7 +125,7 @@ const recoverAddress = (addressId) => new Promise(async (resolve, reject) => {
         )
             .then(() => Address.findByPk(addressId))
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover address successfully.",
                     payload: address
@@ -139,10 +139,21 @@ const recoverAddress = (addressId) => new Promise(async (resolve, reject) => {
 const getUserAddressById = (userId) => new Promise(async (resolve, reject) => {
     try {
         await UserAddress.findAll({
-            where: { userId }
+            where: { userId },
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Address, as: "address",
+                    include: [
+                        { model: Province, as: "province" },
+                        { model: District, as: "district" },
+                        { model: Ward, as: "ward" },
+                    ]
+                }
+            ],
         })
             .then(addresses => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Get addresses successfully.",
                     payload: addresses
@@ -153,18 +164,47 @@ const getUserAddressById = (userId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const createUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
+const getUserAddressByDefault = (userId) => new Promise(async (resolve, reject) => {
+    try {
+        await UserAddress.findOne({
+            where: { userId, isDefault: 1 },
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Address, as: "address",
+                    include: [
+                        { model: Province, as: "province" },
+                        { model: District, as: "district" },
+                        { model: Ward, as: "ward" },
+                    ]
+                }
+            ],
+        })
+            .then(address => {
+                resolve({
+                    status: "success",
+                    message: "Get address successfully.",
+                    payload: address
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const createUserAddress = (userId, addressId, info) => new Promise(async (resolve, reject) => {
     try {
         const addresses = await getUserAddressById(userId);
         await UserAddress.create({
-            userId, 
+            ...info,
+            userId,
             addressId,
             deletedAt: null,
             status: 1,
-            isDefault: (addresses || addresses.length) === 0 ? true : false
+            isDefault: (addresses || addresses.length === 0) ? 1 : 0
         })
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create user's address successfully.",
                     payload: address
@@ -175,15 +215,28 @@ const createUserAddress = (userId, addressId) => new Promise(async (resolve, rej
     }
 });
 
-const updateUserAddress = (userId, addressId, newAddressId) => new Promise(async (resolve, reject) => {
+const updateUserAddress = (userId, addressId, body) => new Promise(async (resolve, reject) => {
     try {
         await UserAddress.update(
-            { addressId: newAddressId },
+            { ...body },
             { where: { userId, addressId } }
         )
-            .then(() => UserAddress.findOne({ where: { userId, addressId } }))
+            .then(() => UserAddress.findOne({
+                where: { userId, addressId },
+                include: [
+                    { model: User, as: "user" },
+                    {
+                        model: Address, as: "address",
+                        include: [
+                            { model: Province, as: "province" },
+                            { model: District, as: "district" },
+                            { model: Ward, as: "ward" },
+                        ]
+                    }
+                ],
+            }))
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update user's address successfully.",
                     payload: address
@@ -197,15 +250,28 @@ const updateUserAddress = (userId, addressId, newAddressId) => new Promise(async
 const deleteUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
     try {
         await UserAddress.update(
-            { 
+            {
                 deletedAt: new Date(),
                 status: 1,
             },
             { where: { userId, addressId } }
         )
-            .then(() => UserAddress.findOne({ where: { userId, addressId } }))
+            .then(() => UserAddress.findOne({
+                where: { userId, addressId },
+                include: [
+                    { model: User, as: "user" },
+                    {
+                        model: Address, as: "address",
+                        include: [
+                            { model: Province, as: "province" },
+                            { model: District, as: "district" },
+                            { model: Ward, as: "ward" },
+                        ]
+                    }
+                ],
+            }))
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete user's address successfully.",
                     payload: address
@@ -219,15 +285,28 @@ const deleteUserAddress = (userId, addressId) => new Promise(async (resolve, rej
 const recoverUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
     try {
         await UserAddress.update(
-            { 
+            {
                 deletedAt: null,
                 status: 0,
             },
             { where: { userId, addressId } }
         )
-            .then(() => UserAddress.findOne({ where: { userId, addressId } }))
+            .then(() => UserAddress.findOne({
+                where: { userId, addressId },
+                include: [
+                    { model: User, as: "user" },
+                    {
+                        model: Address, as: "address",
+                        include: [
+                            { model: Province, as: "province" },
+                            { model: District, as: "district" },
+                            { model: Ward, as: "ward" },
+                        ]
+                    }
+                ],
+            }))
             .then(address => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover user's address successfully.",
                     payload: address
@@ -248,6 +327,7 @@ module.exports = {
     recoverAddress,
 
     getUserAddressById,
+    getUserAddressByDefault,
     createUserAddress,
     updateUserAddress,
     deleteUserAddress,

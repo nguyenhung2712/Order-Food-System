@@ -1,9 +1,28 @@
-const { Comment } = require("../models");
+const { Comment, User, Blog, CommentRep } = require("../models");
 const { v4: uuidv4 } = require("uuid");
+const { Op } = require('sequelize');
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await Comment.findAll();
+        const response = await Comment.findAll({
+            include: [
+                { model: User, as: "user" },
+                { model: Blog, as: "blog" },
+                {
+                    model: CommentRep,
+                    include: [
+                        { model: User, as: "user" },
+                        { model: Comment, as: "comment" },
+                        {
+                            model: CommentRep, as: "rep",
+                            order: [['createdAt', 'ASC']],
+                            include: [{ model: User, as: "user" }],
+                        },
+                    ]
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
         resolve({
             status: "success",
             message: "Get comments successfully.",
@@ -16,14 +35,48 @@ const getAll = () => new Promise(async (resolve, reject) => {
 
 const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
     try {
-        const response = type === "user" 
+        const response = type === "user"
             ? await Comment.findAll({
-                where: { userId: id }
+                where: { userId: id },
+                include: [
+                    { model: User, as: "user" },
+                    { model: Blog, as: "blog" },
+                    {
+                        model: CommentRep,
+                        include: [
+                            { model: User, as: "user" },
+                            { model: Comment, as: "comment" },
+                            {
+                                model: CommentRep, as: "rep",
+                                order: [['createdAt', 'ASC']],
+                                include: [{ model: User, as: "user" }],
+                            },
+                        ]
+                    }
+                ],
+                order: [['createdAt', 'DESC']]
             })
             : await Comment.findAll({
-                where: { blogId: id }
+                where: { blogId: id },
+                include: [
+                    { model: User, as: "user" },
+                    { model: Blog, as: "blog" },
+                    {
+                        model: CommentRep,
+                        include: [
+                            { model: User, as: "user" },
+                            { model: Comment, as: "comment" },
+                            {
+                                model: CommentRep, as: "rep",
+                                order: [['createdAt', 'ASC']],
+                                include: [{ model: User, as: "user" }],
+                            },
+                        ]
+                    }
+                ],
+                order: [['createdAt', 'DESC']]
             });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get comments successfully.",
             payload: response
@@ -36,7 +89,23 @@ const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
 const getById = (commentId) => new Promise(async (resolve, reject) => {
     try {
         const comment = await Comment.findOne({
-            where: { id: commentId }
+            where: { id: commentId },
+            include: [
+                { model: User, as: "user" },
+                { model: Blog, as: "blog" },
+                {
+                    model: CommentRep,
+                    include: [
+                        { model: User, as: "user" },
+                        { model: Comment, as: "comment" },
+                        {
+                            model: CommentRep, as: "rep",
+                            order: [['createdAt', 'ASC']],
+                            include: [{ model: User, as: "user" }],
+                        },
+                    ]
+                }
+            ],
         });
         resolve({
             status: "success",
@@ -54,14 +123,12 @@ const createComment = (userId, blogId, commentBody) => new Promise(async (resolv
             {
                 id: uuidv4(),
                 ...commentBody,
-                deletedAt: null,
-                status: 1,
                 userId,
                 blogId
             }
         )
             .then(comment => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create comment successfully.",
                     payload: comment
@@ -74,13 +141,31 @@ const createComment = (userId, blogId, commentBody) => new Promise(async (resolv
 
 const updateComment = (commentId, commentBody) => new Promise(async (resolve, reject) => {
     try {
+        console.log(commentBody);
         await Comment.update(
             { ...commentBody },
             { where: { id: commentId } }
         )
-            .then(() => Comment.findByPk(commentId))
+            .then(() => Comment.findByPk(commentId, {
+                include: [
+                    { model: User, as: "user" },
+                    { model: Blog, as: "blog" },
+                    {
+                        model: CommentRep,
+                        include: [
+                            { model: User, as: "user" },
+                            { model: Comment, as: "comment" },
+                            {
+                                model: CommentRep, as: "rep",
+                                order: [['createdAt', 'ASC']],
+                                include: [{ model: User, as: "user" }],
+                            },
+                        ]
+                    }
+                ],
+            }))
             .then(comment => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update comment successfully.",
                     payload: comment
@@ -93,40 +178,11 @@ const updateComment = (commentId, commentBody) => new Promise(async (resolve, re
 
 const deleteComment = (commentId) => new Promise(async (resolve, reject) => {
     try {
-        await Comment.update(
-            {
-                deletedAt: new Date(),
-                status: 0
-            },
-            { where: { id: commentId } }
-        )
-            .then(() => Comment.findByPk(commentId))
+        await Comment.destroy({ where: { id: commentId } })
             .then(comment => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete comment successfully.",
-                    payload: comment
-                });
-            });
-    } catch (error) {
-        reject(error);
-    }
-});
-
-const recoverComment = (commentId) => new Promise(async (resolve, reject) => {
-    try {
-        await Comment.update(
-            {
-                deletedAt: null,
-                status: 2
-            },
-            { where: { id: commentId } }
-        )
-            .then(() => Comment.findByPk(commentId))
-            .then(comment => {
-                resolve({ 
-                    status: "success",
-                    message: "Recover comment successfully.",
                     payload: comment
                 });
             });
@@ -141,6 +197,5 @@ module.exports = {
     getByFKId,
     createComment,
     updateComment,
-    deleteComment,
-    recoverComment
+    deleteComment
 }

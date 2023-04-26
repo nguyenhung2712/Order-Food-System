@@ -7,9 +7,13 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             dishName: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            dishNameEn: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
@@ -22,6 +26,14 @@ module.exports = {
                 type: Sequelize.STRING
             },
             ingredients: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            ingredientsEn: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            slug: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
@@ -41,14 +53,14 @@ module.exports = {
                 type: Sequelize.DATE
             },
             typeId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'DishTypes',
-					key: 'id',
-					as: 'typeId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'DishTypes',
+                    key: 'id',
+                    as: 'typeId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {

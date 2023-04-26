@@ -1,15 +1,15 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Blog extends Model {
         static associate(models) {
-            Blog.belongsToMany(models.User, { through: 'Like_Blog' });
 
             Blog.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
 
-			Blog.hasMany(models.Comment, { foreignKey: 'blogId' });
+            Blog.hasMany(models.Like_Blog, { foreignKey: 'blogId' });
+            Blog.hasMany(models.Comment, { foreignKey: 'blogId' });
         }
     }
     Blog.init({
@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         content: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT,
+        slug: DataTypes.STRING
     }, {
         sequelize,
         modelName: 'Blog',

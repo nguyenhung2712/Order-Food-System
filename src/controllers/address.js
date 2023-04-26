@@ -1,12 +1,11 @@
 const { addressService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await addressService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -14,18 +13,18 @@ const getByFKId = async (req, res) => {
     try {
         const { districtId, provinceId, wardId } = req.body;
         const response = await addressService.getByFKId(districtId, provinceId, wardId);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await addressService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -33,18 +32,18 @@ const createAddress = async (req, res) => {
     try {
         const { districtId, provinceId, wardId, ...body } = req.body;
         const response = await addressService.createAddress(districtId, provinceId, wardId, body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updateAddress = async (req, res) => {
     try {
         const response = await addressService.updateAddress(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -52,40 +51,51 @@ const toggleAddress = async (req, res) => {
     try {
         const { type, id } = req.params;
         const response = type === "delete"
-        ? await addressService.deleteAddress(id)
-        : await addressService.recoverAddress(id);
-        res.json(response);
+            ? await addressService.deleteAddress(id)
+            : await addressService.recoverAddress(id);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getUserAddressById = async (req, res) => {
     try {
         const response = await addressService.getUserAddressById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        console.log(error);
+        return res.status(400).json(error);
+    }
+}
+
+const getUserAddressByDefault = async (req, res) => {
+    try {
+        const response = await addressService.getUserAddressByDefault(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json(error);
     }
 }
 
 const createUserAddress = async (req, res) => {
     try {
-        const { userId, addressId } = req.body;
-        const response = await addressService.createUserAddress(userId, addressId);
-        res.json(response);
+        const { userId, addressId, ...info } = req.body;
+        const response = await addressService.createUserAddress(userId, addressId, info);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updateUserAddress = async (req, res) => {
     try {
-        const { userId, addressId, newAddressId } = req.body;
-        const response = await addressService.updateUserAddress(userId, addressId, newAddressId);
-        res.json(response);
+        const { userId, addressId, ...body } = req.body;
+        const response = await addressService.updateUserAddress(userId, addressId, body);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -94,11 +104,11 @@ const toggleUserAddress = async (req, res) => {
         const { type } = req.params;
         const { userId, addressId } = req.body;
         const response = type === "delete"
-        ? await addressService.deleteUserAddress(userId, addressId)
-        : await addressService.recoverUserAddress(userId, addressId);
-        res.json(response);
+            ? await addressService.deleteUserAddress(userId, addressId)
+            : await addressService.recoverUserAddress(userId, addressId);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -111,6 +121,7 @@ module.exports = {
     toggleAddress,
 
     getUserAddressById,
+    getUserAddressByDefault,
     createUserAddress,
     updateUserAddress,
     toggleUserAddress

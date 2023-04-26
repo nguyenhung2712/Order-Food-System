@@ -4,9 +4,13 @@ const { v4: uuidv4 } = require("uuid");
 const getByOrderId = (orderId) => new Promise(async (resolve, reject) => {
     try {
         const response = await OrderDetail.findAll({
-            where: { orderId: orderId }
+            where: { orderId: orderId },
+            include: [
+                { model: Order, as: "order" },
+                { model: Dish, as: "dish" }
+            ],
         });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get order items successfully.",
             payload: response
@@ -19,9 +23,13 @@ const getByOrderId = (orderId) => new Promise(async (resolve, reject) => {
 const getById = (detailId) => new Promise(async (resolve, reject) => {
     try {
         const detail = await OrderDetail.findOne({
-            where: { id: detailId }
+            where: { id: detailId },
+            include: [
+                { model: Order, as: "order" },
+                { model: Dish, as: "dish" }
+            ],
         });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get Order item successfully.",
             payload: detail
@@ -31,18 +39,18 @@ const getById = (detailId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const createDetail = (dishId, orderId, detailBody) => new Promise(async (resolve, reject) => {
+const createDetail = (detailBody) => new Promise(async (resolve, reject) => {
     try {
         await OrderDetail.create(
-            { 
+            {
                 id: uuidv4(),
                 ...detailBody,
-                deletedAt: new Date(),
+                deletedAt: null,
                 status: 1
             }
         )
             .then(detail => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create Order item successfully.",
                     payload: detail
@@ -59,9 +67,14 @@ const updateDetail = (detailId, detailBody) => new Promise(async (resolve, rejec
             { ...detailBody },
             { where: { id: detailId } }
         )
-            .then(() => OrderDetail.findByPk(detailId))
+            .then(() => OrderDetail.findByPk(detailId, {
+                include: [
+                    { model: Order, as: "order" },
+                    { model: Dish, as: "dish" }
+                ],
+            }))
             .then(detail => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update Order item successfully.",
                     payload: detail
@@ -81,9 +94,14 @@ const deleteDetail = (detailId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: detailId } }
         )
-            .then(() => OrderDetail.findByPk(detailId))
+            .then(() => OrderDetail.findByPk(detailId, {
+                include: [
+                    { model: Order, as: "order" },
+                    { model: Dish, as: "dish" }
+                ],
+            }))
             .then(detail => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete Order item successfully.",
                     payload: detail
@@ -103,9 +121,14 @@ const recoverDetail = (detailId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: detailId } }
         )
-            .then(() => OrderDetail.findByPk(detailId))
+            .then(() => OrderDetail.findByPk(detailId, {
+                include: [
+                    { model: Order, as: "order" },
+                    { model: Dish, as: "dish" }
+                ],
+            }))
             .then(detail => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover Order item successfully.",
                     payload: detail

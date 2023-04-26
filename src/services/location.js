@@ -1,5 +1,4 @@
 const { Ward, District, Province } = require("../models");
-const { v4: uuidv4 } = require("uuid");
 
 const getWardById = (wardId) => new Promise(async (resolve, reject) => {
     try {
@@ -76,10 +75,24 @@ const getProvinceById = (provinceId) => new Promise(async (resolve, reject) => {
     }
 });
 
+const getProvinces = () => new Promise(async (resolve, reject) => {
+    try {
+        const provinces = await Province.findAll();
+        resolve({
+            status: "success",
+            message: "Get provinces successfully.",
+            payload: provinces
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     getWardById,
     getWardsByDistrictId,
     getDistrictById,
     getDistrictsByProvinceId,
+    getProvinces,
     getProvinceById,
 }

@@ -7,18 +7,11 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             quantity: {
                 allowNull: false,
                 type: Sequelize.INTEGER
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
             },
             expiryDate: {
                 allowNull: false,
@@ -33,23 +26,23 @@ module.exports = {
                 type: Sequelize.DATE
             },
             cartId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Carts',
-					key: 'id',
-					as: 'cartId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Carts',
+                    key: 'id',
+                    as: 'cartId',
+                }
+            },
             dishId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Dishes',
-					key: 'id',
-					as: 'dishId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Dishes',
+                    key: 'id',
+                    as: 'dishId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {

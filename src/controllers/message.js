@@ -1,12 +1,11 @@
 const { messageService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getAll = async (req, res) => {
     try {
         const response = await messageService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -14,18 +13,18 @@ const getByConverId = async (req, res) => {
     try {
         const { id } = req.params;
         const response = await messageService.getByConverId(id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await messageService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -33,18 +32,18 @@ const createMessage = async (req, res) => {
     try {
         const { userId, adminId, converId, ...body } = req.body;
         const response = await messageService.createMessage(userId, adminId, converId, body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updateMessage = async (req, res) => {
     try {
         const response = await messageService.updateMessage(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -54,9 +53,9 @@ const toggleMessage = async (req, res) => {
         const response =  type === "delete"
         ? await messageService.deleteMessage(id)
         : await messageService.recoverMessage(id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 

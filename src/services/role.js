@@ -1,8 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
-const { QueryTypes } = require('sequelize');
 const { Role, Admin_Role } = require("../models");
+const { QueryTypes } = require('sequelize');
 const sequelize = require("../../connectdb");
-
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
@@ -43,7 +42,7 @@ const createRole = (roleBody) => new Promise(async (resolve, reject) => {
             }
         )
             .then(role => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create role successfully.",
                     payload: role
@@ -62,7 +61,7 @@ const updateRole = (roleId, roleBody) => new Promise(async (resolve, reject) => 
         )
             .then(() => Role.findByPk(roleId))
             .then(role => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update role successfully.",
                     payload: role
@@ -84,7 +83,7 @@ const deleteRole = (roleId) => new Promise(async (resolve, reject) => {
         )
             .then(() => Role.findByPk(roleId))
             .then(role => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete role successfully.",
                     payload: role
@@ -106,7 +105,7 @@ const recoverRole = (roleId) => new Promise(async (resolve, reject) => {
         )
             .then(() => Role.findByPk(roleId))
             .then(role => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover role successfully.",
                     payload: role
@@ -119,18 +118,18 @@ const recoverRole = (roleId) => new Promise(async (resolve, reject) => {
 
 const getAdminRoleByAdminId = (adminId) => new Promise(async (resolve, reject) => {
     try {
-        let queryString = "select * from `roles` " + 
-            "where `name` in ( select r.name from " + 
+        let queryString = "select * from `roles` " +
+            "where `name` in ( select r.name from " +
             "admin_roles ar join roles r " +
-            "on r.id = ar.roleId " + 
+            "on r.id = ar.roleId " +
             `where adminId = '${adminId}')`;
         const roles = await sequelize.query(
-            queryString, 
-            { 
+            queryString,
+            {
                 raw: true,
                 type: QueryTypes.SELECT,
             });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get admin's roles successfully.",
             payload: roles
@@ -142,18 +141,18 @@ const getAdminRoleByAdminId = (adminId) => new Promise(async (resolve, reject) =
 
 const getOtherAdminRoleByAdminId = (adminId) => new Promise(async (resolve, reject) => {
     try {
-        let queryString = "select * from `roles` " + 
-            "where name not in ( select r.name from " + 
+        let queryString = "select * from `roles` " +
+            "where name not in ( select r.name from " +
             "admin_roles ar join roles r " +
-            "on r.id = ar.roleId " + 
+            "on r.id = ar.roleId " +
             `where adminId = '${adminId}')`;
         const roles = await sequelize.query(
-            queryString, 
-            { 
+            queryString,
+            {
                 raw: true,
                 type: QueryTypes.SELECT,
             });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get admin's roles successfully.",
             payload: roles
@@ -173,7 +172,7 @@ const createAdminRole = (adminId, roleId) => new Promise(async (resolve, reject)
             status: 1
         })
             .then(role => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create admin's role successfully.",
                     payload: role
@@ -190,7 +189,7 @@ const deleteAdminRole = (adminId, roleId) => new Promise(async (resolve, reject)
             { where: { adminId, roleId } }
         )
             .then(res => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete admin's role successfully.",
                 });

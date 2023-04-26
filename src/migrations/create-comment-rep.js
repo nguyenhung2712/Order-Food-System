@@ -7,21 +7,14 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             message: {
-				allowNull: false,
+                allowNull: false,
                 type: Sequelize.STRING
             },
             image: {
                 type: Sequelize.STRING
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-				allowNull: false,
-                type: Sequelize.TINYINT
             },
             createdAt: {
                 allowNull: false,
@@ -32,23 +25,31 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Users',
-					key: 'id',
-					as: 'userId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Users',
+                    key: 'id',
+                    as: 'userId',
+                }
+            },
             commentId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Comments',
-					key: 'id',
-					as: 'commentId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Comments',
+                    key: 'id',
+                    as: 'commentId',
+                }
+            },
+            repId: {
+                type: Sequelize.UUID,
+                references: {
+                    model: 'CommentReps',
+                    key: 'id',
+                    as: 'repId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {

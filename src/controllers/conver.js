@@ -1,30 +1,29 @@
-const { converService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
+const { converService } = require('../services'); 
 
 const getAll = async (req, res) => {
     try {
         const response = await converService.getAll();
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getByStaffId = async (req, res) => {
     try {
         const response = await converService.getByStaffId(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const getById = async (req, res) => {
     try {
         const response = await converService.getById(req.params.id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -32,18 +31,18 @@ const createConver = async (req, res) => {
     try {
         const { userId, adminId, ...body } = req.body;
         const response = await converService.createConver(userId, adminId, body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
 const updateConver = async (req, res) => {
     try {
         const response = await converService.updateConver(req.params.id, req.body);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
@@ -53,9 +52,9 @@ const toggleConver = async (req, res) => {
         const response =  type === "delete"
         ? await converService.deleteConver(id)
         : await converService.recoverConver(id);
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 

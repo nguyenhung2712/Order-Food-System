@@ -3,11 +3,7 @@ const { User } = require("../models");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await User.findAll({
-            attributes: {
-                exclude: ['CartId', 'ConversationId']
-            },
-        });
+        const response = await User.findAll();
         if (!response || response.length === 0) {
             reject({ 
                 status: "error",
@@ -29,9 +25,6 @@ const getUser = (userId) => new Promise(async (resolve, reject) => {
     try {
         const user = await User.findOne({
             where: { id: userId },
-            attributes: {
-                exclude: ['CartId', 'ConversationId']
-            },
         });
         if (!user) {
             reject({ 
@@ -52,7 +45,9 @@ const getUser = (userId) => new Promise(async (resolve, reject) => {
 
 const createUser = ({...body}) => new Promise(async (resolve, reject) => {
     try {
-        const user = await User.create({ ...body });
+        const user = await User.create(
+            { ...body }
+        );
         resolve({ 
             status: "success",
             message: "Create user successfully.",
@@ -63,27 +58,58 @@ const createUser = ({...body}) => new Promise(async (resolve, reject) => {
     }
 });
 
-const changePassword = (userId, newPassword, oldPassword) => new Promise(async (resolve, reject) => {
+const updateUser = (userId, userBody) => new Promise(async (resolve, reject) => {
     try {
-        const user = await getUser(userId);
-        bcrypt.compare(oldPassword, user.password).then(async (match) => {
-            if (!match) {
-                reject({ 
-                    status: "error",
-                    message: "Wrong Password Entered!" 
-                });
-            }
-            bcrypt.hash(newPassword, 10).then(async (hash) => {
-                const response = await User.update({ password: hash }, {
-                    where: { id: userId }
-                });
+        await User.update({ ...userBody }, {
+            where: { id: userId }
+        })
+            .then(async () => await User.findByPk(userId))
+            .then(user => {
                 resolve({ 
                     status: "success",
-                    message: "Change account's password successfully.",
-                    payload: response
+                    message: "Change user profile successfully.",
+                    payload: user
                 });
             });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const changePassword = (userId, newPassword, oldPassword) => new Promise(async (resolve, reject) => {
+    try {
+        const user = await User.findOne({
+            where: { id: userId }
         });
+        if (!oldPassword) {
+            bcrypt.hash(newPassword, 10).then(async (hash) => {
+                await User.update({ password: hash }, {
+                    where: { id: userId }
+                });
+                resolve({
+                    status: "success",
+                    message: "Thay đổi mật khẩu tài khoản thành công."
+                });
+            });
+        } else {
+            bcrypt.compare(oldPassword, user.password).then(async (match) => {
+                if (!match) {
+                    reject({ 
+                        status: "error",
+                        message: "Mật khẩu cũ không chính xác!" 
+                    });
+                }
+                bcrypt.hash(newPassword, 10).then(async (hash) => {
+                    await User.update({ password: hash }, {
+                        where: { id: userId }
+                    });
+                    resolve({
+                        status: "success",
+                        message: "Thay đổi mật khẩu tài khoản thành công."
+                    });
+                });
+            });
+        }
     } catch (error) {
         reject(error);
     }
@@ -94,4 +120,5 @@ module.exports = {
     getUser,
     createUser,
     changePassword,
+    updateUser
 }

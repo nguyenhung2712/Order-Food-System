@@ -7,9 +7,13 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             name: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            slug: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
@@ -29,23 +33,23 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Users',
-					key: 'id',
-					as: 'userId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Users',
+                    key: 'id',
+                    as: 'userId',
+                }
+            },
             adminId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'AdminStaffs',
-					key: 'id',
-					as: 'adminId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'AdminStaffs',
+                    key: 'id',
+                    as: 'adminId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {

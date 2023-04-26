@@ -1,5 +1,4 @@
 const { locationService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getById = async (req, res) => {
     try {
@@ -10,25 +9,35 @@ const getById = async (req, res) => {
             case "district": response = await locationService.getDistrictById(id); break;
             case "province": response = await locationService.getProvinceById(id); break;
         }
-        res.json(response);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
     }
 }
 
-const getListsByFKId  = async (req, res) => {
+const getListsByFKId = async (req, res) => {
     try {
         const { type, id } = req.params;
-        const response = type === "wards"
-        ? await locationService.getWardsByDistrictId(id)
-        : await locationService.getDistrictsByProvinceId(id);
-        res.json(response);
+        const response = type === "ward"
+            ? await locationService.getWardsByDistrictId(id)
+            : await locationService.getDistrictsByProvinceId(id);
+        return res.json(response);
     } catch (error) {
-        return interalServerError(res);
+        return res.status(400).json(error);
+    }
+}
+
+const getProvinces = async (req, res) => {
+    try {
+        const response = await locationService.getProvinces();
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
     }
 }
 
 module.exports = {
     getById,
+    getProvinces,
     getListsByFKId
 }

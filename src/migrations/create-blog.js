@@ -7,13 +7,17 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             header: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
             content: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            slug: {
                 allowNull: false,
                 type: Sequelize.STRING
             },
@@ -33,14 +37,14 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Users',
-					key: 'id',
-					as: 'userId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Users',
+                    key: 'id',
+                    as: 'userId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {

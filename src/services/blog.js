@@ -25,9 +25,10 @@ const getByUserId = (userId) => new Promise(async (resolve, reject) => {
             where: { userId },
             include: [
                 { model: User, as: "user" }
-            ]
+            ],
+            attributes: { attributes: { exclude: ['userId'] } }
         });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get blogs successfully.",
             payload: response
@@ -45,10 +46,46 @@ const getById = (blogId) => new Promise(async (resolve, reject) => {
                 { model: User, as: "user" }
             ]
         });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get blog successfully.",
             payload: blog
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getBySlug = (slug) => new Promise(async (resolve, reject) => {
+    try {
+        const blog = await Blog.findOne({
+            where: { slug },
+            include: [
+                { model: User, as: "user" }
+            ]
+        });
+        const { count: likeCount, rows: likes } = await Like_Blog.findAndCountAll({
+            where: { blogId: blog.id, type: 1, status: 1 },
+            include: [
+                { model: User, as: "user" }
+            ],
+        });
+        const { count: disLikeCount, rows: dislikes } = await Like_Blog.findAndCountAll({
+            where: { blogId: blog.id, type: 0, status: 1 },
+            include: [
+                { model: User, as: "user" }
+            ],
+        });
+
+        resolve({
+            status: "success",
+            message: "Get blog successfully.",
+            payload: {
+                blog,
+                likeQuantity: likeCount,
+                dislikeQuantity: disLikeCount,
+                likes, dislikes
+            }
         });
     } catch (error) {
         reject(error);
@@ -67,7 +104,7 @@ const createBlog = (userId, blogBody) => new Promise(async (resolve, reject) => 
             }
         )
             .then(blog => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create blog successfully.",
                     payload: blog
@@ -82,7 +119,7 @@ const updateBlog = (blogId, blogBody) => new Promise(async (resolve, reject) => 
     try {
         await Blog.update(
             { ...blogBody },
-            { where: { id: "blogId" } }
+            { where: { id: blogId } }
         )
             .then(() => Blog.findByPk(blogId, {
                 include: [
@@ -90,7 +127,7 @@ const updateBlog = (blogId, blogBody) => new Promise(async (resolve, reject) => 
                 ]
             }))
             .then(blog => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update blog successfully.",
                     payload: blog
@@ -116,7 +153,7 @@ const deleteBlog = (blogId) => new Promise(async (resolve, reject) => {
                 ]
             }))
             .then(blog => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete blog successfully.",
                     payload: blog
@@ -142,7 +179,7 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
                 ]
             }))
             .then(blog => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover blog successfully.",
                     payload: blog
@@ -153,28 +190,40 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const interactBlog = (userId, blogId) => new Promise(async (resolve, reject) => {
+const interactBlog = (userId, blogId, type) => new Promise(async (resolve, reject) => {
     try {
-        await Like_Blog.findOrCreate({ 
-            where: { userId, blogId },
-            default: { 
-                userId, blogId, 
+        await Like_Blog.findOrCreate({
+            where: { userId, blogId, type: type },
+            defaults: {
                 deletedAt: null,
                 status: 1
             }
         })
-            .then(async (interact, isExisted) => {
-                let updatedInteraction;
-                if (isExisted) {
-                    updatedInteraction = await Like_Blog.update(
-                        {
-                            deletedAt: interact.deletedAt ? new Date() : null,
-                            status: interact.status === 1 ? 0 : 1
-                        },
-                        { where: { userId, blogId, } }
-                    );
+            .then(async ([interact, created]) => {
+                if (!created) {
+                    interact.status === 1
+                        ? await Like_Blog.update(
+                            {
+                                deletedAt: new Date(),
+                                status: 0
+                            },
+                            { where: { userId, blogId, type } }
+                        )
+                        : await Like_Blog.update(
+                            {
+                                deletedAt: null,
+                                status: 1
+                            },
+                            { where: { userId, blogId, type } }
+                        );
                 }
-                resolve({ 
+                const updatedInteraction = await Like_Blog.findOne({
+                    where: { userId, blogId, type },
+                    include: [
+                        { model: User, as: "user" }
+                    ],
+                });
+                resolve({
                     status: "success",
                     message: "Interact blog successfully.",
                     payload: updatedInteraction ? updatedInteraction : interact
@@ -189,6 +238,7 @@ module.exports = {
     getAll,
     getById,
     getByUserId,
+    getBySlug,
     createBlog,
     updateBlog,
     deleteBlog,

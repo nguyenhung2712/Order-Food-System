@@ -4,9 +4,8 @@ const checkExistedEmail = async (req, res, next) => {
     const { email } = req.body;
     await User.findOne({ 
         where: { email: email }
-    }).then(userByMail => {
-        if (userByMail) {
-            console.log(userByMail);
+    }).then(mail => {
+        if (mail) {
             return res.status(400).json({
                 status: "error",
                 message: "Email vừa nhập đã tồn tại"
@@ -16,4 +15,26 @@ const checkExistedEmail = async (req, res, next) => {
     });
 }
 
-module.exports = { checkExistedEmail }
+const checkExistedUsername = async (req, res, next) => {
+    const { username } = req.body;
+    if (!username) {
+        next();
+    } else {
+        await User.findOne({ 
+            where: { username }
+        }).then(user => {
+            if (user) {
+                return res.status(400).json({
+                    status: "error",
+                    message: "Username vừa nhập đã tồn tại"
+                });
+            }
+            next();
+        });
+    }
+}
+
+module.exports = { 
+    checkExistedEmail,
+    checkExistedUsername
+}

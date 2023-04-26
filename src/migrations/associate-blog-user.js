@@ -2,10 +2,16 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-    async up (queryInterface, Sequelize) {
+    async up(queryInterface, Sequelize) {
         return queryInterface.createTable(
             'Like_Blogs',
             {
+                id: {
+                    allowNull: false,
+                    autoIncrement: true,
+                    primaryKey: true,
+                    type: Sequelize.INTEGER
+                },
                 createdAt: {
                     allowNull: false,
                     type: Sequelize.DATE,
@@ -18,6 +24,10 @@ module.exports = {
                     type: Sequelize.DATE
                 },
                 status: {
+                    allowNull: false,
+                    type: Sequelize.TINYINT
+                },
+                type: {
                     allowNull: false,
                     type: Sequelize.TINYINT
                 },
@@ -45,7 +55,7 @@ module.exports = {
         );
     },
 
-    async down (queryInterface, Sequelize) {
+    async down(queryInterface, Sequelize) {
         return queryInterface.dropTable('Like_Blog');
     }
 };

@@ -7,7 +7,7 @@ module.exports = {
                 allowNull: false,
                 primaryKey: true,
                 type: Sequelize.UUID,
-				defaultValue: Sequelize.UUIDV4
+                defaultValue: Sequelize.UUIDV4
             },
             message: {
                 allowNull: false,
@@ -15,13 +15,6 @@ module.exports = {
             },
             image: {
                 type: Sequelize.STRING
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
             },
             createdAt: {
                 allowNull: false,
@@ -32,23 +25,23 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Users',
-					key: 'id',
-					as: 'userId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Users',
+                    key: 'id',
+                    as: 'userId',
+                }
+            },
             blogId: {
-				allowNull: false,
-				type: Sequelize.UUID,
-				references: {
-					model: 'Blogs',
-					key: 'id',
-					as: 'blogId',
-				}
-			},
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Blogs',
+                    key: 'id',
+                    as: 'blogId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {
