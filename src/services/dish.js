@@ -1,4 +1,4 @@
-const { Dish, DishType } = require("../models");
+const { Dish, DishType, Rate } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 const { QueryTypes, Op } = require('sequelize');
 const sequelize = require("../../connectdb");
@@ -7,7 +7,8 @@ const getAll = () => new Promise(async (resolve, reject) => {
     try {
         const response = await Dish.findAll({
             include: [
-                { model: DishType, as: "type" }
+                { model: DishType, as: "type" },
+                { model: Rate }
             ]
         });
         resolve({
@@ -20,7 +21,7 @@ const getAll = () => new Promise(async (resolve, reject) => {
     }
 });
 
-const getAllAvailable = (sortBy, categories = []) => new Promise(async (resolve, reject) => {
+const getAllAvailable = (sortBy, categories = [], query) => new Promise(async (resolve, reject) => {
     try {
         let type = await DishType.findAll(
             {
@@ -40,7 +41,7 @@ const getAllAvailable = (sortBy, categories = []) => new Promise(async (resolve,
         let response;
         if (sortType !== "most-order") {
             response = await Dish.findAll({
-                where: { status: 1, typeId: { [Op.or]: typeIds } },
+                where: { status: 1, typeId: { [Op.or]: typeIds }, dishName: { [Op.like]: `%${query}%` } },
                 include: [
                     { model: DishType, as: "type" }
                 ],
@@ -100,7 +101,8 @@ const getById = (dishId) => new Promise(async (resolve, reject) => {
         const dish = await Dish.findOne({
             where: { id: dishId },
             include: [
-                { model: DishType, as: "type" }
+                { model: DishType, as: "type" },
+                { model: Rate },
             ]
         });
         resolve({
@@ -162,7 +164,8 @@ const updateDish = (dishId, dishBody) => new Promise(async (resolve, reject) => 
             .then(() => Dish.findByPk(dishId, {
                 where: {
                     include: [
-                        { model: DishType, as: "type" }
+                        { model: DishType, as: "type" },
+                        { model: Rate },
                     ]
                 }
             }))
@@ -190,7 +193,8 @@ const deleteDish = (dishId) => new Promise(async (resolve, reject) => {
             .then(() => Dish.findByPk(dishId, {
                 where: {
                     include: [
-                        { model: DishType, as: "type" }
+                        { model: DishType, as: "type" },
+                        { model: Rate },
                     ]
                 }
             }))
@@ -218,7 +222,8 @@ const recoverDish = (dishId) => new Promise(async (resolve, reject) => {
             .then(() => Dish.findByPk(dishId, {
                 where: {
                     include: [
-                        { model: DishType, as: "type" }
+                        { model: DishType, as: "type" },
+                        { model: Rate },
                     ]
                 }
             }))

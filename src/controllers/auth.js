@@ -92,6 +92,7 @@ const refreshToken = async (req, res) => {
         const response = await authService.refreshToken(req.body.refreshToken);
         return res.json(response);
     } catch (error) {
+        console.log(error);
         return res.status(400).json(error);
     }
 }

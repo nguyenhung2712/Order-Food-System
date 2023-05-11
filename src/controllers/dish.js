@@ -14,8 +14,9 @@ const getAll = async (req, res) => {
 const getAllAvailable = async (req, res) => {
     try {
         const sortBy = req.query.sort;
+        const query = req.query.query;
         const { categories } = req.body;
-        const response = await dishService.getAllAvailable(sortBy, categories);
+        const response = await dishService.getAllAvailable(sortBy, categories, query);
         const items = JSON.parse(JSON.stringify(response.payload));
         const limit = Number(req.query.limit);
         const page = Number(req.query.page);

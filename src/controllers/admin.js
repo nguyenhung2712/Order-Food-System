@@ -41,7 +41,7 @@ const udraStaff = async (req, res) => {
     try {
         const { type, id } = req.params;
         let response;
-        switch(type) {
+        switch (type) {
             case "delete": response = await adminService.deleteStaff(id); break;
             case "recover": response = await adminService.recoverStaff(id); break;
             case "remove": response = await adminService.removeStaff(id); break;

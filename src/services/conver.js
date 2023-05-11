@@ -1,9 +1,26 @@
-const { Conversation } = require("../models");
+const { Conversation, User, Message, AdminStaff } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await Conversation.findAll();
+        const response = await Conversation.findAll({
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Message,
+                    include: [
+                        { model: User, as: "user" },
+                        { model: AdminStaff, as: "admin" }
+                    ],
+                },
+            ],
+            order: [
+                [
+                    { model: Message },
+                    'createdAt', 'ASC'
+                ]
+            ],
+        });
         resolve({
             status: "success",
             message: "Get conversations successfully.",
@@ -17,9 +34,25 @@ const getAll = () => new Promise(async (resolve, reject) => {
 const getByStaffId = (staffId) => new Promise(async (resolve, reject) => {
     try {
         const response = await Conversation.findAll({
-            where: { adminId: staffId }
+            where: { adminId: staffId },
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Message,
+                    include: [
+                        { model: User, as: "user" },
+                        { model: AdminStaff, as: "admin" }
+                    ],
+                },
+            ],
+            order: [
+                [
+                    { model: Message },
+                    'createdAt', 'ASC'
+                ]
+            ],
         });
-        resolve({ 
+        resolve({
             status: "success",
             message: "Get conversations successfully.",
             payload: response
@@ -32,7 +65,20 @@ const getByStaffId = (staffId) => new Promise(async (resolve, reject) => {
 const getById = (converId) => new Promise(async (resolve, reject) => {
     try {
         const conver = await Conversation.findOne({
-            where: { id: converId }
+            where: { id: converId },
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Message,
+                    include: [
+                        { model: User, as: "user" },
+                        { model: AdminStaff, as: "admin" }
+                    ],
+                    order: [
+                        ['createdAt', 'ASC']
+                    ],
+                },
+            ]
         });
         resolve({
             status: "success",
@@ -57,7 +103,7 @@ const createConver = (userId, adminId, converBody) => new Promise(async (resolve
             }
         )
             .then(conver => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create conversation successfully.",
                     payload: conver
@@ -74,9 +120,23 @@ const updateConver = (converId, converBody) => new Promise(async (resolve, rejec
             { ...converBody },
             { where: { id: converId } }
         )
-            .then(() => Conversation.findByPk(converId))
+            .then(() => Conversation.findByPk(converId, {
+                include: [
+                    { model: User, as: "user" },
+                    {
+                        model: Message,
+                        include: [
+                            { model: User, as: "user" },
+                            { model: AdminStaff, as: "admin" }
+                        ],
+                        order: [
+                            ['createdAt', 'ASC']
+                        ],
+                    },
+                ]
+            }))
             .then(conver => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update conversation successfully.",
                     payload: conver
@@ -96,9 +156,23 @@ const deleteConver = (converId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: converId } }
         )
-            .then(() => Conversation.findByPk(converId))
+            .then(() => Conversation.findByPk(converId, {
+                include: [
+                    { model: User, as: "user" },
+                    {
+                        model: Message,
+                        include: [
+                            { model: User, as: "user" },
+                            { model: AdminStaff, as: "admin" }
+                        ],
+                        order: [
+                            ['createdAt', 'ASC']
+                        ],
+                    },
+                ]
+            }))
             .then(conver => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete conversation successfully.",
                     payload: conver
@@ -118,9 +192,23 @@ const recoverConver = (converId) => new Promise(async (resolve, reject) => {
             },
             { where: { id: converId } }
         )
-            .then(() => Conversation.findByPk(converId))
+            .then(() => Conversation.findByPk(converId, {
+                include: [
+                    { model: User, as: "user" },
+                    {
+                        model: Message,
+                        include: [
+                            { model: User, as: "user" },
+                            { model: AdminStaff, as: "admin" }
+                        ],
+                        order: [
+                            ['createdAt', 'ASC']
+                        ],
+                    },
+                ]
+            }))
             .then(conver => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Recover conversation successfully.",
                     payload: conver

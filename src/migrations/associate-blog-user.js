@@ -4,7 +4,7 @@
 module.exports = {
     async up(queryInterface, Sequelize) {
         return queryInterface.createTable(
-            'Like_Blogs',
+            'InteractBlogs',
             {
                 id: {
                     allowNull: false,
@@ -23,6 +23,9 @@ module.exports = {
                 deletedAt: {
                     type: Sequelize.DATE
                 },
+                reason: {
+                    type: Sequelize.STRING
+                },
                 status: {
                     allowNull: false,
                     type: Sequelize.TINYINT
@@ -39,7 +42,6 @@ module.exports = {
                         key: 'id',
                         as: 'userId',
                     },
-                    primaryKey: true,
                 },
                 blogId: {
                     allowNull: false,
@@ -49,13 +51,12 @@ module.exports = {
                         key: 'id',
                         as: 'blogId',
                     },
-                    primaryKey: true,
                 },
             }
         );
     },
 
     async down(queryInterface, Sequelize) {
-        return queryInterface.dropTable('Like_Blog');
+        return queryInterface.dropTable('InteractBlogs');
     }
 };

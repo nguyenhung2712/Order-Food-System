@@ -6,13 +6,11 @@ const { messageController } = require("../controllers");
 
 router.get('/conver/:id', [Auth.validateToken, VerifyExists.areExistedMessages], messageController.getByConverId);
 router.get('/:id', [Auth.validateToken, VerifyExists.isExistedMessage], messageController.getById);
-router.post('/create', 
+router.post('/create',
     [
-        Auth.validateToken, 
-        VerifyExists.isExistedStaff, 
-        VerifyExists.isExistedUser, 
+        Auth.validateToken,
         VerifyExists.isExistedConver
-    ], 
+    ],
     messageController.createMessage
 );
 router.put('/update/:id', [Auth.validateToken, VerifyExists.isExistedMessage], messageController.updateMessage);

@@ -1,5 +1,6 @@
 const { Address, UserAddress, Province, District, Ward, User } = require("../models");
 const { v4: uuidv4 } = require("uuid");
+const { removeAccents } = require("../utils/processChar");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
@@ -56,6 +57,7 @@ const createAddress = (districtId, provinceId, wardId, addressBody) => new Promi
                 ...addressBody,
                 deletedAt: null,
                 status: 1,
+                addressEn: removeAccents(addressBody.address),
                 districtId,
                 provinceId,
                 wardId
@@ -76,7 +78,10 @@ const createAddress = (districtId, provinceId, wardId, addressBody) => new Promi
 const updateAddress = (addressId, addressBody) => new Promise(async (resolve, reject) => {
     try {
         await Address.update(
-            { ...addressBody },
+            {
+                ...addressBody,
+                addressEn: removeAccents(addressBody.address),
+            },
             { where: { id: addressId } }
         )
             .then(() => Address.findByPk(addressId))

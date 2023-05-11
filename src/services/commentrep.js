@@ -1,4 +1,4 @@
-const { CommentRep, User, Comment } = require("../models");
+const { CommentRep, User, Comment, InteractRepCmt } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
@@ -162,6 +162,55 @@ const deleteRep = (repId) => new Promise(async (resolve, reject) => {
     }
 }); */
 
+const interactRep = (userId, repId, type, reason) => new Promise(async (resolve, reject) => {
+    try {
+        await InteractRepCmt.findOne({
+            where: { userId, repId, type }
+        })
+            .then(async (res) => {
+                if (res) {
+                    if (reason) {
+                        await InteractRepCmt.create(
+                            {
+                                userId, repId, type,
+                                deletedAt: null,
+                                status: 1,
+                                reason
+                            },
+                        );
+                    } else {
+                        await InteractRepCmt.update(
+                            {
+                                deletedAt: res.status === 1 ? new Date() : null,
+                                status: res.status === 1 ? 0 : 1
+                            },
+                            { where: { userId, repId, type } }
+                        );
+                    }
+                    resolve({
+                        status: "success",
+                        message: "Interact rep successfully."
+                    });
+                } else {
+                    await InteractRepCmt.create(
+                        {
+                            userId, repId, type,
+                            deletedAt: null,
+                            status: 1,
+                            reason
+                        },
+                    )
+                    resolve({
+                        status: "success",
+                        message: "Interact rep comment successfully."
+                    });
+                }
+            });
+    } catch (error) {
+        reject(error);
+    }
+})
+
 module.exports = {
     getAll,
     getById,
@@ -169,5 +218,6 @@ module.exports = {
     createRep,
     updateRep,
     deleteRep,
+    interactRep
     /* findByPk */
 }

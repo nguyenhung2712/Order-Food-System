@@ -8,8 +8,9 @@ module.exports = (sequelize, DataTypes) => {
 
             Blog.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
 
-            Blog.hasMany(models.Like_Blog, { foreignKey: 'blogId' });
+            Blog.hasMany(models.InteractBlog, { foreignKey: 'blogId' });
             Blog.hasMany(models.Comment, { foreignKey: 'blogId' });
+            Blog.hasMany(models.History, { foreignKey: 'blogId' });
         }
     }
     Blog.init({

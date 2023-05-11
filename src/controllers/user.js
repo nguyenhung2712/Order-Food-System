@@ -8,6 +8,7 @@ const getAll = async (req, res) => {
         const response = await userService.getAll();
         return res.json(response);
     } catch (error) {
+        console.log(error);
         return res.status(401).json(error);
     }
 }
@@ -16,6 +17,15 @@ const getUser = async (req, res) => {
     try {
         const { id } = req.params
         const response = await userService.getUser(id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(401).json(error);
+    }
+}
+
+const createUser = async (req, res) => {
+    try {
+        const response = await userService.createUser(req.body);
         return res.json(response);
     } catch (error) {
         return res.status(401).json(error);
@@ -47,11 +57,11 @@ const uploadAvatarUser = async (req, res) => {
         let id = req.params.id;
         if (!pictureFile)
             return res.status(400).json({ message: "No picture attached!" });
-        const response = await userService.updateUser(id, 
+        const response = await userService.updateUser(id,
             { avatar: pictureFile.path }
         );
 
-        return res.json(response); 
+        return res.json(response);
     } catch (error) {
         return res.status(400).json(error);
     }
@@ -61,6 +71,7 @@ module.exports = {
     getAll,
     getUser,
     changePassword,
+    createUser,
     updateUser,
     uploadAvatarUser
 }

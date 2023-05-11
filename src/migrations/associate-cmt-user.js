@@ -2,26 +2,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Rates', {
+        await queryInterface.createTable('InteractCmts', {
             id: {
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true,
-                type: Sequelize.UUID,
-                defaultValue: Sequelize.UUIDV4
-            },
-            score: {
-                allowNull: false,
-                type: Sequelize.DECIMAL
-            },
-            remarks: {
-                type: Sequelize.STRING
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
+                type: Sequelize.INTEGER
             },
             createdAt: {
                 allowNull: false,
@@ -31,6 +17,20 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             },
+            deletedAt: {
+                type: Sequelize.DATE
+            },
+            status: {
+                allowNull: false,
+                type: Sequelize.TINYINT
+            },
+            type: {
+                allowNull: false,
+                type: Sequelize.TINYINT
+            },
+            reason: {
+                type: Sequelize.STRING
+            },
             userId: {
                 allowNull: false,
                 type: Sequelize.UUID,
@@ -38,20 +38,20 @@ module.exports = {
                     model: 'Users',
                     key: 'id',
                     as: 'userId',
-                }
+                },
             },
-            dishId: {
+            commentId: {
                 allowNull: false,
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Dishes',
+                    model: 'Comments',
                     key: 'id',
-                    as: 'dishId',
-                }
+                    as: 'commentId',
+                },
             },
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Rates');
+        await queryInterface.dropTable('InteractCmts');
     }
 };

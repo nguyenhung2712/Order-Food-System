@@ -1,4 +1,4 @@
-const { Comment, User, Blog, CommentRep } = require("../models");
+const { Comment, User, Blog, CommentRep, InteractCmt, InteractRepCmt } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require('sequelize');
 
@@ -18,7 +18,15 @@ const getAll = () => new Promise(async (resolve, reject) => {
                             order: [['createdAt', 'ASC']],
                             include: [{ model: User, as: "user" }],
                         },
+                        {
+                            model: InteractRepCmt,
+                            include: [{ model: User, as: "user" }]
+                        }
                     ]
+                },
+                {
+                    model: InteractCmt,
+                    include: [{ model: User, as: "user" }]
                 }
             ],
             order: [['createdAt', 'DESC']]
@@ -33,8 +41,13 @@ const getAll = () => new Promise(async (resolve, reject) => {
     }
 });
 
-const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
+const getByFKId = (type, id, sortBy) => new Promise(async (resolve, reject) => {
     try {
+        let sortType;
+        switch (sortBy) {
+            case "oldest": sortType = "ASC"; break;
+            default: sortType = "DESC"; break;
+        }
         const response = type === "user"
             ? await Comment.findAll({
                 where: { userId: id },
@@ -51,10 +64,20 @@ const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
                                 order: [['createdAt', 'ASC']],
                                 include: [{ model: User, as: "user" }],
                             },
+                            {
+                                model: InteractRepCmt,
+                                include: [{ model: User, as: "user" }]
+                            }
                         ]
+                    },
+                    {
+                        model: InteractCmt,
+                        include: [{ model: User, as: "user" }]
                     }
                 ],
-                order: [['createdAt', 'DESC']]
+                order: [
+                    ['createdAt', sortType]
+                ],
             })
             : await Comment.findAll({
                 where: { blogId: id },
@@ -71,10 +94,20 @@ const getByFKId = (type, id) => new Promise(async (resolve, reject) => {
                                 order: [['createdAt', 'ASC']],
                                 include: [{ model: User, as: "user" }],
                             },
+                            {
+                                model: InteractRepCmt,
+                                include: [{ model: User, as: "user" }]
+                            }
                         ]
+                    },
+                    {
+                        model: InteractCmt,
+                        include: [{ model: User, as: "user" }]
                     }
                 ],
-                order: [['createdAt', 'DESC']]
+                order: [
+                    ['createdAt', sortType]
+                ],
             });
         resolve({
             status: "success",
@@ -103,7 +136,15 @@ const getById = (commentId) => new Promise(async (resolve, reject) => {
                             order: [['createdAt', 'ASC']],
                             include: [{ model: User, as: "user" }],
                         },
+                        {
+                            model: InteractRepCmt,
+                            include: [{ model: User, as: "user" }]
+                        }
                     ]
+                },
+                {
+                    model: InteractCmt,
+                    include: [{ model: User, as: "user" }]
                 }
             ],
         });
@@ -141,7 +182,6 @@ const createComment = (userId, blogId, commentBody) => new Promise(async (resolv
 
 const updateComment = (commentId, commentBody) => new Promise(async (resolve, reject) => {
     try {
-        console.log(commentBody);
         await Comment.update(
             { ...commentBody },
             { where: { id: commentId } }
@@ -160,7 +200,15 @@ const updateComment = (commentId, commentBody) => new Promise(async (resolve, re
                                 order: [['createdAt', 'ASC']],
                                 include: [{ model: User, as: "user" }],
                             },
+                            {
+                                model: InteractRepCmt,
+                                include: [{ model: User, as: "user" }]
+                            }
                         ]
+                    },
+                    {
+                        model: InteractCmt,
+                        include: [{ model: User, as: "user" }]
                     }
                 ],
             }))
@@ -191,11 +239,62 @@ const deleteComment = (commentId) => new Promise(async (resolve, reject) => {
     }
 });
 
+const interactComment = (userId, commentId, type, reason) => new Promise(async (resolve, reject) => {
+    try {
+        await InteractCmt.findOne({
+            where: { userId, commentId, type }
+        })
+            .then(async (res) => {
+                if (res) {
+                    if (reason) {
+                        await InteractCmt.create(
+                            {
+                                userId, commentId, type,
+                                deletedAt: null,
+                                status: 1,
+                                reason
+                            },
+                        );
+                    } else {
+                        await InteractCmt.update(
+                            {
+                                deletedAt: res.status === 1 ? new Date() : null,
+                                status: res.status === 1 ? 0 : 1,
+                                reason
+                            },
+                            { where: { userId, commentId, type } }
+                        );
+                    }
+                    resolve({
+                        status: "success",
+                        message: "Interact comment successfully."
+                    });
+                } else {
+                    await InteractCmt.create(
+                        {
+                            userId, commentId, type,
+                            deletedAt: null,
+                            status: 1,
+                            reason
+                        },
+                    )
+                    resolve({
+                        status: "success",
+                        message: "Interact comment successfully."
+                    });
+                }
+            });
+    } catch (error) {
+        reject(error);
+    }
+})
+
 module.exports = {
     getAll,
     getById,
     getByFKId,
     createComment,
     updateComment,
-    deleteComment
+    deleteComment,
+    interactComment
 }

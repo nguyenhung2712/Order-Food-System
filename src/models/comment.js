@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             Comment.belongsTo(models.Blog, { foreignKey: 'blogId', targetKey: 'id', as: 'blog' });
 
             Comment.hasMany(models.CommentRep, { foreignKey: 'commentId' });
+            Comment.hasMany(models.InteractCmt, { foreignKey: 'commentId' });
         }
     }
     Comment.init({

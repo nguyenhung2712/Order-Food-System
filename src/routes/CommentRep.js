@@ -18,5 +18,6 @@ router.put('/update/:id',
     commentRepController.updateRep
 );
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedCommentRep], commentRepController.toggleRep);
+router.post('/interact', [Auth.validateToken, VerifyExists.isExistedCommentRep, VerifyExists.isExistedUser], commentRepController.interactRep);
 
 module.exports = router;

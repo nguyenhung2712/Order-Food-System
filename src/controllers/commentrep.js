@@ -74,6 +74,15 @@ const toggleRep = async (req, res) => {
         return res.status(400).json(error);
     }
 }
+const interactRep = async (req, res) => {
+    try {
+        const { userId, repId, type, reason } = req.body;
+        const response = await commentRepService.interactRep(userId, repId, type, reason);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
 
 module.exports = {
     getAll,
@@ -82,5 +91,6 @@ module.exports = {
     createRep,
     uploadRepCommentImage,
     updateRep,
-    toggleRep
+    toggleRep,
+    interactRep
 }

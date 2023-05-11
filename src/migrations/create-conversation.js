@@ -40,16 +40,7 @@ module.exports = {
                     key: 'id',
                     as: 'userId',
                 }
-            },
-            adminId: {
-                allowNull: false,
-                type: Sequelize.UUID,
-                references: {
-                    model: 'AdminStaffs',
-                    key: 'id',
-                    as: 'adminId',
-                }
-            },
+            }
         });
     },
     async down(queryInterface, Sequelize) {

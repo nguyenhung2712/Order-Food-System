@@ -1,16 +1,33 @@
 const bcrypt = require("bcrypt");
-const { User } = require("../models");
+const { User, UserAddress, Address, Province, District, Ward } = require("../models");
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
-        const response = await User.findAll();
+        const response = await User.findAll({
+            attributes: { exclude: ['password'] },
+            include: [
+                {
+                    model: UserAddress,
+                    include: [
+                        {
+                            model: Address, as: "address",
+                            include: [
+                                { model: Province, as: "province" },
+                                { model: District, as: "district" },
+                                { model: Ward, as: "ward" },
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
         if (!response || response.length === 0) {
-            reject({ 
+            reject({
                 status: "error",
-                message: "Doesn't Exist!" 
+                message: "Doesn't Exist!"
             });
         } else {
-            resolve({ 
+            resolve({
                 status: "success",
                 message: "Get users successfully.",
                 payload: response
@@ -25,14 +42,30 @@ const getUser = (userId) => new Promise(async (resolve, reject) => {
     try {
         const user = await User.findOne({
             where: { id: userId },
+            attributes: { exclude: ['password'] },
+            include: [
+                {
+                    model: UserAddress,
+                    include: [
+                        {
+                            model: Address, as: "address",
+                            include: [
+                                { model: Province, as: "province" },
+                                { model: District, as: "district" },
+                                { model: Ward, as: "ward" },
+                            ]
+                        }
+                    ]
+                }
+            ]
         });
         if (!user) {
-            reject({ 
+            reject({
                 status: "error",
-                message: "User Doesn't Exist!" 
+                message: "User Doesn't Exist!"
             });
         } else {
-            resolve({ 
+            resolve({
                 status: "success",
                 message: "Get user successfully.",
                 payload: user
@@ -43,15 +76,18 @@ const getUser = (userId) => new Promise(async (resolve, reject) => {
     }
 });
 
-const createUser = ({...body}) => new Promise(async (resolve, reject) => {
+const createUser = (userBody) => new Promise(async (resolve, reject) => {
     try {
-        const user = await User.create(
-            { ...body }
-        );
-        resolve({ 
-            status: "success",
-            message: "Create user successfully.",
-            payload: user
+        const { password, ...body } = userBody;
+        bcrypt.hash(password, 10).then(async (hash) => {
+            const user = await User.create(
+                { ...body }
+            );
+            resolve({
+                status: "success",
+                message: "Create user successfully.",
+                payload: user
+            });
         });
     } catch (error) {
         reject(error);
@@ -60,17 +96,68 @@ const createUser = ({...body}) => new Promise(async (resolve, reject) => {
 
 const updateUser = (userId, userBody) => new Promise(async (resolve, reject) => {
     try {
-        await User.update({ ...userBody }, {
-            where: { id: userId }
-        })
-            .then(async () => await User.findByPk(userId))
-            .then(user => {
-                resolve({ 
-                    status: "success",
-                    message: "Change user profile successfully.",
-                    payload: user
+        const { password, ...body } = userBody;
+        if (!password) {
+            await User.update({ ...body }, {
+                where: { id: userId }
+            })
+                .then(async () => await User.findByPk(userId, {
+                    attributes: { exclude: ['password'] },
+                    include: [
+                        {
+                            model: UserAddress,
+                            include: [
+                                {
+                                    model: Address, as: "address",
+                                    include: [
+                                        { model: Province, as: "province" },
+                                        { model: District, as: "district" },
+                                        { model: Ward, as: "ward" },
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }))
+                .then(user => {
+                    resolve({
+                        status: "success",
+                        message: "Change user profile successfully.",
+                        payload: user
+                    });
                 });
-            });
+        } else {
+            bcrypt.hash(password, 10).then(async (hash) => {
+                await User.update({ ...body, password }, {
+                    where: { id: userId }
+                })
+                    .then(async () => await User.findByPk(userId, {
+                        attributes: { exclude: ['password'] },
+                        include: [
+                            {
+                                model: UserAddress,
+                                include: [
+                                    {
+                                        model: Address, as: "address",
+                                        include: [
+                                            { model: Province, as: "province" },
+                                            { model: District, as: "district" },
+                                            { model: Ward, as: "ward" },
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }))
+                    .then(user => {
+                        resolve({
+                            status: "success",
+                            message: "Change user profile successfully.",
+                            payload: user
+                        });
+                    });
+            })
+        }
     } catch (error) {
         reject(error);
     }
@@ -94,9 +181,9 @@ const changePassword = (userId, newPassword, oldPassword) => new Promise(async (
         } else {
             bcrypt.compare(oldPassword, user.password).then(async (match) => {
                 if (!match) {
-                    reject({ 
+                    reject({
                         status: "error",
-                        message: "Mật khẩu cũ không chính xác!" 
+                        message: "Mật khẩu cũ không chính xác!"
                     });
                 }
                 bcrypt.hash(newPassword, 10).then(async (hash) => {

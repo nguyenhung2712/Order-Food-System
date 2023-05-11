@@ -3,6 +3,17 @@ const { blogService } = require('../services');
 const getAll = async (req, res) => {
     try {
         const response = await blogService.getAll();
+        return res.json(response);
+
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
+const getAllBySort = async (req, res) => {
+    try {
+        const sortBy = req.query.sort;
+        const response = await blogService.getAllBySort(sortBy);
         const items = JSON.parse(JSON.stringify(response.payload));
         const limit = Number(req.query.limit);
         const page = Number(req.query.page);
@@ -30,9 +41,10 @@ const getAll = async (req, res) => {
     }
 }
 
-const getByUserId = async (req, res) => {
+const getBySortUserId = async (req, res) => {
     try {
-        const response = await blogService.getByUserId(req.params.id);
+        const sortBy = req.query.sort;
+        const response = await blogService.getBySortUserId(req.params.id, sortBy);
         const items = JSON.parse(JSON.stringify(response.payload));
         const limit = Number(req.query.limit);
         const page = Number(req.query.page);
@@ -54,6 +66,15 @@ const getByUserId = async (req, res) => {
         results.itemsLen = items.length;
         results.results = items.slice(startIndex, endIndex);
         return res.json(results);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
+const getByUserId = async (req, res) => {
+    try {
+        const response = await blogService.getByUserId(req.params.id);
+        return res.json(response);
     } catch (error) {
         return res.status(400).json(error);
     }
@@ -112,9 +133,8 @@ const toggleBlog = async (req, res) => {
 
 const interactBlog = async (req, res) => {
     try {
-        const type = req.params.type === "like" ? 1 : 0;
-        const { userId, blogId } = req.body;
-        const response = await blogService.interactBlog(userId, blogId, type);
+        const { userId, blogId, type, reason } = req.body;
+        const response = await blogService.interactBlog(userId, blogId, type, reason);
         return res.json(response);
     } catch (error) {
         return res.status(400).json(error);
@@ -136,7 +156,9 @@ const uploadBlogImage = async (req, res) => {
 
 module.exports = {
     getAll,
+    getAllBySort,
     getByUserId,
+    getBySortUserId,
     getById,
     getBySlug,
     createBlog,

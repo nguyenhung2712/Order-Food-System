@@ -1,5 +1,4 @@
 const { trackerService } = require('../services');
-const { interalServerError, badRequest } = require('../middlewares/HandleErrors');
 
 const getTrackersById = async (req, res) => {
     try {
@@ -15,6 +14,16 @@ const getTrackersById = async (req, res) => {
     }
 }
 
+const getHistoryByUser = async (req, res) => {
+    try {
+        const response = await trackerService.getHistoryByUser(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
 module.exports = {
-    getTrackersById
+    getTrackersById,
+    getHistoryByUser
 }

@@ -8,11 +8,12 @@ const { VerifyUserUpsert, VerifyExists } = require("../middlewares");
 
 router.get('/all', Auth.validateToken, userController.getAll);
 router.get('/:id', userController.getUser);
-router.put('/change-password/:id', userController.changePassword);
-router.put('/update/:id', [VerifyUserUpsert.checkExistedUsername], userController.updateUser);
-router.put('/upload-avatar/:id', 
-    [Auth.validateToken, VerifyExists.isExistedUser, 
-        fileUploader.single('image')], 
+router.post('/create', [Auth.validateToken], userController.createUser);
+router.put('/change-password/:id', [Auth.validateToken], userController.changePassword);
+router.put('/update/:id', [[Auth.validateToken], VerifyUserUpsert.checkExistedUsername, VerifyUserUpsert.checkExistedEmail], userController.updateUser);
+router.put('/upload-avatar/:id',
+    [Auth.validateToken, VerifyExists.isExistedUser,
+    fileUploader.single('image')],
     userController.uploadAvatarUser);
 
 /* router.get("/:type", [validateToken], async (req, res) => {
@@ -69,22 +70,22 @@ router.get("/:id", validateToken, async (req, res) => {
 
 router.post("/change-password/:id/:token", validateToken, async (req, res) => {
     try {
-		const { userId, token } = req.params;
-		const { password } = req.body;
-		const user = await User.findByPk(userId);
+        const { userId, token } = req.params;
+        const { password } = req.body;
+        const user = await User.findByPk(userId);
         let currToken = await Token.findOne({ 
-			where: { 
-				UserId: user.id, 
-				token: token
-			} 
-		});
+            where: { 
+                UserId: user.id, 
+                token: token
+            } 
+        });
 
-		if (!currToken) {
-			return res.json({ 
-				status: "error",
-				message: "Invalid link" 
-			});
-		}
+        if (!currToken) {
+            return res.json({ 
+                status: "error",
+                message: "Invalid link" 
+            });
+        }
     
         if (!user) {
             res.json({ 

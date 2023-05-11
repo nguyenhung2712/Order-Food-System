@@ -1,14 +1,14 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class AdminStaff extends Model {
         static associate(models) {
             AdminStaff.hasMany(models.Admin_Role, { foreignKey: 'adminId' });
-			AdminStaff.hasMany(models.Conversation, { foreignKey: 'adminId' });
-			AdminStaff.hasMany(models.Message, { foreignKey: 'adminId' });
-			AdminStaff.hasMany(models.Tracker, { foreignKey: 'adminId' });
+            AdminStaff.hasMany(models.Message, { foreignKey: 'adminId' });
+            AdminStaff.hasMany(models.Tracker, { foreignKey: 'adminId' });
+            AdminStaff.hasMany(models.AdminConver, { foreignKey: 'adminId' });
         }
     }
     AdminStaff.init({

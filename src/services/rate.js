@@ -3,18 +3,26 @@ const { v4: uuidv4 } = require("uuid");
 
 const getById = (type, id) => new Promise(async (resolve, reject) => {
     try {
-        const rates = type === "user" 
+        const rates = type === "user"
             ? await Rate.findAll({
-                where: { userId: id }
+                where: { userId: id },
+                include: [
+                    { model: User, as: "user" },
+                    { model: Dish, as: "product" },
+                ],
             })
             : await Rate.findAll({
-                where: { dishId: id }
+                where: { dishId: id },
+                include: [
+                    { model: User, as: "user" },
+                    { model: Dish, as: "product" },
+                ],
             });
-            resolve({ 
-                status: "success",
-                message: "Get rates successfully.",
-                payload: rates
-            });
+        resolve({
+            status: "success",
+            message: "Get rates successfully.",
+            payload: rates
+        });
     } catch (error) {
         reject(error);
     }
@@ -31,7 +39,7 @@ const createRate = (userId, dishId, rateBody) => new Promise(async (resolve, rej
             status: 1
         })
             .then(rate => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Create rate successfully.",
                     payload: rate
@@ -48,9 +56,14 @@ const updateRate = (rateId, rateBody) => new Promise(async (resolve, reject) => 
             { ...rateBody },
             { where: { id: rateId } }
         )
-            .then(() => Rate.findByPk(rateId))
+            .then(() => Rate.findByPk(rateId, {
+                include: [
+                    { model: User, as: "user" },
+                    { model: Dish, as: "product" },
+                ],
+            }))
             .then(rate => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Update rate successfully.",
                     payload: rate
@@ -63,40 +76,11 @@ const updateRate = (rateId, rateBody) => new Promise(async (resolve, reject) => 
 
 const deleteRate = (rateId) => new Promise(async (resolve, reject) => {
     try {
-        await Rate.update(
-            {
-                deletedAt: new Date(),
-                status: 0
-            },
-            { where: { id: rateId } }
-        )
-            .then(() => Rate.findByPk(rateId))
+        await Rate.destroy({ where: { id: rateId } })
             .then(rate => {
-                resolve({ 
+                resolve({
                     status: "success",
                     message: "Delete rate successfully.",
-                    payload: rate
-                });
-            });
-    } catch (error) {
-        reject(error);
-    }
-});
-
-const recoverRate = (rateId) => new Promise(async (resolve, reject) => {
-    try {
-        await Rate.update(
-            {
-                deletedAt: null,
-                status: 2
-            },
-            { where: { id: rateId } }
-        )
-            .then(() => Rate.findByPk(rateId))
-            .then(rate => {
-                resolve({ 
-                    status: "success",
-                    message: "Recover rate successfully.",
                     payload: rate
                 });
             });
@@ -109,6 +93,5 @@ module.exports = {
     getById,
     createRate,
     updateRate,
-    deleteRate,
-    recoverRate
+    deleteRate
 }

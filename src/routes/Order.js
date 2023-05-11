@@ -11,6 +11,7 @@ router.post('/create',
     [Auth.validateToken, VerifyExists.isExistedUser, VerifyExists.isExistedAddress],
     orderController.createOrder
 );
+router.get('/checkout/:id', [Auth.validateToken, VerifyExists.isExistedOrder], orderController.checkout);
 router.put('/update/:id', [Auth.validateToken, VerifyExists.isExistedOrder], orderController.updateOrder);
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedOrder], orderController.toggleOrder);
 router.get('/export/:id/:locale', /* [Auth.validateToken, VerifyExists.isExistedOrder], */

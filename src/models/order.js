@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             Order.belongsTo(models.Address, { foreignKey: 'addressId', targetKey: 'id', as: 'address' });
 
             Order.hasMany(models.OrderDetail, { foreignKey: 'orderId' });
+            Order.hasMany(models.History, { foreignKey: 'orderId' });
         }
     }
     Order.init({

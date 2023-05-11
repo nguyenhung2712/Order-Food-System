@@ -2,26 +2,16 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Rates', {
+        await queryInterface.createTable('Histories', {
             id: {
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true,
-                type: Sequelize.UUID,
-                defaultValue: Sequelize.UUIDV4
+                type: Sequelize.INTEGER
             },
-            score: {
+            action: {
                 allowNull: false,
-                type: Sequelize.DECIMAL
-            },
-            remarks: {
                 type: Sequelize.STRING
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
             },
             createdAt: {
                 allowNull: false,
@@ -32,7 +22,6 @@ module.exports = {
                 type: Sequelize.DATE
             },
             userId: {
-                allowNull: false,
                 type: Sequelize.UUID,
                 references: {
                     model: 'Users',
@@ -40,18 +29,34 @@ module.exports = {
                     as: 'userId',
                 }
             },
-            dishId: {
+            /* adminId: {
                 allowNull: false,
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Dishes',
+                    model: 'AdminStaffs',
                     key: 'id',
-                    as: 'dishId',
+                    as: 'adminId',
+                }
+            }, */
+            orderId: {
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Orders',
+                    key: 'id',
+                    as: 'orderId',
+                }
+            },
+            blogId: {
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Blogs',
+                    key: 'id',
+                    as: 'blogId',
                 }
             },
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Rates');
+        await queryInterface.dropTable('Histories');
     }
 };

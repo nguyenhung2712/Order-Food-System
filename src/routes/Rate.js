@@ -3,11 +3,16 @@ const router = express.Router();
 
 const { Auth, VerifyExists } = require("../middlewares");
 const { rateController } = require("../controllers");
+const fileUploader = require('../config/cloudinary.config');
 
-router.get('/:type/:id', [Auth.validateToken, VerifyExists.areExistedRates], rateController.getById);
+router.get('/:type/:id', rateController.getById);
+router.get('/paginate/:type/:id', rateController.getWithPaginate);
 router.post('/create', [Auth.validateToken, VerifyExists.isExistedDish, VerifyExists.isExistedUser], rateController.createRate);
 router.put('/update/:id', [Auth.validateToken, VerifyExists.isExistedRate], rateController.updateRate);
-router.put('/delete/:id', [Auth.validateToken, VerifyExists.isExistedRate], rateController.deleteRate);
-router.put('/recover/:id', [Auth.validateToken, VerifyExists.isExistedRate], rateController.recoverRate);
+router.delete('/delete/:id', [Auth.validateToken, VerifyExists.isExistedRate], rateController.deleteRate);
+/* router.put('/upload-image/:id',
+    [Auth.validateToken, VerifyExists.isExistedRate,
+    fileUploader.single('image')],
+    rateController.uploadRatingImage); */
 
 module.exports = router;

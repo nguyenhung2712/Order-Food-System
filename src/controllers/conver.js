@@ -1,10 +1,11 @@
-const { converService } = require('../services'); 
+const { converService } = require('../services');
 
 const getAll = async (req, res) => {
     try {
         const response = await converService.getAll();
         return res.json(response);
     } catch (error) {
+        console.log(error);
         return res.status(400).json(error);
     }
 }
@@ -49,9 +50,9 @@ const updateConver = async (req, res) => {
 const toggleConver = async (req, res) => {
     try {
         const { type, id } = req.params;
-        const response =  type === "delete"
-        ? await converService.deleteConver(id)
-        : await converService.recoverConver(id);
+        const response = type === "delete"
+            ? await converService.deleteConver(id)
+            : await converService.recoverConver(id);
         return res.json(response);
     } catch (error) {
         return res.status(400).json(error);

@@ -1,12 +1,12 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Rate extends Model {
         static associate(models) {
             Rate.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
-            Rate.belongsTo(models.Dish, { foreignKey: 'dishId', targetKey: 'id', as: 'dish' });
+            Rate.belongsTo(models.Dish, { foreignKey: 'dishId', targetKey: 'id', as: 'product' });
         }
     }
     Rate.init({

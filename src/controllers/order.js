@@ -50,6 +50,16 @@ const updateOrder = async (req, res) => {
     }
 }
 
+const checkout = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await orderService.checkout(id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
 const toggleOrder = async (req, res) => {
     try {
         const { type, id } = req.params;
@@ -116,5 +126,6 @@ module.exports = {
     createOrder,
     updateOrder,
     toggleOrder,
-    exportOrder
+    exportOrder,
+    checkout
 }

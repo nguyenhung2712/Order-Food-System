@@ -2,19 +2,12 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Rates', {
+        await queryInterface.createTable('InteractRepCmts', {
             id: {
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true,
-                type: Sequelize.UUID,
-                defaultValue: Sequelize.UUIDV4
-            },
-            score: {
-                allowNull: false,
-                type: Sequelize.DECIMAL
-            },
-            remarks: {
-                type: Sequelize.STRING
+                type: Sequelize.INTEGER
             },
             deletedAt: {
                 type: Sequelize.DATE
@@ -23,13 +16,12 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.TINYINT
             },
-            createdAt: {
+            type: {
                 allowNull: false,
-                type: Sequelize.DATE
+                type: Sequelize.TINYINT
             },
-            updatedAt: {
-                allowNull: false,
-                type: Sequelize.DATE
+            reason: {
+                type: Sequelize.STRING
             },
             userId: {
                 allowNull: false,
@@ -38,20 +30,28 @@ module.exports = {
                     model: 'Users',
                     key: 'id',
                     as: 'userId',
-                }
+                },
             },
-            dishId: {
+            repId: {
                 allowNull: false,
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Dishes',
+                    model: 'CommentReps',
                     key: 'id',
-                    as: 'dishId',
-                }
+                    as: 'repId',
+                },
             },
+            createdAt: {
+                allowNull: false,
+                type: Sequelize.DATE
+            },
+            updatedAt: {
+                allowNull: false,
+                type: Sequelize.DATE
+            }
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Rates');
+        await queryInterface.dropTable('InteractRepCmts');
     }
 };

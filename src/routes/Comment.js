@@ -20,5 +20,6 @@ router.put('/update/:id',
     commentController.updateComment
 );
 router.put('/delete/:id', [Auth.validateToken, VerifyExists.isExistedComment], commentController.deleteComment);
+router.post('/interact', /* [Auth.validateToken, VerifyExists.isExistedUser, VerifyExists.isExistedComment], */ commentController.interactComment);
 
 module.exports = router;

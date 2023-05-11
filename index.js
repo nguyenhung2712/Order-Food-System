@@ -16,12 +16,14 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(cookieParser());
 
-app.use(expressSession({ secret: 'keyboard cat', resave: true, 
-saveUninitialized: true }));
+app.use(expressSession({
+    secret: 'keyboard cat', resave: true,
+    saveUninitialized: true
+}));
 
 /* app.use(
     cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
