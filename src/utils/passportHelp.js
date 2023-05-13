@@ -44,9 +44,9 @@ let ggStragy = new GoogleStrategy(
                     firstName: profile.name.familyName,
                     lastName: profile.name.givenName,
                     password: hash,
-                    lastLogin: new Date(),
                     isActived: 1,
                     is2FA: 0,
+                    lastLogin: new Date(),
                     status: 1,
                     avatar: profile.photos[0].value,
                 })

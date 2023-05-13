@@ -23,6 +23,16 @@ const getUser = async (req, res) => {
     }
 }
 
+const getUserByEmail = async (req, res) => {
+    try {
+        const response = await userService.getUserByEmail(req.body);
+        return res.json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json(error);
+    }
+}
+
 const createUser = async (req, res) => {
     try {
         const response = await userService.createUser(req.body);
@@ -70,6 +80,7 @@ const uploadAvatarUser = async (req, res) => {
 module.exports = {
     getAll,
     getUser,
+    getUserByEmail,
     changePassword,
     createUser,
     updateUser,

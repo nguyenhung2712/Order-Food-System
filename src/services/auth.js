@@ -483,7 +483,7 @@ const userLogin = (username, password) => new Promise(async (resolve, reject) =>
                     let refreshToken = await RefreshToken.createToken("user", user.id);
                     await User.update(
                         { lastLogin: new Date() },
-                        { where: { id: staff.id } }
+                        { where: { id: user.id } }
                     );
                     resolve({
                         status: "success",

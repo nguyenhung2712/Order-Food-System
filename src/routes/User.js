@@ -8,9 +8,10 @@ const { VerifyUserUpsert, VerifyExists } = require("../middlewares");
 
 router.get('/all', Auth.validateToken, userController.getAll);
 router.get('/:id', userController.getUser);
+router.post('/gmail', userController.getUserByEmail);
 router.post('/create', [Auth.validateToken], userController.createUser);
 router.put('/change-password/:id', [Auth.validateToken], userController.changePassword);
-router.put('/update/:id', [[Auth.validateToken], VerifyUserUpsert.checkExistedUsername, VerifyUserUpsert.checkExistedEmail], userController.updateUser);
+router.put('/update/:id', [Auth.validateToken, VerifyUserUpsert.checkExistedUsername, VerifyUserUpsert.checkExistedEmail], userController.updateUser);
 router.put('/upload-avatar/:id',
     [Auth.validateToken, VerifyExists.isExistedUser,
     fileUploader.single('image')],
