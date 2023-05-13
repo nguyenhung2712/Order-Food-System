@@ -2,6 +2,7 @@ import { /* Fab, */ Icon, IconButton } from '@mui/material';
 import { styled, useTheme } from '@mui/system';
 import useSettings from '../../hooks/useSettings';
 import clsx from 'clsx';
+import React from 'react';
 
 const Toggle = styled('div')(() => ({
     position: 'fixed',
@@ -19,7 +20,7 @@ const SecondarySidebarToggle = () => {
 
     const toggle = () => {
         updateSettings({
-        secondarySidebar: { open: !settings.secondarySidebar.open },
+            secondarySidebar: { open: !settings.secondarySidebar.open },
         });
     };
 
@@ -40,7 +41,7 @@ const SecondarySidebarToggle = () => {
                 </Fab>
             )} */}
         </Toggle>
-  );
+    );
 };
 
 export default SecondarySidebarToggle;

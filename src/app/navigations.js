@@ -1,30 +1,17 @@
 export const navigations = [
-    { name: 'Dashboard', path: '/dashboard/default', icon: 'dashboard' },
+    { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
     { label: 'Quản lý', type: 'label' },
-    {
-        name: 'Đơn hàng',
-        icon: 'receipt',
-        path: '/order/manage',
-    },
-    {
-        name: 'Khách hàng',
-        icon: 'person',
-        path: '/customer/manage'
-    },
     {
         name: 'Món ăn',
         icon: 'fastfood',
-        children: [
-            { name: 'Danh sách món ăn', iconText: 'PL', path: '/product/manage' },
-            { name: 'Món ăn mới', iconText: 'NP', path: '/product/add' }
-        ],
+        path: '/product/manage'
     },
     {
-        name: 'Loại món',
-        icon: 'category',
+        name: 'Đơn hàng',
+        icon: 'receipt',
         children: [
-            { name: 'Danh sách các loại', iconText: 'CL', path: '/product-type/manage' },
-            { name: 'Loại món mới', iconText: 'NC', path: '/product-type/add' }
+            { name: 'Danh sách các đơn', iconText: 'OI', path: '/order/manage', },
+            { name: 'Viết đơn hàng', iconText: 'WO', path: '/order/add' },
         ],
     },
     {
@@ -32,7 +19,15 @@ export const navigations = [
         icon: 'feed',
         children: [
             { name: 'Danh sách blog', iconText: 'BI', path: '/blog/manage' },
-            { name: 'Blog mới', iconText: 'NB', path: '/blog/add' },
+            { name: 'Báo cáo', iconText: 'RB', path: '/blog/report' },
+        ],
+    },
+    {
+        name: 'Khách hàng',
+        icon: 'person',
+        children: [
+            { name: 'Danh sách khách hàng', iconText: 'CI', path: '/customer/manage' },
+            { name: 'Báo cáo', iconText: 'RU', path: '/customer/report' },
         ],
     },
     {
@@ -50,9 +45,9 @@ export const navigations = [
         path: '/chat'
     },
     {
-        name: 'Viết hóa đơn',
-        icon: 'receipt',
-        path: '/receipt'
+        name: 'Lịch',
+        icon: 'CalendarToday',
+        path: '/calendar'
     },
 ];
 
@@ -104,4 +99,3 @@ export const navigations = [
       path: 'http://demos.ui-lib.com/matx-react-doc/',
     },
   ]; */
-  

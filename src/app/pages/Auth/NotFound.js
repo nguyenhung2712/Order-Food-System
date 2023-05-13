@@ -1,5 +1,6 @@
 import { Box, Button, styled } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const FlexBox = styled(Box)(() => ({
     display: 'flex',
@@ -37,7 +38,7 @@ const NotFound = () => {
                     sx={{ textTransform: 'capitalize' }}
                     onClick={() => navigate(-1)}
                 >
-                Go Back
+                    Go Back
                 </Button>
             </JustifyBox>
         </NotFoundRoot>

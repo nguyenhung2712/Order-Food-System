@@ -1,8 +1,9 @@
-import React, { createContext, useEffect, useReducer } from 'react';
+import React, { createContext, useEffect, useReducer, useState } from 'react';
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 import { MatxLoading } from '../components';
 import AuthService from '../services/auth.service';
+import TokenService from '../services/token.service';
 import StaffService from '../services/staff.service';
 import { authReducer } from '../redux/reducers/AuthReducer';
 import { login, logout, init } from '../redux/actions/AuthActions';
@@ -38,12 +39,13 @@ const AuthContext = createContext({
     ...initialState,
     method: 'JWT',
     login: () => Promise.resolve(),
-    logout: () => {},
+    logout: () => { },
     register: () => Promise.resolve(),
 });
 
 export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
+    const [modal, setModal] = useState({ isOpen: false, title: '', content: '' });
     const signin = async (username, password) => {
         const response = await AuthService.login({ username, password });
         const { staff } = response.payload;
@@ -67,10 +69,9 @@ export const AuthProvider = ({ children }) => {
     }
 
     useEffect(() => {
-       
         ; (async () => {
             try {
-                const accessToken = JSON.parse(window.localStorage.getItem('user'))?.accessToken;
+                const accessToken = TokenService.getLocalAccessToken();
                 if (accessToken && isValidToken(accessToken)) {
                     const response = await StaffService.getAdminProfile(accessToken);
                     const staff = response.data.payload.staff;
@@ -97,6 +98,7 @@ export const AuthProvider = ({ children }) => {
                 signin,
                 signout,
                 authRegister,
+                modal, setModal
             }}
         >
             {children}

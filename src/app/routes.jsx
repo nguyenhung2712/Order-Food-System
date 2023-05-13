@@ -8,8 +8,14 @@ import AuthRoutes from './pages/Auth/AuthRoutes';
 import ProductRoutes from './pages/Product/ProductRoutes';
 import BlogRoutes from './pages/Blog/BlogRoutes';
 import StaffRoutes from './pages/Staff/StaffRoutes';
+import ChatRoutes from './pages/Chat/ChatRoutes';
+import OrderRoutes from './pages/Order/OrderRoutes';
+import CustomerRoutes from './pages/Customer/CustomerRoutes';
+import DashboardRoutes from './pages/Dashboard/DashboardRoutes';
+import CalendarRoutes from './pages/Calendar/CalendarRoutes';
+import React from 'react';
 
-/* import { Navigate } from 'react-router-dom'; */
+import { Navigate } from 'react-router-dom';
 import Layout from './components/MatxLayout/Layout';
 
 /* const routes = [
@@ -33,10 +39,13 @@ const routes = [
                 <Layout />
             </AuthGuard>
         ),
-        children: [...ProductRoutes, ...BlogRoutes, ...StaffRoutes],
+        children: [
+            ...ProductRoutes, ...BlogRoutes, ...StaffRoutes, ...CalendarRoutes,
+            ...ChatRoutes, ...OrderRoutes, ...CustomerRoutes, ...DashboardRoutes],
     },
     ...AuthRoutes,
     { path: '/unauthorized', element: <NotFound /> },
+    { path: '/', element: <Navigate to="dashboard" /> },
     { path: '*', element: <NotFound /> },
 ];
 

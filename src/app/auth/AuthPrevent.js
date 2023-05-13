@@ -1,5 +1,6 @@
 import useAuth from '../hooks/useAuth';
 import { Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
 
 const AuthGuard = ({ children }) => {
     let { isAuthenticated } = useAuth();
@@ -7,9 +8,9 @@ const AuthGuard = ({ children }) => {
     return (
         <>
             {
-                !isAuthenticated 
-                ? ( children ) 
-                : ( <Navigate replace to="/" state={{ from: pathname }} /> )
+                !isAuthenticated
+                    ? (children)
+                    : (<Navigate replace to="/" state={{ from: pathname }} />)
             }
         </>
     );

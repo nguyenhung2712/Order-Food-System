@@ -1,5 +1,6 @@
 /* import { useState, useEffect } from "react"; */
 import { useParams } from 'react-router-dom';
+import React from 'react';
 
 import { Stack } from "@mui/material";
 import { Box, styled } from "@mui/system";
@@ -24,12 +25,12 @@ const ProductUpsert = () => {
             </Box>
 
             <Stack spacing={3}>
-                { 
-                    id 
-                    ? <InputForm
+                {
+                    id
+                        ? <InputForm
                             id={id}
                         />
-                    : <InputForm />
+                        : <InputForm />
                 }
             </Stack>
         </Container>

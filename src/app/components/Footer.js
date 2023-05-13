@@ -1,6 +1,7 @@
 import { AppBar, ThemeProvider } from '@mui/material';
 import { useTheme } from '@mui/system';
 import useSettings from '../hooks/useSettings';
+import React from 'react';
 /* import { topBarHeight } from '../utils/constant';
 import { Paragraph, Span } from './Typography'; */
 
@@ -30,15 +31,15 @@ const FooterContent = styled('div')(() => ({
 })); */
 
 const Footer = () => {
-  const theme = useTheme();
-  const { settings } = useSettings();
+    const theme = useTheme();
+    const { settings } = useSettings();
 
-  const footerTheme = settings.themes[settings.footer.theme] || theme;
+    const footerTheme = settings.themes[settings.footer.theme] || theme;
 
-  return (
-    <ThemeProvider theme={footerTheme}>
-      <AppBar color="primary" position="static" sx={{ zIndex: 96 }}>
-        {/* <AppFooter>
+    return (
+        <ThemeProvider theme={footerTheme}>
+            <AppBar color="primary" position="static" sx={{ zIndex: 96 }}>
+                {/* <AppFooter>
           <FooterContent>
             <a href="https://ui-lib.com/downloads/matx-pro-react-admin/">
               <Button variant="contained" color="secondary">
@@ -51,9 +52,9 @@ const Footer = () => {
             </Paragraph>
           </FooterContent>
         </AppFooter> */}
-      </AppBar>
-    </ThemeProvider>
-  );
+            </AppBar>
+        </ThemeProvider>
+    );
 };
 
 export default Footer;

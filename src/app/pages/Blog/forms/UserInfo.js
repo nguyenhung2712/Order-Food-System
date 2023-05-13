@@ -5,17 +5,19 @@ import {
     Tabs, Tab,
     Card, CardMedia, Stack
 } from "@mui/material";
+import React from 'react';
 
 import { H2, Paragraph, H3, H1 } from "../../../components/Typography";
 
 const UserInfo = ({ data }) => {
+    console.log(data);
     return (
         <div>
             {
-                data && 
+                data &&
                 <Box>
                     <Divider />
-                    <Stack 
+                    <Stack
                         direction="column"
                         justifyContent="center"
                         alignItems="center"
@@ -23,47 +25,59 @@ const UserInfo = ({ data }) => {
                         sx={{ paddingBottom: 3, paddingTop: 3 }}
                     >
                         <CardMedia
-                            sx={{ 
+                            sx={{
                                 height: 70,
                                 width: 70,
                                 objectFit: "fit",
                                 borderRadius: "50%"
                             }}
-                            image="https://matx-react.ui-lib.com/assets/images/faces/10.jpg"
+                            image={data.avatar}
                             title="green iguana"
                         />
-                        <H3>{ data.firstName + " " + data.lastName }</H3>
+                        <H3>{data.firstName + " " + data.lastName}</H3>
                     </Stack>
                     <Divider />
-                    <TableContainer 
+                    <TableContainer
                         component={Paper}
                         sx={{ boxShadow: "none" }}
                     >
-                        <Table  aria-label="simple table">
+                        <Table aria-label="simple table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell sx={{ paddingLeft: 4 }}>Email</TableCell>
                                     <TableCell align="left">
                                         <Paragraph
                                             sx={{ fontSize: "13px" }}
-                                        >{ data.email }</Paragraph>
-                                        <Chip 
-                                            label={ data.isActive ? "Đã xác thực" : "Chưa xác thực" }
-                                            color={ data.isActive ? "info" : "warning" }
+                                        >{data.email}</Paragraph>
+                                        <Chip
+                                            label={data.isActive ? "Đã xác thực" : "Chưa xác thực"}
+                                            color={data.isActive ? "info" : "warning"}
                                             size="small"
                                         />
                                     </TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell sx={{ paddingLeft: 4 }}>Số điện thoại</TableCell>
-                                    <TableCell align="left">{ data.phoneNum ? data.phoneNum : <i>Người dùng chưa nhập</i> }</TableCell>
+                                    <TableCell align="left">{data.phoneNum ? data.phoneNum : <i>Người dùng chưa nhập</i>}</TableCell>
                                 </TableRow>
-                                {/* các địa chỉ (map => ...) */}
+                                {
+                                    data.UserAddresses && data.UserAddresses.length > 0 && data.UserAddresses[0].userId && data.UserAddresses.map((address, index) => (
+                                        <TableRow>
+                                            <TableCell sx={{ paddingLeft: 4 }}>Địa chỉ {index + 1}</TableCell>
+                                            <TableCell align="left">
+                                                {
+                                                    address.title + ", " + address.address.address
+                                                    + " - " + address.address.province.provinceName
+                                                }
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                }
                             </TableHead>
                         </Table>
                     </TableContainer>
                 </Box>
-                
+
             }
         </div>
     );

@@ -1,11 +1,12 @@
 import { useState } from "react";
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Chip,
     styled, Typography,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, CircularProgress
+    Toolbar, Tooltip, CircularProgress, Button
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -50,7 +51,7 @@ const headCells = [
     },
 ];
 
-const Button = styled(IconButton)(({ theme }) => ({
+const StyledIconBtn = styled(IconButton)(({ theme }) => ({
     height: 44,
     whiteSpace: 'pre',
     overflow: 'hidden',
@@ -61,7 +62,7 @@ const Button = styled(IconButton)(({ theme }) => ({
         fontSize: '18px',
         paddingLeft: '16px',
         paddingRight: '16px',
-        verticalAlign: 'middle',    
+        verticalAlign: 'middle',
     },
 }));
 
@@ -75,27 +76,6 @@ const EmployeeTable = ({ rows, setRender }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [loading, setLoading] = useState(false);
-
-    /* useEffect(() => {
-        (async () => {
-            await StaffService.getAllStaffs()
-                .then((res) => {
-                    let staffs = res.data.payload;
-                    let rows = staffs.map(staff => ({
-                        id: staff.id,
-                        username: staff.username, 
-                        fullname: staff.fullname, 
-                        status: staff.status,
-                        createdAt: new Date(staff.createdAt)
-                    }));
-                    setRows(rows);
-                    dispatch(init(staffs));
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-        })()
-    }, [isRender]); */
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -112,7 +92,7 @@ const EmployeeTable = ({ rows, setRender }) => {
             setSelected([]);
         }
     };
-    
+
     const handleClick = (event, name) => {
         const selectedIndex = selected.indexOf(name);
         let newSelected = [];
@@ -180,7 +160,7 @@ const EmployeeTable = ({ rows, setRender }) => {
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
+    // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -202,7 +182,7 @@ const EmployeeTable = ({ rows, setRender }) => {
                         variant="subtitle1"
                         component="div"
                     >
-                    {selected.length} đã chọn
+                        {selected.length} đã chọn
                     </Typography>
                 ) : (
                     <Typography
@@ -216,35 +196,34 @@ const EmployeeTable = ({ rows, setRender }) => {
                 )}
 
                 {selected.length > 0 ? (
-                    loading === false 
-                        ?    <Tooltip title="Delete">
-                                <IconButton onClick={ handleDelete }>
-                                    <DeleteIcon />
-                                </IconButton>
-                            </Tooltip>
-                        :   <CircularProgress />
-                    
+                    loading === false
+                        ? <Tooltip title="Delete">
+                            <IconButton onClick={handleDelete}>
+                                <DeleteIcon />
+                            </IconButton>
+                        </Tooltip>
+                        : <CircularProgress />
+
                 ) : (
-                    <Button 
-                        variant="contained" 
+                    <Button
+                        variant="contained"
                         component="label"
                         color="primary"
-                        sx={{ 
-                            my: 2 ,
+                        sx={{
+                            my: 2,
                             fontSize: "1rem",
                             borderRadius: "6px !important",
 
                             border: 1
                         }}
                     >
-                        <CSVLink 
-                            data={rows} 
+                        <CSVLink
+                            data={rows}
                             filename={"staffs-data.csv"}
-                            target="_blank" 
-                            style={{ display: 'flex', alignItems: 'center' }}
+                            target="_blank"
+                            style={{ display: 'flex', alignItems: 'center', textDecoration: "none", color: "#fff" }}
                         >
-                            <FileDownloadIcon sx={{ marginRight: 1 }} />
-                            Xuất dữ liệu
+                            <FileDownloadIcon />
                         </CSVLink>
                     </Button>
                 )}
@@ -273,15 +252,15 @@ const EmployeeTable = ({ rows, setRender }) => {
 
                                 return (
                                     <TableRow
-                                        hover={ [0, 3].includes(row.status) ? true : false }
-                                        onClick={(event) => ![0, 3].includes(row.status) ? handleClick(event, row.id) : {} }
+                                        hover={[0, 3].includes(row.status) ? true : false}
+                                        onClick={(event) => ![0, 3].includes(row.status) ? handleClick(event, row.id) : {}}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={index}
                                         selected={isItemSelected}
 
-                                        sx={ [0, 3].includes(row.status) ? { backgroundColor: '#F4F4F5' } : { backgroundColor: '#fff' } }
+                                        sx={[0, 3].includes(row.status) ? { backgroundColor: '#F4F4F5' } : { backgroundColor: '#fff' }}
                                     >
                                         <TableCell padding="checkbox">
                                             <Checkbox
@@ -290,7 +269,7 @@ const EmployeeTable = ({ rows, setRender }) => {
                                                 inputProps={{
                                                     'aria-labelledby': labelId,
                                                 }}
-                                                disabled={ ![0, 3].includes(row.status) ? false : true }
+                                                disabled={![0, 3].includes(row.status) ? false : true}
                                             />
                                         </TableCell>
                                         <TableCell
@@ -299,12 +278,12 @@ const EmployeeTable = ({ rows, setRender }) => {
                                             padding="none"
                                             align="left"
                                         >
-                                            { row.username }
+                                            {row.username}
                                         </TableCell>
                                         <TableCell align="left">{row.fullname}</TableCell>
                                         <TableCell align="center">
                                             {
-                                                row.status === 2 
+                                                row.status === 2
                                                     ? <Chip label="Tạm ẩn" color="warning" />
                                                     : row.status === 1
                                                         ? <Chip label="Có sẵn" color="primary" />
@@ -313,15 +292,15 @@ const EmployeeTable = ({ rows, setRender }) => {
                                                             : <Chip label="Tạm xóa" />
                                             }
                                         </TableCell>
-                                        
+
                                         <TableCell align="right">
                                             <Stack direction="row" spacing={1} justifyContent="center">
-                                                <Button aria-label="edit" onClick={() => handleOpenEdit(row.id)}>
+                                                <StyledIconBtn aria-label="edit" onClick={() => handleOpenEdit(row.id)}>
                                                     <EditIcon />
-                                                </Button>
-                                                <Button aria-label="east" onClick={() => handleViewDetail(row.id)}>
+                                                </StyledIconBtn>
+                                                <StyledIconBtn aria-label="east" onClick={() => handleViewDetail(row.id)}>
                                                     <EastIcon />
-                                                </Button>
+                                                </StyledIconBtn>
                                             </Stack>
                                         </TableCell>
                                     </TableRow>
@@ -349,6 +328,14 @@ const EmployeeTable = ({ rows, setRender }) => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 labelRowsPerPage={"Dòng dữ liệu trên trang"}
+                sx={{
+                    ".MuiTablePagination-selectLabel": {
+                        margin: "0px !important",
+                    },
+                    ".MuiTablePagination-displayedRows": {
+                        margin: "0px !important",
+                    },
+                }}
             />
         </Box>
     );

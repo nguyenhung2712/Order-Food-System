@@ -13,25 +13,25 @@ import Layout1Sidenav from './Layout1Sidenav';
 import Layout1Topbar from './Layout1Topbar';
 
 const Layout1Root = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  background: theme.palette.background.default,
+    display: 'flex',
+    background: theme.palette.background.default,
 }));
 
 const ContentBox = styled(Box)(() => ({
-  height: '100%',
-  display: 'flex',
-  overflowY: 'auto',
-  overflowX: 'hidden',
-  flexDirection: 'column',
-  justifyContent: 'space-between',
+    height: '100%',
+    display: 'flex',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
 }));
 
 const StyledScrollBar = styled(Scrollbar)(() => ({
-  height: '100%',
-  position: 'relative',
-  display: 'flex',
-  flexGrow: '1',
-  flexDirection: 'column',
+    height: '100%',
+    position: 'relative',
+    display: 'flex',
+    flexGrow: '1',
+    flexDirection: 'column',
 }));
 
 const LayoutContainer = styled(Box)(({ width, secondarysidebar }) => ({
@@ -57,14 +57,14 @@ const Layout1 = () => {
 
     const getSidenavWidth = () => {
         switch (sidenavMode) {
-        case 'full':
-            return sideNavWidth;
+            case 'full':
+                return sideNavWidth;
 
-        case 'compact':
-            return sidenavCompactWidth;
+            case 'compact':
+                return sidenavCompactWidth;
 
-        default:
-            return '0px';
+            default:
+                return '0px';
         }
     };
 
@@ -79,7 +79,7 @@ const Layout1 = () => {
         let { settings } = ref.current;
         let sidebarMode = settings.layout1Settings.leftSidebar.mode;
         if (settings.layout1Settings.leftSidebar.show) {
-        let mode = isMdScreen ? 'close' : sidebarMode;
+            let mode = isMdScreen ? 'close' : sidebarMode;
             updateSettings({ layout1Settings: { leftSidebar: { mode } } });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,7 +89,7 @@ const Layout1 = () => {
         <Layout1Root className={layoutClasses}>
             {showSidenav && sidenavMode !== 'close' && (
                 <SidenavTheme>
-                <Layout1Sidenav />
+                    <Layout1Sidenav />
                 </SidenavTheme>
             )}
 
@@ -103,14 +103,14 @@ const Layout1 = () => {
                 {settings.perfectScrollbar && (
                     <StyledScrollBar>
                         {layout1Settings.topbar.show && !layout1Settings.topbar.fixed && (
-                        <ThemeProvider theme={topbarTheme}>
-                            <Layout1Topbar />
-                        </ThemeProvider>
+                            <ThemeProvider theme={topbarTheme}>
+                                <Layout1Topbar />
+                            </ThemeProvider>
                         )}
                         <Box flexGrow={1} position="relative">
-                        <SuspenseCustom>
-                            <Outlet />
-                        </SuspenseCustom>
+                            <SuspenseCustom>
+                                <Outlet />
+                            </SuspenseCustom>
                         </Box>
 
                         {settings.footer.show && !settings.footer.fixed && <Footer />}
@@ -120,15 +120,15 @@ const Layout1 = () => {
                 {!settings.perfectScrollbar && (
                     <ContentBox>
                         {layout1Settings.topbar.show && !layout1Settings.topbar.fixed && (
-                        <ThemeProvider theme={topbarTheme}>
-                            <Layout1Topbar />
-                        </ThemeProvider>
+                            <ThemeProvider theme={topbarTheme}>
+                                <Layout1Topbar />
+                            </ThemeProvider>
                         )}
 
                         <Box flexGrow={1} position="relative">
-                        <SuspenseCustom>
-                            <Outlet />
-                        </SuspenseCustom>
+                            <SuspenseCustom>
+                                <Outlet />
+                            </SuspenseCustom>
                         </Box>
 
                         {settings.footer.show && !settings.footer.fixed && <Footer />}

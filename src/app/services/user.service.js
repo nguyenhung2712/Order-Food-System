@@ -16,21 +16,31 @@ const updateUser = async (userId, newInfo) => {
     return await axiosInstance.put("/user/update/" + userId, newInfo);
 };
 
-const deleteUser = async (userId) => {
+const uploadAvatar = async (id, formData) => {
+    return await axiosInstance.put("/user/upload-avatar/" + id,
+        formData,
+        {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }
+    );
+};
+
+/* const deleteUser = async (userId) => {
     return await axiosInstance.put("/user/delete/" + userId);
 };
 
 const recoverUser = async (userId) => {
     return await axiosInstance.put("/user/recover/" + userId);
-};
+}; */
 
 const UserService = {
     getAllUsers,
     getUserById,
     createUser,
     updateUser,
-    deleteUser,
-    recoverUser
+    uploadAvatar,
+    /* deleteUser,
+    recoverUser */
 };
 
 export default UserService;

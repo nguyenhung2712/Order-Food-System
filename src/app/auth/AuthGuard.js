@@ -2,16 +2,17 @@ import useAuth from '../hooks/useAuth';
 import { flat } from '../utils/utils';
 import { Navigate, useLocation } from 'react-router-dom';
 import AllPages from '../routes';
+import React from 'react';
 
 const userHasPermission = (pathname, user, routes) => {
     if (pathname.split("/").some(char => char.length === 36)) {
-        const pathParts = pathname.split("/").filter(char => char.length !== 36  && char !== "");
+        const pathParts = pathname.split("/").filter(char => char.length !== 36 && char !== "");
         pathname = pathParts.reduce((acc, part) => {
             return acc + "/" + part;
         }, "") + "/:id";
     }
     const matched = routes.find((r) => r.path === pathname);
-    
+
     if (!user) {
         return false;
     }
@@ -30,8 +31,8 @@ const AuthGuard = ({ children }) => {
 
     const authorizated = userHasPermission(pathname, user, routes);
     const authenticated = isAuthenticated;
-    
-    const Layout = ({authorizated, authenticated}) => {
+
+    const Layout = ({ authorizated, authenticated }) => {
         if (authorizated && authenticated) {
             return children;
         } else if (!authorizated && authenticated) {

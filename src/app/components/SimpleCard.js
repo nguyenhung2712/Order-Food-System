@@ -1,5 +1,6 @@
 import { Card } from '@mui/material';
 import { Box, styled } from '@mui/system';
+import React from 'react';
 
 const CardRoot = styled(Card)(() => ({
     height: '100%',
@@ -17,7 +18,7 @@ const SimpleCard = ({ children, title, subtitle, icon, sx, sxTitle }) => {
     return (
         <CardRoot elevation={6} sx={{ ...sx }}>
             <CardTitle subtitle={subtitle} sx={{ ...sxTitle }}>{title}</CardTitle>
-         
+
             {subtitle && <Box sx={{ mb: 2 }}>{subtitle}</Box>}
             {children}
         </CardRoot>

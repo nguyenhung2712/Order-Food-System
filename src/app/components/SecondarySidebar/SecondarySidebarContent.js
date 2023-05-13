@@ -4,6 +4,7 @@ import { Chatbox, ChatHead } from '..';
 import MatxCustomizer from '../Customizer/Customizer';
 import ShoppingCart from '../ShoppingCart';
 import { Span } from '../Typography';
+import React from 'react';
 
 const SidebarRoot = styled('div')(({ theme, width }) => ({
     position: 'fixed',

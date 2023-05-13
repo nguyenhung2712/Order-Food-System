@@ -23,7 +23,7 @@ export function debounce(func, wait, immediate) {
     var timeout;
     return function () {
         var context = this,
-        args = arguments;
+            args = arguments;
         clearTimeout(timeout);
         timeout = setTimeout(function () {
             timeout = null;
@@ -112,7 +112,7 @@ export function scrollTo(scrollableElement, elmID) {
         setTimeout(
             (function (leapY) {
                 return () => {
-                scrollableElement.scrollTo(0, leapY);
+                    scrollableElement.scrollTo(0, leapY);
                 };
             })(leapY),
             timer * speed
@@ -126,13 +126,12 @@ export function scrollTo(scrollableElement, elmID) {
 
 export function getTimeDifference(date) {
     let difference = differenceInSeconds(new Date(), date);
-
-    if (difference < 60) return `${Math.floor(difference)} sec`;
-    else if (difference < 3600) return `${Math.floor(difference / 60)} min`;
-    else if (difference < 86400) return `${Math.floor(difference / 3660)} h`;
-    else if (difference < 86400 * 30) return `${Math.floor(difference / 86400)} d`;
-    else if (difference < 86400 * 30 * 12) return `${Math.floor(difference / 86400 / 30)} mon`;
-    else return `${(difference / 86400 / 30 / 12).toFixed(1)} y`;
+    if (difference < 60) return `${Math.floor(difference)} giây trước`;
+    else if (difference < 3600) return `${Math.floor(difference / 60)} phút trước`;
+    else if (difference < 86400) return `${Math.floor(difference / 3660)} giờ trước`;
+    else if (difference < 86400 * 30) return `${Math.floor(difference / 86400)} ngày trước`;
+    else if (difference < 86400 * 30 * 12) return `${Math.floor(difference / 86400 / 30)} tháng trước`;
+    else return `${(difference / 86400 / 30 / 12).toFixed(1)} năm trước`;
 }
 
 export function generateRandomId() {
@@ -180,7 +179,7 @@ export const deepObjectEqual = (object1, object2) => {
     const keys1 = Object.keys(object1);
     const keys2 = Object.keys(object2);
     if (keys1.length !== keys2.length) {
-      return false;
+        return false;
     }
     for (const key of keys1) {
         const val1 = object1[key];
@@ -239,12 +238,16 @@ export function union(a, b) {
     return [...a, ...not(b, a)];
 }
 
-export function convertToDateTimeStr(data, type) {
-    let minute = data[type].getMinutes() < 10 ? "0" + data[type].getMinutes() : data[type].getMinutes();
-    let hour = data[type].getHours() < 10 ? "0" + data[type].getHours() : data[type].getHours();
-    let date = data[type].getUTCDate() < 10 ? "0" + data[type].getUTCDate() : data[type].getUTCDate();
-    let month = data[type].getUTCMonth() < 10 ? "0" + (data[type].getUTCMonth()+1) : (data[type].getUTCMonth()+1);
-    let year = data[type].getUTCFullYear();
-    return date + "/" + month + "/" + year + 
-        " | " + hour + ':' + minute;
+export function convertToDateTimeStr(data, type, isShowTime) {
+    const date = new Date(data[type]);
+    let minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+    let hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+    let day = date.getUTCDate() < 10 ? "0" + date.getUTCDate() : date.getUTCDate();
+    let month = date.getUTCMonth() < 10 ? "0" + (date.getUTCMonth() + 1) : (date.getUTCMonth() + 1);
+    let year = date.getUTCFullYear();
+    if (isShowTime) {
+        return day + "/" + month + "/" + year + " | " + hour + ':' + minute;
+    } else {
+        return day + "/" + month + "/" + year;
+    }
 }

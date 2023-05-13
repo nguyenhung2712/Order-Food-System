@@ -7,6 +7,7 @@ import { Formik } from 'formik';
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import React from 'react';
 
 const FlexBox = styled(Box)(() => ({ display: 'flex', alignItems: 'center' }));
 
@@ -57,7 +58,7 @@ const Login = () => {
     const handleFormSubmit = async (values) => {
         setLoading(true);
         try {
-            
+
             await signin(values.username, values.password)
                 .then(
                     (value) => {
@@ -74,12 +75,12 @@ const Login = () => {
 
     return (
         <Root>
-            <Card className="card">
+            <Card className="card" sx={{ justifyContent: "center" }}>
                 <Grid container>
                     <Grid item sm={6} xs={12}>
                         <JustifyBox p={4} height="100%" sx={{ minWidth: 320 }}>
                             {/* /assets/images/illustrations/dreamer.svg */}
-                            <img src="" width="100%" alt="" />
+                            <img src="/assets/images/illustrations/dreamer.svg" width="100%" alt="" />
                         </JustifyBox>
                     </Grid>
 
@@ -97,7 +98,7 @@ const Login = () => {
                                             size="small"
                                             type="username"
                                             name="username"
-                                            label="Username"
+                                            label="Tên đăng nhập"
                                             variant="outlined"
                                             onBlur={handleBlur}
                                             value={values.username}
@@ -112,7 +113,7 @@ const Login = () => {
                                             size="small"
                                             name="password"
                                             type="password"
-                                            label="Password"
+                                            label="Mật khẩu"
                                             variant="outlined"
                                             onBlur={handleBlur}
                                             value={values.password}
@@ -125,22 +126,22 @@ const Login = () => {
                                         <FlexBox justifyContent="space-between">
                                             <FlexBox gap={1}>
                                                 <Checkbox
-                                                size="small"
-                                                name="remember"
-                                                onChange={handleChange}
-                                                checked={values.remember}
-                                                sx={{ padding: 0 }}
+                                                    size="small"
+                                                    name="remember"
+                                                    onChange={handleChange}
+                                                    checked={values.remember}
+                                                    sx={{ padding: 0 }}
                                                 />
 
-                                                <Paragraph>Remember Me</Paragraph>
+                                                <Paragraph>Nhớ mật khẩu</Paragraph>
                                             </FlexBox>
 
-                                        <NavLink
-                                            to="/auth/forgot-pass"
-                                            style={{ color: theme.palette.primary.main }}
-                                        >
-                                            Forgot password?
-                                        </NavLink>
+                                            {/* <NavLink
+                                                to="/auth/forgot-pass"
+                                                style={{ color: theme.palette.primary.main }}
+                                            >
+                                                Forgot password?
+                                            </NavLink> */}
                                         </FlexBox>
 
                                         <LoadingButton
@@ -149,16 +150,16 @@ const Login = () => {
                                             loading={loading}
                                             variant="contained"
                                             sx={{ my: 2 }}
-                                        > Login
+                                        > Đăng nhập
                                         </LoadingButton>
 
                                         <Paragraph>
-                                            Don't have an account?
+                                            Bạn chưa có tài khoản?
                                             <NavLink
-                                                to="/auth/signup"
+                                                to="/auth/register"
                                                 style={{ color: theme.palette.primary.main, marginLeft: 5 }}
                                             >
-                                                Register
+                                                Đăng ký
                                             </NavLink>
                                         </Paragraph>
                                     </form>

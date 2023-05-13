@@ -1,5 +1,6 @@
 import { Box, styled } from '@mui/material';
 import clsx from 'clsx';
+import React from 'react';
 
 const StyledBox = styled(Box)(({ theme, texttransformstyle, ellipsis }) => ({
     textTransform: texttransformstyle || 'none',

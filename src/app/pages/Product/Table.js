@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
     Box, CardMedia, Chip,
     styled, Typography,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip
+    Toolbar, Tooltip, Button
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -14,15 +15,16 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import EastIcon from '@mui/icons-material/East';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 
 import swal from 'sweetalert';
 
 import { convertToVND, getComparator, stableSort } from "../../utils/utils";
-import { SortTableHead } from "../../components";
+import { SortTableHead, Chatbox, ChatHead, ChatAvatar } from "../../components";
 import ProductService from "../../services/product.service";
 import { init, unable } from "../../redux/actions/ProductActions";
-
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { CSVLink } from 'react-csv';
+import StarIcon from '@mui/icons-material/Star';
 
 const headCells = [
     {
@@ -38,10 +40,10 @@ const headCells = [
         label: 'Tên món',
     },
     {
-        id: 'typeName',
+        id: 'rating',
         numeric: true,
         disablePadding: false,
-        label: 'Loại món',
+        label: 'Đánh giá',
     },
     {
         id: 'price',
@@ -63,7 +65,22 @@ const headCells = [
     },
 ];
 
-const Button = styled(IconButton)(({ theme }) => ({
+/* const Button = styled(IconButton)(({ theme }) => ({
+    height: 44,
+    whiteSpace: 'pre',
+    overflow: 'hidden',
+    color: theme.palette.text.primary,
+    '&:hover': { background: 'rgba(255, 255, 255, 0.08)' },
+    '& .icon': {
+        width: 36,
+        fontSize: '18px',
+        paddingLeft: '16px',
+        paddingRight: '16px',
+        verticalAlign: 'middle',
+    },
+})); */
+
+const StyledIconBtn = styled(IconButton)(({ theme }) => ({
     height: 44,
     whiteSpace: 'pre',
     overflow: 'hidden',
@@ -83,6 +100,7 @@ export default function EnhancedTable() {
     const navigate = useNavigate();
 
     const [rows, setRows] = useState([]);
+    const [products, setProducts] = useState([]);
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('dishName');
     const [selected, setSelected] = useState([]);
@@ -103,13 +121,15 @@ export default function EnhancedTable() {
                     });
                     let rows = products.map(product => ({
                         id: product.id,
-                        image: product.image, 
-                        typeName: product.type.typeName, 
-                        dishName: product.dishName, 
-                        status: product.status, 
-                        price: product.price
+                        image: product.image,
+                        typeName: product.type.typeName,
+                        dishName: product.dishName,
+                        status: product.status,
+                        price: product.price,
+                        ratings: product.Rates
                     }));
                     setRows(rows);
+                    setProducts(products);
                     dispatch(init(products));
                 })
                 .catch((err) => {
@@ -133,7 +153,7 @@ export default function EnhancedTable() {
             setSelected([]);
         }
     };
-    
+
     const handleClick = (event, name) => {
         const selectedIndex = selected.indexOf(name);
         let newSelected = [];
@@ -194,13 +214,17 @@ export default function EnhancedTable() {
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
+    // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
+    const round = (value, precision) => {
+        var multiplier = Math.pow(10, precision || 0);
+        return Math.round(value * multiplier) / multiplier;
+    }
+
     return (
         <Box sx={{ width: '100%' }}>
-            
             <Toolbar
                 sx={{
                     pl: { sm: 2 },
@@ -217,7 +241,7 @@ export default function EnhancedTable() {
                         variant="subtitle1"
                         component="div"
                     >
-                    {selected.length} đã chọn
+                        {selected.length} đã chọn
                     </Typography>
                 ) : (
                     <Typography
@@ -232,16 +256,31 @@ export default function EnhancedTable() {
 
                 {selected.length > 0 ? (
                     <Tooltip title="Delete">
-                        <IconButton onClick={ handleDelete }>
+                        <IconButton onClick={handleDelete}>
                             <DeleteIcon />
                         </IconButton>
                     </Tooltip>
                 ) : (
-                    <Tooltip title="Filter list">
-                        <IconButton>
-                            <FilterListIcon />
-                        </IconButton>
-                    </Tooltip>
+                    <Button
+                        variant="contained"
+                        component="label"
+                        color="primary"
+                        sx={{
+                            my: 2,
+                            fontSize: "1rem",
+                            borderRadius: "6px !important",
+                            border: 1
+                        }}
+                    >
+                        <CSVLink
+                            data={products}
+                            filename={"products-data.csv"}
+                            target="_blank"
+                            style={{ display: 'flex', alignItems: 'center', textDecoration: "none", color: "#fff" }}
+                        >
+                            <FileDownloadIcon />
+                        </CSVLink>
+                    </Button>
                 )}
             </Toolbar>
             <TableContainer>
@@ -265,18 +304,19 @@ export default function EnhancedTable() {
                             .map((row, index) => {
                                 const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
+                                let ratingScore = row.ratings.length > 0 ? round(row.ratings.reduce((acc, rating) => acc + Number(rating.score), 0) / row.ratings.length, 2) : 0;
 
                                 return (
                                     <TableRow
-                                        hover={ row.status !== 0 ? true : false }
-                                        onClick={(event) => row.status !== 0 ? handleClick(event, row.id) : {} }
+                                        hover={row.status !== 0 ? true : false}
+                                        onClick={(event) => row.status !== 0 ? handleClick(event, row.id) : {}}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={index}
                                         selected={isItemSelected}
 
-                                        sx={ row.status === 0 ? { backgroundColor: '#F4F4F5' } : { backgroundColor: '#fff' }  }
+                                        sx={row.status === 0 ? { backgroundColor: '#F4F4F5' } : { backgroundColor: '#fff' }}
                                     >
                                         <TableCell padding="checkbox">
                                             <Checkbox
@@ -285,15 +325,17 @@ export default function EnhancedTable() {
                                                 inputProps={{
                                                     'aria-labelledby': labelId,
                                                 }}
-                                                disabled={ row.status !== 0 ? false : true }
+                                                disabled={row.status !== 0 ? false : true}
                                             />
                                         </TableCell>
                                         <TableCell component="th">
                                             <CardMedia
-                                                sx={{ borderColor: 'error.main',
-                                                    border: 2, borderRadius: '10px', 
-                                                    height: 100 }}
-                                                image={ row.image[0] }
+                                                sx={{
+                                                    borderColor: 'error.main',
+                                                    border: 2, borderRadius: '10px',
+                                                    height: 100
+                                                }}
+                                                image={row.image[0]}
                                                 title="Product Image"
                                             />
                                         </TableCell>
@@ -305,11 +347,53 @@ export default function EnhancedTable() {
                                         >
                                             {row.dishName}
                                         </TableCell>
-                                        <TableCell align="center">{row.typeName}</TableCell>
+                                        <TableCell align="center">
+                                            <Stack direction="row" spacing={1} justifyContent="center">
+                                                {/* <span
+                                                    style={{
+                                                        marginRight: "4px",
+                                                        fontSize: "16px",
+                                                        color: "orange"
+                                                    }}
+                                                >{ratingScore}</span> */}
+                                                {[...Array(5)].map((_, idx) => {
+                                                    let widthPercent;
+                                                    if (idx + 1 >= ratingScore) {
+                                                        if (ratingScore - idx > 0) {
+                                                            widthPercent = (round(ratingScore - idx, 2) * 100).toString() + "%";
+                                                        } else {
+                                                            widthPercent = "0%";
+                                                        }
+                                                    }
+
+                                                    return (
+                                                        <Box
+                                                            sx={{
+                                                                position: 'relative'
+                                                            }} key={idx}
+                                                        >
+                                                            <Box
+                                                                sx={{
+                                                                    width: idx + 1 < ratingScore ? "100%" : widthPercent,
+                                                                    position: 'absolute',
+                                                                    top: 0,
+                                                                    left: 0,
+                                                                    zIndex: 50,
+                                                                    overflow: 'hidden'
+                                                                }}
+                                                            >
+                                                                <StarIcon fontSize="small" sx={{ color: "orange" }} />
+                                                            </Box>
+                                                            <StarIcon fontSize="small" sx={{ color: "gray" }} />
+                                                        </Box>
+                                                    )
+                                                })}
+                                            </Stack>
+                                        </TableCell>
                                         <TableCell align="center">{convertToVND(row.price)}</TableCell>
                                         <TableCell align="center">
                                             {
-                                                row.status === 2 
+                                                row.status === 2
                                                     ? <Chip label="Tạm ẩn" color="error" /* color="disabled" */ />
                                                     : row.status === 0
                                                         ? <Chip label="Tạm xóa" />
@@ -318,12 +402,12 @@ export default function EnhancedTable() {
                                         </TableCell>
                                         <TableCell align="right">
                                             <Stack direction="row" spacing={1} justifyContent="center">
-                                                <Button aria-label="edit" onClick={() => handleOpenEdit(row.id)}>
+                                                <StyledIconBtn aria-label="edit" onClick={() => handleOpenEdit(row.id)}>
                                                     <EditIcon />
-                                                </Button>
-                                                <Button aria-label="east" onClick={() => handleViewDetail(row.id)}>
+                                                </StyledIconBtn>
+                                                <StyledIconBtn aria-label="east" onClick={() => handleViewDetail(row.id)}>
                                                     <EastIcon />
-                                                </Button>
+                                                </StyledIconBtn>
                                             </Stack>
                                         </TableCell>
                                     </TableRow>
@@ -351,6 +435,15 @@ export default function EnhancedTable() {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 labelRowsPerPage={"Dòng dữ liệu trên trang"}
+                sx={{
+                    ".MuiTablePagination-selectLabel": {
+                        margin: "0px !important",
+                    },
+                    ".MuiTablePagination-displayedRows": {
+                        margin: "0px !important",
+                    },
+
+                }}
             />
         </Box>
     );

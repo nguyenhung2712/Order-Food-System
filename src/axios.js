@@ -15,6 +15,7 @@ export const setup = (store) => {
     axiosInstance.interceptors.request.use(
         (config) => {
             const token = TokenService.getLocalAccessToken();
+
             if (token) {
                 config.headers["Authorization"] = 'Bearer ' + token;
             }
@@ -41,7 +42,6 @@ export const setup = (store) => {
                         const rs = await axiosInstance.post("/auth/refreshtoken", {
                             refreshToken: TokenService.getLocalRefreshToken(),
                         });
-
                         const { accessToken } = rs.data;
 
                         dispatch(refreshToken(accessToken));

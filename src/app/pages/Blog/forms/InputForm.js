@@ -2,17 +2,18 @@
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider"; */
 import { useEffect, useState, useRef } from "react";
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import {
-  FormControl,
-  FormControlLabel, InputLabel,
-  Grid,
-  Icon, IconButton,
-  styled,
-  Switch, Select,
-  MenuItem,
-  Box
+    FormControl,
+    FormControlLabel, InputLabel,
+    Grid,
+    Icon, IconButton,
+    styled,
+    Switch, Select,
+    MenuItem,
+    Box
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { Editor } from '@tinymce/tinymce-react';
@@ -29,7 +30,7 @@ import usePrompt from "../../../hooks/usePrompt";
 import { create, update, recover } from "../../../redux/actions/BlogActions";
 
 import { H2 } from "../../../components/Typography";
-import { deepObjectEqual } from "../../../utils/utils"; 
+import { deepObjectEqual } from "../../../utils/utils";
 
 const TextField = styled(TextValidator)(() => ({
     width: "100%",
@@ -75,7 +76,6 @@ const InputForm = ({ id }) => {
             }
         })()
     }, []);
-
     const handleSubmit = async (event) => {
         setLoading(true);
         let { user, ...tempState } = state;
@@ -86,10 +86,11 @@ const InputForm = ({ id }) => {
         editorRef.current.uploadImages();
 
         let content = editorRef.current.getContent();
-        if (!content) {
-            //in ra màn hình validate
-        }
-        
+        tempState.content = content;
+        /* if (content !== '') {
+            
+            
+        } */
         try {
             if (id) {
                 await BlogService.updateBlog(id, tempState);
@@ -103,7 +104,7 @@ const InputForm = ({ id }) => {
             }
             setIsSuccess(true);
             swal({
-                title: `${ id ? "Cập nhật" : "Tạo mới" } thành công`,
+                title: `${id ? "Cập nhật" : "Tạo mới"} thành công`,
                 text: "Đồng ý chuyển đến trang quản lý ?",
                 icon: "success",
                 buttons: ["Hủy bỏ", "Đồng ý"],
@@ -154,10 +155,10 @@ const InputForm = ({ id }) => {
                 }
             });
     }
-    console.log(state);
+
     return (
         <div>
-            <SimpleCard title={ !id ? "Thêm blog" : state.status === 0 ? "Chỉnh sửa blog (Đã tạm xóa)" : "Chỉnh sửa sản phẩm" }>
+            <SimpleCard title={!id ? "Thêm blog" : state.status === 0 ? "Chỉnh sửa blog (Đã tạm xóa)" : "Chỉnh sửa sản phẩm"}>
                 <ValidatorForm onSubmit={handleSubmit} onError={() => null}>
                     <Grid container spacing={6}>
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2 }}>
@@ -175,8 +176,8 @@ const InputForm = ({ id }) => {
                         </Grid>
 
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2 }}>
-                            <FormControl 
-                                sx={{ width: '100%', marginBottom: 2 }} 
+                            <FormControl
+                                sx={{ width: '100%', marginBottom: 2 }}
                             >
                                 <InputLabel id="demo-select-small">Người viết</InputLabel>
                                 <Select
@@ -188,16 +189,16 @@ const InputForm = ({ id }) => {
                                     onChange={handleChange}
                                     disabled={state.status === 0 ? true : false}
                                 >
-                                    <MenuItem 
+                                    <MenuItem
                                         value=""
                                         disabled
                                     >Chọn loại</MenuItem>
-                                    { 
-                                        users && users.map((user, index) => 
-                                            <MenuItem 
-                                                key={ index }
-                                                value={ user.id }
-                                            >{ user.firstName + " " + user.lastName }</MenuItem>
+                                    {
+                                        users && users.map((user, index) =>
+                                            <MenuItem
+                                                key={index}
+                                                value={user.id}
+                                            >{user.firstName + " " + user.lastName}</MenuItem>
                                         )
                                     }
                                 </Select>
@@ -208,13 +209,13 @@ const InputForm = ({ id }) => {
                                     <InputLabel>Trạng thái</InputLabel>
                                     <FormControlLabel
                                         control={
-                                            <Switch 
-                                                checked={state.status === 1 ? true : false} 
-                                                onChange={handleStatusChange} 
-                                                name="status" 
+                                            <Switch
+                                                checked={state.status === 1 ? true : false}
+                                                onChange={handleStatusChange}
+                                                name="status"
                                             />
                                         }
-                                        label={ state.status === 1 ? "Bình thường" : "Tạm ẩn" }
+                                        label={state.status === 1 ? "Bình thường" : "Tạm ẩn"}
                                         disabled={state.status === 0 ? true : false}
                                     />
                                 </Box>
@@ -224,19 +225,19 @@ const InputForm = ({ id }) => {
                             <H2 id="demo-editor">Nội dung</H2>
                             <Editor
                                 onInit={(evt, editor) => editorRef.current = editor}
-                                initialValue={ id ? state.content : "" }
+                                value={id && state.content}
                                 init={{
                                     height: 500,
                                     menubar: false,
                                     plugins: [
                                         'advlist', 'anchor', 'autolink', 'help', 'image', 'code', 'link', 'lists',
-                                        'searchreplace', 'table', 'wordcount', 
+                                        'searchreplace', 'table', 'wordcount',
                                     ],
-                                    toolbar: 'undo redo | blocks fontfamily fontsize | ' + 
-                                    'bold italic underline strikethrough | image link | ' + 
-                                    'mergetags | addcomment showcomments | spellcheckdialog ' + 
-                                    'a11ycheck typography | align lineheight | checklist numlist ' + 
-                                    'bullist indent outdent | emoticons charmap | removeformat',
+                                    toolbar: 'undo redo | blocks fontfamily fontsize | ' +
+                                        'bold italic underline strikethrough | image link | ' +
+                                        'mergetags | addcomment showcomments | spellcheckdialog ' +
+                                        'a11ycheck typography | align lineheight | checklist numlist ' +
+                                        'bullist indent outdent | emoticons charmap | removeformat',
                                     file_picker_types: 'image media',
                                     image_title: true,
                                     automatic_uploads: false,
@@ -251,16 +252,16 @@ const InputForm = ({ id }) => {
                                             var reader = new FileReader();
                                             reader.onload = function () {
                                                 var id = 'blobid' + (new Date()).getTime();
-                                                var blobCache =  editorRef.current.editorUpload.blobCache;
+                                                var blobCache = editorRef.current.editorUpload.blobCache;
                                                 var base64 = reader.result.split(',')[1];
                                                 var blobInfo = blobCache.create(id, file, base64);
                                                 blobCache.add(blobInfo);
-                                                
+
                                                 cb(blobInfo.blobUri(), { title: file.name });
                                             };
                                             reader.readAsDataURL(file);
                                         };
-                                    
+
                                         input.click();
                                     },
                                     images_upload_url: 'http://localhost:5000/api/blog/upload-image',
@@ -278,28 +279,28 @@ const InputForm = ({ id }) => {
                             loading={loading}
                             variant="contained"
                             sx={{ my: 2 }}
-                        > 
+                        >
                             <Icon>send</Icon>
-                            <Span sx={{ pl: 1, textTransform: "capitalize" }}>{ id ? "Cập nhật" : "Thêm mới" }</Span>
+                            <Span sx={{ pl: 1, textTransform: "capitalize" }}>{id ? "Cập nhật" : "Thêm mới"}</Span>
                         </LoadingButton>
                         {
                             state.status === 0 &&
-                                <LoadingButton
-                                    type="button"
-                                    color="warning"
-                                    loading={loading}
-                                    variant="contained"
-                                    sx={{ my: 2 }}
-                                    onClick={ handleRecover }
-                                > 
-                                    <Icon>restore</Icon>
-                                    <Span sx={{ pl: 1, textTransform: "capitalize" }}>Khôi phục</Span>
-                                </LoadingButton>
+                            <LoadingButton
+                                type="button"
+                                color="warning"
+                                loading={loading}
+                                variant="contained"
+                                sx={{ my: 2 }}
+                                onClick={handleRecover}
+                            >
+                                <Icon>restore</Icon>
+                                <Span sx={{ pl: 1, textTransform: "capitalize" }}>Khôi phục</Span>
+                            </LoadingButton>
                         }
                     </Box>
                 </ValidatorForm>
             </SimpleCard>
-            
+
         </div>
     );
 };

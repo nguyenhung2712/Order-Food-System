@@ -26,7 +26,7 @@ const SidebarNavRoot = styled(Box)(({ theme, width, primarybg, bgimgurl }) => ({
     '&:hover': {
         width: sideNavWidth,
         '& .sidenavHoverShow': {
-        display: 'block',
+            display: 'block',
         },
         '& .compactNavItem': {
             width: '100%',

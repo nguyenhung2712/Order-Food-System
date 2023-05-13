@@ -25,7 +25,7 @@ const ExtAndIntCommon = {
     textDecoration: 'none',
     justifyContent: 'space-between',
     transition: 'all 150ms ease-in',
-    '&:hover': { background: 'rgba(255, 255, 255, 0.08)' },
+    '&:hover': { background: 'rgba(255, 255, 255, 0.08)', color: '#fff' },
     '&.compactNavItem': {
         overflow: 'hidden',
         justifyContent: 'center !important',
@@ -118,53 +118,53 @@ const VerticalNav = ({ items }) => {
                 );
             } else {
                 return (
-                <InternalLink key={index}>
-                    <NavLink
-                        to={item.path}
-                        className={({ isActive }) =>
-                            isActive
-                            ? `navItemActive ${mode === 'compact' && 'compactNavItem'}`
-                            : `${mode === 'compact' && 'compactNavItem'}`}
-                    >
-                        <ButtonBase key={item.name} name="child" sx={{ width: '100%' }}>
-                            {item?.icon 
-                                ? 
-                                (<Icon className="icon" sx={{ width: 36 }}>
-                                    {item.icon}
-                                </Icon>) 
-                                : 
-                                (<Fragment>
-                                    <BulletIcon
-                                        className={`nav-bullet`}
-                                        sx={{ display: mode === 'compact' && 'none' }}
-                                    />
-                                    <Box
-                                        className="nav-bullet-text"
-                                        sx={{
-                                            ml: '20px',
-                                            fontSize: '11px',
-                                            display: mode !== 'compact' && 'none',
-                                    }}>
-                                        {item.iconText}
-                                    </Box>
-                                </Fragment>)
-                            }
-                            <StyledText mode={mode} className="sidenavHoverShow">
-                                {item.name}
-                            </StyledText>
+                    <InternalLink key={index}>
+                        <NavLink
+                            to={item.path}
+                            className={({ isActive }) =>
+                                isActive
+                                    ? `navItemActive ${mode === 'compact' && 'compactNavItem'}`
+                                    : `${mode === 'compact' && 'compactNavItem'}`}
+                        >
+                            <ButtonBase key={item.name} name="child" sx={{ width: '100%' }}>
+                                {item.icon
+                                    ?
+                                    (<Icon className="icon" sx={{ width: 36 }}>
+                                        {item.icon}
+                                    </Icon>)
+                                    :
+                                    (<Fragment>
+                                        <BulletIcon
+                                            className={`nav-bullet`}
+                                            sx={{ display: mode === 'compact' && 'none' }}
+                                        />
+                                        <Box
+                                            className="nav-bullet-text"
+                                            sx={{
+                                                ml: '20px',
+                                                fontSize: '11px',
+                                                display: mode !== 'compact' && 'none',
+                                            }}>
+                                            {item.iconText}
+                                        </Box>
+                                    </Fragment>)
+                                }
+                                <StyledText mode={mode} className="sidenavHoverShow">
+                                    {item.name}
+                                </StyledText>
 
-                            <Box mx="auto" />
+                                <Box mx="auto" />
 
-                            {item.badge && (<BadgeValue className="sidenavHoverShow">{item.badge.value}</BadgeValue>)}
-                        </ButtonBase>
-                    </NavLink>
-                </InternalLink>
+                                {item.badge && (<BadgeValue className="sidenavHoverShow">{item.badge.value}</BadgeValue>)}
+                            </ButtonBase>
+                        </NavLink>
+                    </InternalLink>
                 );
             }
         });
     };
 
-  return <div className="navigation">{renderLevels(items)}</div>;
+    return <div className="navigation">{renderLevels(items)}</div>;
 };
 
 export default React.memo(VerticalNav);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
+import React from 'react';
 
 import { Grid, Tab, Tabs, Fade } from "@mui/material";
 import { Box, styled } from "@mui/system";
@@ -45,7 +46,7 @@ const StaffDetail = () => {
             await RoleService.getRolesByAdminId(id)
                 .then((res) => {
                     let roles = res.data.payload;
-                    
+
                     setRoles(roles);
                     PermissService.getPermissByRoleId(roles[0].id)
                         .then((res) => {
@@ -55,13 +56,7 @@ const StaffDetail = () => {
             await StaffService.getStaffById(id)
                 .then((res) => {
                     let staff = res.data.payload;
-                    setState({...staff, 
-                        lastLogin: new Date(staff.lastLogin), 
-                        createdAt: new Date(staff.createdAt), 
-                        updatedAt: new Date(staff.updatedAt),
-                        deletedAt: new Date(staff.deletedAt) ? new Date(staff.deletedAt) : null,
-                        disabledAt: new Date(staff.disabledAt) ? new Date(staff.disabledAt) : null,
-                    });
+                    setState(staff);
                     TrackerService.getByAdminId(staff.id)
                         .then(res => {
                             let logs = res.data.payload;
@@ -84,9 +79,9 @@ const StaffDetail = () => {
                 <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/staff/manage" }, { name: "Thông tin" }]} />
             </Box>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs 
-                    value={value} 
-                    onChange={handleChange} 
+                <Tabs
+                    value={value}
+                    onChange={handleChange}
                     aria-label="basic tabs example"
                 >
                     <Tab label="Thông tin" {...a11yProps(0)} />
@@ -94,49 +89,49 @@ const StaffDetail = () => {
                 </Tabs>
             </Box>
             <TabPanel value={value} index={0}>
-                
+
                 <Grid container spacing={2}>
-                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ mt: 2, height: "fit-content" }} component="div">
+                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }} component="div">
                         <SimpleCard
                             title="Thông tin nhân viên"
                             sxTitle={{ paddingLeft: "20px" }}
-                            sx={{ paddingRight: 0, paddingLeft: 0 }}
+                            sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
                         >
                             {
                                 state &&
-                                    <StaffInfo 
-                                        data={ state }
-                                    />
+                                <StaffInfo
+                                    data={state}
+                                />
                             }
                         </SimpleCard>
                     </Grid>
-                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ mt: 2, height: "fit-content"  }}>
-                        <SimpleCard 
+                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
+                        <SimpleCard
                             title="Thông tin quyền"
                             sxTitle={{ paddingLeft: "20px" }}
-                            sx={{ paddingRight: 0, paddingLeft: 0 }}    
+                            sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
                         >
                             {
                                 roles && roles.length !== 0 && permiss && permiss.length !== 0 &&
-                                    <RoleInfo 
-                                        permiss={ permiss }
-                                        roles={ roles }
-                                    />
+                                <RoleInfo
+                                    permiss={permiss}
+                                    roles={roles}
+                                />
                             }
                         </SimpleCard>
                     </Grid>
-                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ mt: 2, height: "fit-content"  }}>
-                        <SimpleCard 
+                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
+                        <SimpleCard
                             title="Các tác vụ khác"
                             sxTitle={{ paddingLeft: "20px" }}
-                            sx={{ paddingRight: 0, paddingLeft: 0 }}    
+                            sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
                         >
                             {
                                 state &&
-                                    <ActionsForm
-                                        data={ state }
-                                        setRender={ setRender }
-                                    />
+                                <ActionsForm
+                                    data={state}
+                                    setRender={setRender}
+                                />
                             }
                         </SimpleCard>
                     </Grid>
@@ -145,14 +140,14 @@ const StaffDetail = () => {
             <TabPanel value={value} index={1}>
                 <SimpleCard title="Thông tin lịch sử truy cập" >
                     {
-                        logs && logs.length !==0 &&
-                            <LogInfo 
-                                data={ logs }
-                            />
+                        logs && logs.length !== 0 &&
+                        <LogInfo
+                            data={logs}
+                        />
                     }
                 </SimpleCard>
             </TabPanel>
-            
+
         </Container>
     );
 };

@@ -1,5 +1,6 @@
 import Loadable from '../../components/Loadable';
 import { lazy } from 'react';
+import React from 'react';
 
 const Upsert = Loadable(lazy(() => import('./Upsert')));
 const Detail = Loadable(lazy(() => import('./Detail')));
@@ -11,6 +12,6 @@ const StaffRoutes = [
     { path: '/staff/:id', element: <Detail /> },
     { path: '/staff/manage', element: <Management /> },
     { path: '/staff/registed', element: <Management /> },
-]; 
+];
 
 export default StaffRoutes;

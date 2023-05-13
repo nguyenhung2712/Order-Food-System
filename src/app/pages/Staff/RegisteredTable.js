@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
     Box, Chip,
     styled, Typography,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, CircularProgress 
+    Toolbar, Tooltip, CircularProgress
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -55,7 +56,7 @@ const Button = styled(IconButton)(({ theme }) => ({
         fontSize: '18px',
         paddingLeft: '16px',
         paddingRight: '16px',
-        verticalAlign: 'middle',    
+        verticalAlign: 'middle',
     },
 }));
 
@@ -85,7 +86,7 @@ const RegisteredTable = ({ rows, setRender }) => {
             setSelected([]);
         }
     };
-    
+
     const handleClick = (event, name) => {
         const selectedIndex = selected.indexOf(name);
         let newSelected = [];
@@ -139,18 +140,18 @@ const RegisteredTable = ({ rows, setRender }) => {
                                 setRender(curr => !curr);
                             });
                     });
-                    
+
                 }
             });
     }
-    
+
     const handleViewDetail = (id) => {
         navigate("/staff/" + id);
     }
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
+    // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
@@ -172,7 +173,7 @@ const RegisteredTable = ({ rows, setRender }) => {
                         variant="subtitle1"
                         component="div"
                     >
-                    {selected.length} đã chọn
+                        {selected.length} đã chọn
                     </Typography>
                 ) : (
                     <Typography
@@ -186,13 +187,13 @@ const RegisteredTable = ({ rows, setRender }) => {
                 )}
 
                 {selected.length > 0 ? (
-                    loading === false 
-                        ?   <Tooltip title="Approve">
-                                <IconButton onClick={ handleApprove }>
-                                    <CheckCircleIcon />
-                                </IconButton>
-                            </Tooltip>
-                        :   <CircularProgress />
+                    loading === false
+                        ? <Tooltip title="Approve">
+                            <IconButton onClick={handleApprove}>
+                                <CheckCircleIcon />
+                            </IconButton>
+                        </Tooltip>
+                        : <CircularProgress />
                 ) : (
                     <Tooltip title="Filter list">
                         <IconButton>
@@ -224,8 +225,8 @@ const RegisteredTable = ({ rows, setRender }) => {
 
                                 return (
                                     <TableRow
-                                        hover={ row.status !== 0 ? true : false }
-                                        onClick={ (event) => handleClick(event, row.id) }
+                                        hover={row.status !== 0 ? true : false}
+                                        onClick={(event) => handleClick(event, row.id)}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
@@ -247,14 +248,14 @@ const RegisteredTable = ({ rows, setRender }) => {
                                             padding="none"
                                             align="left"
                                         >
-                                            { row.username }
+                                            {row.username}
                                         </TableCell>
-                                        
+
                                         <TableCell >
-                                            { 
+                                            {
                                                 row.createdAt.getHours() + ':' + row.createdAt.getMinutes() + " " +
                                                 row.createdAt.getUTCDate() + "/" +
-                                                (row.createdAt.getUTCMonth()+1) + "/" +
+                                                (row.createdAt.getUTCMonth() + 1) + "/" +
                                                 row.createdAt.getUTCFullYear()
                                             }
                                         </TableCell>
@@ -290,6 +291,14 @@ const RegisteredTable = ({ rows, setRender }) => {
                 onPageChange={handleChangePage}
                 labelRowsPerPage={"Dòng dữ liệu trên trang"}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                sx={{
+                    ".MuiTablePagination-selectLabel": {
+                        margin: "0px !important",
+                    },
+                    ".MuiTablePagination-displayedRows": {
+                        margin: "0px !important",
+                    },
+                }}
             />
         </Box>
     );

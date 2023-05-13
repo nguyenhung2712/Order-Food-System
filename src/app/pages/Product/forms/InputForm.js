@@ -2,17 +2,18 @@
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider"; */
 import { useEffect, useState } from "react";
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import {
-  FormControl,
-  FormControlLabel, InputLabel,
-  Grid,
-  Icon, IconButton,
-  styled,
-  Switch, Select,
-  MenuItem,
-  Box, ImageList, ImageListItem
+    FormControl,
+    FormControlLabel, InputLabel,
+    Grid,
+    Icon, IconButton,
+    styled,
+    Switch, Select,
+    MenuItem,
+    Box, ImageList, ImageListItem
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
@@ -102,7 +103,7 @@ const InputForm = ({ id }) => {
                         dispatch(update(id, state));
                     });
             } else {
-                await ProductService.createProduct(tempState)
+                await ProductService.createProduct({ ...tempState, status: 1 })
                     .then(res => {
                         if (formData) {
                             ProductService.uploadImage(res.data.payload.id, formData);
@@ -111,9 +112,9 @@ const InputForm = ({ id }) => {
                     });
             }
             setIsSuccess(true);
-            
+
             swal({
-                title: `${ id ? "Cập nhật" : "Tạo mới" } thành công`,
+                title: `${id ? "Cập nhật" : "Tạo mới"} thành công`,
                 text: "Đồng ý chuyển đến trang quản lý ?",
                 icon: "success",
                 buttons: ["Hủy bỏ", "Đồng ý"],
@@ -138,10 +139,11 @@ const InputForm = ({ id }) => {
     const handleStatusChange = (event) => {
         setState({ ...state, status: state.status === 1 ? 2 : 1 });
     }
-    
+
     const handleDeleteImage = (url) => {
         if (id) {
-            setState({ ...state, 
+            setState({
+                ...state,
                 image: state.image.split("|")
                     .filter(image => (image !== "") && (image !== url))
                     .reduce((acc, image) => {
@@ -186,7 +188,7 @@ const InputForm = ({ id }) => {
 
     return (
         <div>
-            <SimpleCard title={ !id ? "Thêm sản phẩm" : state.status === 0 ? "Chỉnh sửa sản phẩm (Đã tạm xóa)" : "Chỉnh sửa sản phẩm" }>
+            <SimpleCard title={!id ? "Thêm sản phẩm" : state.status === 0 ? "Chỉnh sửa sản phẩm (Đã tạm xóa)" : "Chỉnh sửa sản phẩm"}>
                 <ValidatorForm onSubmit={handleSubmit} onError={() => null}>
                     <Grid container spacing={6}>
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2 }}>
@@ -205,32 +207,32 @@ const InputForm = ({ id }) => {
                                     />
                                 </Grid>
                                 <Grid item lg={4} md={4} sm={4} xs={4} sx={{ mt: 2 }}>
-                                    <FormControl 
-                                        sx={{ width: '100%', marginBottom: 2 }} 
+                                    <FormControl
+                                        sx={{ width: '100%', marginBottom: 2 }}
                                     >
                                         <InputLabel id="demo-select-small">Loại sản phẩm</InputLabel>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                name="typeId"
-                                                value={state.typeId || ""}
-                                                label="Loại sản phẩm"
-                                                onChange={handleChange}
-                                                disabled={state.status === 0 ? true : false}
-                                            >
-                                                <MenuItem 
-                                                    value=""
-                                                    disabled
-                                                >Chọn loại</MenuItem>
-                                                { 
-                                                    types && types.map((type, index) => 
-                                                        <MenuItem 
-                                                            key={ index }
-                                                            value={ type.id }
-                                                        >{ type.typeName }</MenuItem>
-                                                    )
-                                                }
-                                            </Select>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            name="typeId"
+                                            value={state.typeId || ""}
+                                            label="Loại sản phẩm"
+                                            onChange={handleChange}
+                                            disabled={state.status === 0 ? true : false}
+                                        >
+                                            <MenuItem
+                                                value=""
+                                                disabled
+                                            >Chọn loại</MenuItem>
+                                            {
+                                                types && types.map((type, index) =>
+                                                    <MenuItem
+                                                        key={index}
+                                                        value={type.id}
+                                                    >{type.typeName}</MenuItem>
+                                                )
+                                            }
+                                        </Select>
                                     </FormControl>
                                 </Grid>
                             </Grid>
@@ -261,13 +263,13 @@ const InputForm = ({ id }) => {
                                     <InputLabel>Trạng thái</InputLabel>
                                     <FormControlLabel
                                         control={
-                                            <Switch 
-                                                checked={state.status === 1 ? true : false} 
-                                                onChange={handleStatusChange} 
-                                                name="status" 
+                                            <Switch
+                                                checked={state.status === 1 ? true : false}
+                                                onChange={handleStatusChange}
+                                                name="status"
                                             />
                                         }
-                                        label={ state.status === 1 ? "Bình thường" : "Tạm ẩn" }
+                                        label={state.status === 1 ? "Bình thường" : "Tạm ẩn"}
                                         disabled={state.status === 0 ? true : false}
                                     />
                                 </Box>
@@ -275,13 +277,13 @@ const InputForm = ({ id }) => {
                         </Grid>
 
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2 }}>
-                            
+
                             <div>
-                                <Box 
-                                    sx={{ 
+                                <Box
+                                    sx={{
                                         width: '100%',
-                                        height: 300, 
-                                        overflowY: 'scroll', 
+                                        height: 300,
+                                        overflowY: 'scroll',
                                         position: 'relative',
                                         border: 3,
                                     }}
@@ -295,13 +297,13 @@ const InputForm = ({ id }) => {
                                                     alt={url}
                                                     loading="lazy"
                                                 />
-                                                <IconButtonTopImage 
-                                                    aria-label="delete" 
+                                                <IconButtonTopImage
+                                                    aria-label="delete"
                                                     color="error"
                                                     onClick={() => handleDeleteImage(url)}
                                                     disabled={state.status === 0 ? true : false}
                                                 >
-                                                    <DeleteIcon 
+                                                    <DeleteIcon
                                                         color="error"
                                                     />
                                                 </IconButtonTopImage>
@@ -311,7 +313,7 @@ const InputForm = ({ id }) => {
                                 </Box>
                                 <TextField
                                     type="file"
-                                    onChange={(event) => uploadMultipleFiles(event)} 
+                                    onChange={(event) => uploadMultipleFiles(event)}
                                     /* validators={["required", "isEmail"]}
                                     errorMessages={["this field is required", "email is not valid"]} */
                                     inputProps={{
@@ -329,28 +331,28 @@ const InputForm = ({ id }) => {
                             loading={loading}
                             variant="contained"
                             sx={{ my: 2 }}
-                        > 
+                        >
                             <Icon>send</Icon>
-                            <Span sx={{ pl: 1, textTransform: "capitalize" }}>{ id ? "Cập nhật" : "Thêm mới" }</Span>
+                            <Span sx={{ pl: 1, textTransform: "capitalize" }}>{id ? "Cập nhật" : "Thêm mới"}</Span>
                         </LoadingButton>
                         {
                             state.status === 0 &&
-                                <LoadingButton
-                                    type="button"
-                                    color="warning"
-                                    loading={loading}
-                                    variant="contained"
-                                    sx={{ my: 2 }}
-                                    onClick={ handleRecover }
-                                > 
-                                    <Icon>restore</Icon>
-                                    <Span sx={{ pl: 1, textTransform: "capitalize" }}>Khôi phục</Span>
-                                </LoadingButton>
+                            <LoadingButton
+                                type="button"
+                                color="warning"
+                                loading={loading}
+                                variant="contained"
+                                sx={{ my: 2 }}
+                                onClick={handleRecover}
+                            >
+                                <Icon>restore</Icon>
+                                <Span sx={{ pl: 1, textTransform: "capitalize" }}>Khôi phục</Span>
+                            </LoadingButton>
                         }
                     </Box>
                 </ValidatorForm>
             </SimpleCard>
-            
+
         </div>
     );
 };

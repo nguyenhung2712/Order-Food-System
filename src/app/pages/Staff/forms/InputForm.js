@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import {
     FormControlLabel, InputLabel,
     Grid,
-    Icon, 
+    Icon,
     styled,
-    Switch, 
+    Switch,
     Box
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
@@ -22,7 +23,7 @@ import RoleService from "../../../services/role.service";
 import usePrompt from "../../../hooks/usePrompt";
 import { create, update, recover } from "../../../redux/actions/StaffActions";
 
-import { deepObjectEqual, not } from "../../../utils/utils"; 
+import { deepObjectEqual, not } from "../../../utils/utils";
 
 const TextField = styled(TextValidator)(() => ({
     width: "100%",
@@ -51,7 +52,7 @@ const InputForm = ({ id }) => {
     useEffect(() => {
         ValidatorForm.addValidationRule("isPasswordMatch", (value) => {
             if (value !== state.password) return false;
-        
+
             return true;
         });
         return () => ValidatorForm.removeValidationRule("isPasswordMatch");
@@ -59,7 +60,7 @@ const InputForm = ({ id }) => {
 
     useEffect(() => {
         (async () => {
-            
+
             if (id) {
                 await RoleService.getOtherRolesByAdminId(id)
                     .then(res => {
@@ -92,7 +93,7 @@ const InputForm = ({ id }) => {
     const handleSubmit = async (event) => {
         setLoading(true);
         let { cpassword, ...tempState } = state;
-        
+
         try {
             let res, isCreateAdminRole = false;
             let not1 = not(tempRoles, currentRoles);
@@ -108,7 +109,7 @@ const InputForm = ({ id }) => {
                 res = await StaffService.createStaff(tempState);
                 dispatch(create(state));
             }
-            let staffId = res.data.payload.id; 
+            let staffId = res.data.payload.id;
             //Phân quyền staff
             if (isCreateAdminRole) {//Có quyền được phân cho staff
                 not2.forEach(async (role) => {
@@ -129,8 +130,8 @@ const InputForm = ({ id }) => {
             let { message, status } = res.data;
             setIsSuccess(true);
             swal({
-                title: `${ id ? "Cập nhật" : "Tạo mới" } ${ status === "success" ? "thành công" : "thất bại"}`,
-                text: !(status === "success") ? message : "Đồng ý chuyển đến trang quản lý ?" ,
+                title: `${id ? "Cập nhật" : "Tạo mới"} ${status === "success" ? "thành công" : "thất bại"}`,
+                text: !(status === "success") ? message : "Đồng ý chuyển đến trang quản lý ?",
                 icon: status === "success" ? "success" : "error",
                 buttons: ["Hủy bỏ", "Đồng ý"],
             })
@@ -182,7 +183,7 @@ const InputForm = ({ id }) => {
 
     return (
         <div>
-            <SimpleCard title={ !id ? "Thêm nhân viên" : [0, 3].includes(state.status) ? "Chỉnh sửa thông tin nhân viên (Đã tạm xóa)" : "Chỉnh sửa nhân viên" }>
+            <SimpleCard title={!id ? "Thêm nhân viên" : [0, 3].includes(state.status) ? "Chỉnh sửa thông tin nhân viên (Đã tạm xóa)" : "Chỉnh sửa nhân viên"}>
                 <ValidatorForm onSubmit={handleSubmit} onError={() => null}>
                     <Grid container spacing={4}>
                         <Grid item lg={4} md={4} sm={12} xs={12} sx={{ mt: 2 }}>
@@ -195,40 +196,40 @@ const InputForm = ({ id }) => {
                                 errorMessages={["This field is required"]}
                                 disabled={[0, 3].includes(state.status) ? true : false}
                             />
-                                {
-                                    !id &&
-                                    (
-                                        <Box>
-                                            <TextField
-                                                name="password"
-                                                label="Mật khẩu"
-                                                type="password"
-                                                autoComplete="current-password"
-                                                onChange={handleChange}
-                                                value={state.password || ""}
-                                                validators={["required"]}
-                                                errorMessages={["this field is required"]}
-                                                disabled={[0, 3].includes(state.status) ? true : false}
-                                            />
-                                            <TextField
-                                                name="cpassword"
-                                                label="Xác nhận mật khẩu"
-                                                type="password"
-                                                onChange={handleChange}
-                                                value={state.cpassword || ""}
-                                                validators={["required", "isPasswordMatch"]}
-                                                errorMessages={["this field is required", "password didn't match"]}
-                                                disabled={[0, 3].includes(state.status) ? true : false}
-                                            />
-                                        </Box>
-                                    )
-                                }
+                            {
+                                !id &&
+                                (
+                                    <Box>
+                                        <TextField
+                                            name="password"
+                                            label="Mật khẩu"
+                                            type="password"
+                                            autoComplete="current-password"
+                                            onChange={handleChange}
+                                            value={state.password || ""}
+                                            validators={["required"]}
+                                            errorMessages={["this field is required"]}
+                                            disabled={[0, 3].includes(state.status) ? true : false}
+                                        />
+                                        <TextField
+                                            name="cpassword"
+                                            label="Xác nhận mật khẩu"
+                                            type="password"
+                                            onChange={handleChange}
+                                            value={state.cpassword || ""}
+                                            validators={["required", "isPasswordMatch"]}
+                                            errorMessages={["this field is required", "password didn't match"]}
+                                            disabled={[0, 3].includes(state.status) ? true : false}
+                                        />
+                                    </Box>
+                                )
+                            }
                         </Grid>
 
                         <Grid item lg={8} md={8} sm={12} xs={12} sx={{ mt: 2 }}>
                             <Grid container spacing={2} alignItems="center">
-                                <Grid item lg={id ? 8 : 12} md={id ? 8 : 12} sm={12} xs={12} 
-                                    sx={{ mt: 2, paddingTop: "0 !important"  }}
+                                <Grid item lg={id ? 8 : 12} md={id ? 8 : 12} sm={12} xs={12}
+                                    sx={{ mt: 2, paddingTop: "0 !important" }}
                                 >
                                     <TextField
                                         name="fullname"
@@ -246,29 +247,29 @@ const InputForm = ({ id }) => {
                                         <InputLabel>Trạng thái</InputLabel>
                                         <FormControlLabel
                                             control={
-                                                <Switch 
-                                                    checked={state.status === 1 ? true : false} 
-                                                    onChange={handleStatusChange} 
-                                                    name="status" 
+                                                <Switch
+                                                    checked={state.status === 1 ? true : false}
+                                                    onChange={handleStatusChange}
+                                                    name="status"
                                                 />
                                             }
-                                            label={ state.status === 1 ? "Bình thường" : "Tạm ẩn" }
+                                            label={state.status === 1 ? "Bình thường" : "Tạm ẩn"}
                                             disabled={[0, 3].includes(state.status) ? true : false}
                                         />
                                     </Grid>
                                 }
                             </Grid>
                             {
-                                otherRoles && currentRoles && 
-                                    <Box sx={{ border: 1, borderColor: "#D1D5DB", borderRadius: "4px" }}>
-                                        <TransferList
-                                            status={ state.status }
-                                            left={ otherRoles }
-                                            right={ currentRoles }
-                                            setLeft={ setOtherRoles }
-                                            setRight={ setCurrentRoles }
-                                        />
-                                    </Box>
+                                otherRoles && currentRoles &&
+                                <Box sx={{ border: 1, borderColor: "#D1D5DB", borderRadius: "4px" }}>
+                                    <TransferList
+                                        status={state.status}
+                                        left={otherRoles}
+                                        right={currentRoles}
+                                        setLeft={setOtherRoles}
+                                        setRight={setCurrentRoles}
+                                    />
+                                </Box>
                             }
                         </Grid>
                     </Grid>
@@ -279,28 +280,28 @@ const InputForm = ({ id }) => {
                             loading={loading}
                             variant="contained"
                             sx={{ my: 2 }}
-                        > 
+                        >
                             <Icon>send</Icon>
-                            <Span sx={{ pl: 1, textTransform: "capitalize" }}>{ id ? "Cập nhật" : "Thêm mới" }</Span>
+                            <Span sx={{ pl: 1, textTransform: "capitalize" }}>{id ? "Cập nhật" : "Thêm mới"}</Span>
                         </LoadingButton>
                         {
                             [0, 3].includes(state.status) &&
-                                <LoadingButton
-                                    type="button"
-                                    color="warning"
-                                    loading={loading}
-                                    variant="contained"
-                                    sx={{ my: 2 }}
-                                    onClick={ handleRecover }
-                                > 
-                                    <Icon>restore</Icon>
-                                    <Span sx={{ pl: 1, textTransform: "capitalize" }}>Khôi phục</Span>
-                                </LoadingButton>
+                            <LoadingButton
+                                type="button"
+                                color="warning"
+                                loading={loading}
+                                variant="contained"
+                                sx={{ my: 2 }}
+                                onClick={handleRecover}
+                            >
+                                <Icon>restore</Icon>
+                                <Span sx={{ pl: 1, textTransform: "capitalize" }}>Khôi phục</Span>
+                            </LoadingButton>
                         }
                     </Box>
                 </ValidatorForm>
             </SimpleCard>
-            
+
         </div>
     );
 };

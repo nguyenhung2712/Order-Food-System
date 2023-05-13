@@ -1,7 +1,7 @@
 import Loadable from '../../components/Loadable';
 import AuthPrevent from '../../auth/AuthPrevent';
 import { lazy } from 'react';
-
+import React from 'react';
 const Login = Loadable(lazy(() => import('./Login')));
 const Register = Loadable(lazy(() => import('./Register')));
 const ForgotPass = Loadable(lazy(() => import('./ForgotPass')));
@@ -16,6 +16,6 @@ const AuthRoutes = [
     { path: '/auth/404', element: <NotFound /> },
     { path: '/auth/un-auth', element: <Unauthorized /> },
     { path: '/auth/conf-email', element: <AuthPrevent><EmailConfirm /></AuthPrevent> },
-]; 
+];
 
 export default AuthRoutes;

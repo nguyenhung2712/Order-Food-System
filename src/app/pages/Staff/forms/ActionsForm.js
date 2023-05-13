@@ -1,9 +1,10 @@
 import { useState } from "react";
+import React from 'react';
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-  Box, Divider,
-  Button, styled
+    Box, Divider,
+    Button, styled
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import NotInterestedIcon from "@mui/icons-material/NotInterested";
@@ -43,20 +44,20 @@ const ActionsForm = ({ data, setRender }) => {
         setLoading(true);
         swal({
             title: "Cảnh báo",
-            text: "Đồng ý vô hiệu hóa tài khoản nhân viên ?" ,
+            text: "Đồng ý vô hiệu hóa tài khoản nhân viên ?",
             icon: "warning",
             buttons: ["Hủy bỏ", "Đồng ý"],
         })
             .then(result => {
                 if (result) {
                     let newDate = new Date().toLocaleString();
-                    StaffService.updateStaff(id, {status: 3, disabledAt: newDate})
+                    StaffService.updateStaff(id, { status: 3, disabledAt: newDate })
                         .then(res => {
-                            dispatch(update(id, {status: 3, disabledAt: newDate}));
+                            dispatch(update(id, { status: 3, disabledAt: newDate }));
                             setLoading(false);
                             setRender(curr => !curr);
                         });
-                } else {    
+                } else {
                     setLoading(false);
                 }
             });
@@ -66,7 +67,7 @@ const ActionsForm = ({ data, setRender }) => {
         setLoading(true);
         swal({
             title: "Cảnh báo",
-            text: "Sau khi xóa sẽ không thể khôi phục. Đồng ý xóa ?" ,
+            text: "Sau khi xóa sẽ không thể khôi phục. Đồng ý xóa ?",
             icon: "warning",
             buttons: ["Hủy bỏ", "Đồng ý"],
         })
@@ -77,7 +78,7 @@ const ActionsForm = ({ data, setRender }) => {
                         .then(res => {
                             navigate("/staff/manage");
                         });
-                } else {    
+                } else {
                     setLoading(false);
                 }
             });
@@ -118,32 +119,32 @@ const ActionsForm = ({ data, setRender }) => {
             >
                 {
                     data.status !== 3 &&
-                        <Box>
-                            <CustomButton
-                                onClick={ () => handleDisable(data.id) }
-                            >
-                                <NotInterestedIcon sx={{ marginRight: 2 }} />
-                                Vô hiệu hóa tài khoản
-                            </CustomButton>
-                        </Box>
+                    <Box>
+                        <CustomButton
+                            onClick={() => handleDisable(data.id)}
+                        >
+                            <NotInterestedIcon sx={{ marginRight: 2 }} />
+                            Vô hiệu hóa tài khoản
+                        </CustomButton>
+                    </Box>
                 }
                 {
                     data.isActived === 0 &&
-                        <Box>
-                            <CustomButton
-                                onClick={ () => handleAprrove(data.id) }
-                            >
-                                <CheckCircleIcon sx={{ marginRight: 2 }} />
-                                Xác nhận tài khoản
-                            </CustomButton>
-                        </Box>
+                    <Box>
+                        <CustomButton
+                            onClick={() => handleAprrove(data.id)}
+                        >
+                            <CheckCircleIcon sx={{ marginRight: 2 }} />
+                            Xác nhận tài khoản
+                        </CustomButton>
+                    </Box>
                 }
                 <Box>
                     <CustomButton>
-                        <CSVLink 
-                            data={[data]} 
+                        <CSVLink
+                            data={[data]}
                             filename={`${data.username}-staff-data.csv`}
-                            target="_blank" 
+                            target="_blank"
                         >
                             <FileDownloadIcon sx={{ marginRight: 2 }} />
                             Xuất dữ liệu
@@ -151,7 +152,7 @@ const ActionsForm = ({ data, setRender }) => {
                     </CustomButton>
                 </Box>
                 <Box
-                    sx={{ 
+                    sx={{
                         paddingLeft: "24px",
                         margin: "8px 4px",
                     }}
@@ -173,13 +174,13 @@ const ActionsForm = ({ data, setRender }) => {
                         loading={loading}
                         variant="contained"
                         sx={{ mt: 2 }}
-                        onClick={ () => handleRemove(data.id) }
-                    > 
+                        onClick={() => handleRemove(data.id)}
+                    >
                         <DeleteIcon />
                         <Span sx={{ pl: 1, textTransform: "capitalize" }}>Xóa tài khoản</Span>
                     </LoadingButton>
                 </Box>
-                
+
             </Box>
         </Box>
     );
