@@ -5,7 +5,7 @@ const passport = require("passport");
 /* require("../utils/googleAuth"); */
 const session = require('express-session');
 
-const { Auth, VerifyUserUpsert } = require("../middlewares");
+const { Auth, VerifyUserUpsert, VerifyAdminUpsert } = require("../middlewares");
 const { authController } = require("../controllers");
 
 /* function isLoggedIn(req, res, next) {
@@ -51,7 +51,9 @@ router.post('/send-otp', authController.sendOTP);
 router.post('/forget-password', authController.forgetPassword);
 router.post('/verify-otp-login', authController.userLoginVerifyOTP);
 router.post('/verify-otp-fp', authController.userFPVerifyOTP);
-router.post('/register/staff', authController.staffRegister);
+router.post('/register/staff',
+    [VerifyAdminUpsert.checkExistedEmail, VerifyAdminUpsert.checkExistedUsername],
+    authController.staffRegister);
 router.post('/register/user', [VerifyUserUpsert.checkExistedEmail], authController.userRegister);
 router.post('/login/:type', authController.login);
 router.put('/confirm-mail/:id/:token', authController.confirmMail);

@@ -51,25 +51,39 @@ const getById = (addressId) => new Promise(async (resolve, reject) => {
 
 const createAddress = (districtId, provinceId, wardId, addressBody) => new Promise(async (resolve, reject) => {
     try {
-        await Address.create(
-            {
-                id: uuidv4(),
-                ...addressBody,
-                deletedAt: null,
-                status: 1,
-                addressEn: removeAccents(addressBody.address),
-                districtId,
-                provinceId,
-                wardId
+        const address = await Address.findOne({
+            where: {
+                districtId, provinceId, wardId
             }
-        )
-            .then(address => {
-                resolve({
-                    status: "success",
-                    message: "Create address successfully.",
-                    payload: address
+        });
+        if (!address) {
+            await Address.create(
+                {
+                    id: uuidv4(),
+                    ...addressBody,
+                    deletedAt: null,
+                    status: 1,
+                    addressEn: removeAccents(addressBody.address),
+                    districtId,
+                    provinceId,
+                    wardId
+                }
+            )
+                .then(address => {
+                    resolve({
+                        status: "success",
+                        message: "Create address successfully.",
+                        payload: address
+                    });
                 });
+        } else {
+            resolve({
+                status: "success",
+                message: "Create address successfully.",
+                payload: address
             });
+        }
+
     } catch (error) {
         reject(error);
     }
@@ -77,21 +91,36 @@ const createAddress = (districtId, provinceId, wardId, addressBody) => new Promi
 
 const updateAddress = (addressId, addressBody) => new Promise(async (resolve, reject) => {
     try {
-        await Address.update(
-            {
-                ...addressBody,
-                addressEn: removeAccents(addressBody.address),
-            },
-            { where: { id: addressId } }
-        )
-            .then(() => Address.findByPk(addressId))
-            .then(address => {
-                resolve({
-                    status: "success",
-                    message: "Update address successfully.",
-                    payload: address
+        const { districtId, provinceId, wardId, ...remains } = addressBody;
+        const address = await Address.findOne({
+            where: {
+                districtId, provinceId, wardId
+            }
+        });
+        if (address) {
+            await Address.update(
+                {
+                    ...addressBody,
+                    addressEn: removeAccents(addressBody.address),
+                },
+                { where: { id: addressId } }
+            )
+                .then(() => Address.findByPk(addressId))
+                .then(address => {
+                    resolve({
+                        status: "success",
+                        message: "Update address successfully.",
+                        payload: address
+                    });
                 });
+        } else {
+            resolve({
+                status: "success",
+                message: "Update address successfully.",
+                payload: address
             });
+        }
+
     } catch (error) {
         reject(error);
     }
@@ -254,7 +283,14 @@ const updateUserAddress = (userId, addressId, body) => new Promise(async (resolv
 
 const deleteUserAddress = (userId, addressId) => new Promise(async (resolve, reject) => {
     try {
-        await UserAddress.update(
+        await UserAddress.destroy({ where: { userId, addressId } })
+            .then(address => {
+                resolve({
+                    status: "success",
+                    message: "Delete user's address successfully."
+                });
+            });
+        /* await UserAddress.update(
             {
                 deletedAt: new Date(),
                 status: 1,
@@ -281,7 +317,7 @@ const deleteUserAddress = (userId, addressId) => new Promise(async (resolve, rej
                     message: "Delete user's address successfully.",
                     payload: address
                 });
-            });
+            }); */
     } catch (error) {
         reject(error);
     }

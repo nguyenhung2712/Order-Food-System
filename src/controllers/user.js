@@ -73,6 +73,34 @@ const uploadAvatarUser = async (req, res) => {
 
         return res.json(response);
     } catch (error) {
+        console.log(error)
+        return res.status(400).json(error);
+    }
+}
+
+const sendWarningMail = async (req, res) => {
+    try {
+        const response = await userService.sendWarningMail(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
+const sendRestoreMail = async (req, res) => {
+    try {
+        const response = await userService.sendRestoreMail(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
+const sendNewestOrder = async (req, res) => {
+    try {
+        const response = await userService.sendNewestOrder(req.params.id);
+        return res.json(response);
+    } catch (error) {
         return res.status(400).json(error);
     }
 }
@@ -84,5 +112,8 @@ module.exports = {
     changePassword,
     createUser,
     updateUser,
-    uploadAvatarUser
+    uploadAvatarUser,
+    sendWarningMail,
+    sendRestoreMail,
+    sendNewestOrder
 }

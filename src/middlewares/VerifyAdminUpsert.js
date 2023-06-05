@@ -1,9 +1,9 @@
 require("dotenv").config();
 const { AdminStaff } = require("../models");
 
-const isExistedUsername = (req, res, next) => {
-	const { username } = req.body;
-    AdminStaff.findOne({ 
+const checkExistedUsername = async (req, res, next) => {
+    const { username } = req.body;
+    await AdminStaff.findOne({
         where: { username }
     })
         .then(staff => {
@@ -16,7 +16,23 @@ const isExistedUsername = (req, res, next) => {
             next();
         });
 };
+const checkExistedEmail = async (req, res, next) => {
+    const { email } = req.body;
+    await AdminStaff.findOne({
+        where: { email }
+    })
+        .then(staff => {
+            if (staff) {
+                return res.json({
+                    status: "error",
+                    message: "Email vừa nhập đã tồn tại"
+                });
+            }
+            next();
+        });
+};
 
 module.exports = {
-    isExistedUsername
+    checkExistedUsername,
+    checkExistedEmail
 }

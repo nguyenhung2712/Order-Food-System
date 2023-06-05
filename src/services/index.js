@@ -21,6 +21,9 @@ const services = {
     messageService: require('./message'),
     converService: require('./conver'),
     trackerService: require('./tracker'),
+    scheduleService: require('./schedule'),
+    analyticService: require('./analytic'),
+    reasonService: require('./reason'),
 };
 
 module.exports = services;

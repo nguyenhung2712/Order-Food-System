@@ -9,6 +9,8 @@ module.exports = (sequelize, DataTypes) => {
             AdminStaff.hasMany(models.Message, { foreignKey: 'adminId' });
             AdminStaff.hasMany(models.Tracker, { foreignKey: 'adminId' });
             AdminStaff.hasMany(models.AdminConver, { foreignKey: 'adminId' });
+            AdminStaff.hasMany(models.AdminSchedule, { foreignKey: 'adminId' });
+            AdminStaff.hasMany(models.Archive, { foreignKey: 'adminId' });
         }
     }
     AdminStaff.init({

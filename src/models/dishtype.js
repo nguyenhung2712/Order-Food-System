@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) => {
         icon: DataTypes.STRING,
         unit: DataTypes.STRING,
         unitEn: DataTypes.STRING,
-        slug: DataTypes.STRING
+        slug: DataTypes.STRING,
+        slugEn: DataTypes.STRING,
     }, {
         sequelize,
         modelName: 'DishType',

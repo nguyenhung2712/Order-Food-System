@@ -31,9 +31,14 @@ const getById = (typeId) => new Promise(async (resolve, reject) => {
 
 const getBySlug = (slug) => new Promise(async (resolve, reject) => {
     try {
-        const response = await DishType.findOne({
+        let response = await DishType.findOne({
             where: { slug: slug }
         });
+        if (!response) {
+            response = await DishType.findOne({
+                where: { slugEn: slug }
+            });
+        }
         resolve({
             status: "success",
             message: "Get type successfully.",

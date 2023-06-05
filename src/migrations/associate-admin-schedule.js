@@ -2,43 +2,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('InteractRepCmts', {
+        await queryInterface.createTable('AdminSchedules', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
-            },
-            type: {
-                allowNull: false,
-                type: Sequelize.TINYINT
-            },
-            reason: {
-                type: Sequelize.STRING
-            },
-            userId: {
+            adminId: {
                 allowNull: false,
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Users',
+                    model: 'AdminStaffs',
                     key: 'id',
-                    as: 'userId',
+                    as: 'adminId',
                 },
             },
-            repId: {
+            scheduleId: {
                 allowNull: false,
                 type: Sequelize.UUID,
                 references: {
-                    model: 'CommentReps',
+                    model: 'Schedules',
                     key: 'id',
-                    as: 'repId',
+                    as: 'scheduleId',
                 },
             },
             createdAt: {
@@ -52,6 +38,6 @@ module.exports = {
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('InteractRepCmts');
+        await queryInterface.dropTable('AdminSchedules');
     }
 };

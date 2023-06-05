@@ -153,6 +153,40 @@ const uploadBlogImage = async (req, res) => {
         return res.status(400).json(error);
     }
 }
+const getAllReports = async (req, res) => {
+    try {
+        const response = await blogService.getAllReports();
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+const solveReport = async (req, res) => {
+    try {
+        const { blogId, userId } = req.body;
+        const response = await blogService.solveReport(blogId, userId);
+        return res.json(response);
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json(error);
+    }
+}
+const getSolvedBlogs = async (req, res) => {
+    try {
+        const response = await blogService.getSolvedBlogs();
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+const deleteReport = async (req, res) => {
+    try {
+        const response = await blogService.deleteReport(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
 
 module.exports = {
     getAll,
@@ -165,5 +199,9 @@ module.exports = {
     updateBlog,
     toggleBlog,
     interactBlog,
-    uploadBlogImage
+    uploadBlogImage,
+    getAllReports,
+    solveReport,
+    getSolvedBlogs,
+    deleteReport
 }

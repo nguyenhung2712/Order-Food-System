@@ -21,6 +21,9 @@ const controller = {
     messageController: require('./message'),
     converController: require('./conver'),
     trackerController: require('./tracker'),
+    scheduleController: require('./schedule'),
+    analyticController: require('./analytic'),
+    reasonController: require('./reason'),
 }
 
 module.exports = controller;

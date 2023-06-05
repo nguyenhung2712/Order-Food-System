@@ -30,13 +30,22 @@ router.put('/update-user-address',
     ],
     addressController.updateUserAddress
 );
-router.put('/user-address/:type',
+/* router.put('/user-address/:type',
     [
         Auth.validateToken,
         VerifyExists.isExistedAddress,
         VerifyExists.isExistedUser,
     ],
     addressController.updateUserAddress
+); */
+
+router.post('/delete-user-address',
+    [
+        Auth.validateToken,
+        VerifyExists.isExistedAddress,
+        VerifyExists.isExistedUser,
+    ],
+    addressController.deleteUserAddress
 );
 
 module.exports = router;

@@ -164,7 +164,6 @@ const staffRegister = ({ ...reqBody }) => new Promise(async (resolve, reject) =>
                 ...body,
                 id: uuidv4(),
                 password: hash,
-                username: null,
                 phoneNum: null,
                 lastLogin: null,
                 deletedAt: null,
@@ -471,12 +470,12 @@ const userLogin = (username, password) => new Promise(async (resolve, reject) =>
                             
                             </html>`);
                             resolve({
-                                status: "pending",
+                                status: "pending-a",
                                 message: "Hãy kiểm tra mail để nhận mã otp.",
                                 email: user.email
                             });
                         });
-                } else {
+                } else if (user.is2FA === 0) {
                     let token = jwt.sign({ username: user.username, id: user.id }, process.env.SECRET_KEY, {
                         expiresIn: process.env.JWT_EXPIRATION_TEXT,
                     });
@@ -611,8 +610,10 @@ const userLogin = (username, password) => new Promise(async (resolve, reject) =>
                         
                         </html>`);
                         resolve({
-                            status: "pending",
-                            message: "Tài khoản chưa kích hoạt. Hãy vào email để nhận mã OTP kích hoạt tài khoản."
+                            status: "pending-c",
+                            message: "Tài khoản chưa kích hoạt. Hãy vào email để nhận mã OTP kích hoạt tài khoản.",
+                            email: user.email,
+                            userId: user.id
                         });
                     });
             }
@@ -661,7 +662,7 @@ const userLoginVerifyOTP = ({ otp, username, password }) => new Promise(async (r
                 await Token.destroy({ where: { id: curOTP.id } });
                 await User.update(
                     { lastLogin: new Date() },
-                    { where: { id: staff.id } }
+                    { where: { id: user.id } }
                 );
                 resolve({
                     status: "success",
@@ -938,6 +939,8 @@ const refreshToken = (requestToken) => new Promise(async (resolve, reject) => {
                 status: "error",
                 message: "Refresh token is not in database!"
             });
+        } else {
+
         }
         if (RefreshToken.verifyExpiration(refreshToken)) {
             RefreshToken.destroy({ where: { id: refreshToken.id } });

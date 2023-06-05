@@ -1,4 +1,4 @@
-const { CommentRep, User, Comment, InteractRepCmt } = require("../models");
+const { CommentRep, User, Comment, Interact } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 const getAll = () => new Promise(async (resolve, reject) => {
@@ -164,13 +164,13 @@ const deleteRep = (repId) => new Promise(async (resolve, reject) => {
 
 const interactRep = (userId, repId, type, reason) => new Promise(async (resolve, reject) => {
     try {
-        await InteractRepCmt.findOne({
+        await Interact.findOne({
             where: { userId, repId, type }
         })
             .then(async (res) => {
                 if (res) {
                     if (reason) {
-                        await InteractRepCmt.create(
+                        await Interact.create(
                             {
                                 userId, repId, type,
                                 deletedAt: null,
@@ -179,7 +179,7 @@ const interactRep = (userId, repId, type, reason) => new Promise(async (resolve,
                             },
                         );
                     } else {
-                        await InteractRepCmt.update(
+                        await Interact.update(
                             {
                                 deletedAt: res.status === 1 ? new Date() : null,
                                 status: res.status === 1 ? 0 : 1
@@ -192,7 +192,7 @@ const interactRep = (userId, repId, type, reason) => new Promise(async (resolve,
                         message: "Interact rep successfully."
                     });
                 } else {
-                    await InteractRepCmt.create(
+                    await Interact.create(
                         {
                             userId, repId, type,
                             deletedAt: null,

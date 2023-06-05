@@ -11,8 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     CartItem.init({
-        quantity: DataTypes.INTEGER,
-        expiryDate: DataTypes.DATE
+        quantity: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'CartItem',

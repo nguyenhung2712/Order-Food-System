@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             CommentRep.belongsTo(models.Comment, { foreignKey: 'commentId', targetKey: 'id', as: 'comment' });
             CommentRep.belongsTo(CommentRep, { foreignKey: 'repId', targetKey: 'id', as: 'rep' });
 
-            CommentRep.hasMany(models.InteractRepCmt, { foreignKey: 'repId' });
+            CommentRep.hasMany(models.Interact, { foreignKey: 'repId' });
         }
     }
     CommentRep.init({

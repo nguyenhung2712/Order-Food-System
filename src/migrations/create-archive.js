@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('InteractCmts', {
+        await queryInterface.createTable('Archives', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -17,41 +17,33 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
-            },
-            type: {
-                allowNull: false,
-                type: Sequelize.TINYINT
-            },
-            reason: {
-                type: Sequelize.STRING
-            },
-            userId: {
-                allowNull: false,
+            admin: {
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Users',
+                    model: 'AdminStaffs',
                     key: 'id',
-                    as: 'userId',
-                },
+                    as: 'admin',
+                }
             },
-            commentId: {
-                allowNull: false,
+            blogId: {
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Comments',
+                    model: 'Blogs',
                     key: 'id',
-                    as: 'commentId',
-                },
+                    as: 'blogId',
+                }
+            },
+            typeId: {
+                type: Sequelize.UUID,
+                references: {
+                    model: 'ArchiveTypes',
+                    key: 'id',
+                    as: 'typeId',
+                }
             },
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('InteractCmts');
+        await queryInterface.dropTable('Archives');
     }
 };

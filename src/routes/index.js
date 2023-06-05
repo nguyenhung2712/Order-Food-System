@@ -31,6 +31,9 @@ const initRoutes = (app) => {
     app.use("/api/rate", require("./Rate"));
     app.use("/api/tracker", require("./Tracker"));
     app.use("/api/social", require("./SocialAuth"));
+    app.use("/api/schedule", require("./Schedule"));
+    app.use("/api/analytic", require("./Analytic"));
+    app.use("/api/reason", require("./Reason"));
 }
 
 module.exports = initRoutes;

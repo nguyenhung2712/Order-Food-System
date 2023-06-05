@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
         deletedAt: DataTypes.DATE,
         number: DataTypes.STRING,
         note: DataTypes.STRING,
-        status: DataTypes.TINYINT
+        status: DataTypes.TINYINT,
+        billedNum: DataTypes.INTEGER,
     }, {
         sequelize,
         modelName: 'Order',

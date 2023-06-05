@@ -11,7 +11,7 @@ router.get('/:id', VerifyExists.isExistedDish, dishController.getById);
 router.get('/slug/:slug', dishController.getBySlug);
 router.post('/create', [Auth.validateToken, VerifyExists.isExistedDishType], dishController.createDish);
 router.put('/update/:id',
-    [Auth.validateToken, VerifyExists.isExistedDish, VerifyExists.isExistedDishType],
+    [Auth.validateToken, VerifyExists.isExistedDish],
     dishController.updateDish
 );
 router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedDish], dishController.toggleDish);

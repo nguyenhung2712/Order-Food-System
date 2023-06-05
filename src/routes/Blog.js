@@ -20,6 +20,10 @@ router.put('/:type/:id', [Auth.validateToken, VerifyExists.isExistedBlog], blogC
 router.post('/interact', [Auth.validateToken, VerifyExists.isExistedBlog, VerifyExists.isExistedUser], blogController.interactBlog);
 
 router.post('/upload-image', [fileUploader.single('file')], blogController.uploadBlogImage);
+router.get('/report/all', Auth.validateToken, blogController.getAllReports);
+router.post('/report/solve', Auth.validateToken, blogController.solveReport);
+router.get('/report/solved/all', Auth.validateToken, blogController.getSolvedBlogs);
+router.delete('/report/delete/:id', Auth.validateToken, blogController.deleteReport);
 
 
 module.exports = router;

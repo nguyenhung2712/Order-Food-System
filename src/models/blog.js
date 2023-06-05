@@ -8,9 +8,10 @@ module.exports = (sequelize, DataTypes) => {
 
             Blog.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
 
-            Blog.hasMany(models.InteractBlog, { foreignKey: 'blogId' });
+            Blog.hasMany(models.Interact, { foreignKey: 'blogId' });
             Blog.hasMany(models.Comment, { foreignKey: 'blogId' });
             Blog.hasMany(models.History, { foreignKey: 'blogId' });
+            Blog.hasMany(models.Archive, { foreignKey: 'blogId' });
         }
     }
     Blog.init({
@@ -18,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
         content: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT,
-        slug: DataTypes.STRING
+        slug: DataTypes.STRING,
+        views: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'Blog',

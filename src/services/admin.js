@@ -1,4 +1,4 @@
-const { AdminStaff } = require("../models");
+const { AdminStaff, Admin_Role } = require("../models");
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 const sendEmail = require("../utils/sendEmail");
@@ -260,6 +260,13 @@ const approveStaff = (staffId) => new Promise(async (resolve, reject) => {
                 </body>
                 
                 </html>`);
+                await Admin_Role.create({
+                    adminId: staff.id, roleId: "fd1ceeb4-c048-11ed-8774-d8d09055bd1c",
+                    AdminStaffId: staff.id,
+                    RoleId: "fd1ceeb4-c048-11ed-8774-d8d09055bd1c",
+                    deletedAt: null,
+                    status: 1
+                })
                 resolve({
                     status: "success",
                     message: "Recover staff successfully.",

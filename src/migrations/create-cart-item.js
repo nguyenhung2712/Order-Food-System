@@ -13,10 +13,6 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.INTEGER
             },
-            expiryDate: {
-                allowNull: false,
-                type: Sequelize.DATE
-            },
             createdAt: {
                 allowNull: false,
                 type: Sequelize.DATE

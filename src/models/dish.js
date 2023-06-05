@@ -22,7 +22,9 @@ module.exports = (sequelize, DataTypes) => {
         ingredientsEn: DataTypes.STRING,
         slug: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
-        status: DataTypes.TINYINT
+        status: DataTypes.TINYINT,
+        views: DataTypes.INTEGER,
+        quantityInDay: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'Dish',

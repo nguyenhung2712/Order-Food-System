@@ -1,4 +1,4 @@
-const { Comment, User, Blog, CommentRep, InteractCmt, InteractRepCmt } = require("../models");
+const { Comment, User, Blog, CommentRep, Interact } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require('sequelize');
 
@@ -19,13 +19,13 @@ const getAll = () => new Promise(async (resolve, reject) => {
                             include: [{ model: User, as: "user" }],
                         },
                         {
-                            model: InteractRepCmt,
+                            model: Interact,
                             include: [{ model: User, as: "user" }]
                         }
                     ]
                 },
                 {
-                    model: InteractCmt,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ],
@@ -65,13 +65,13 @@ const getByFKId = (type, id, sortBy) => new Promise(async (resolve, reject) => {
                                 include: [{ model: User, as: "user" }],
                             },
                             {
-                                model: InteractRepCmt,
+                                model: Interact,
                                 include: [{ model: User, as: "user" }]
                             }
                         ]
                     },
                     {
-                        model: InteractCmt,
+                        model: Interact,
                         include: [{ model: User, as: "user" }]
                     }
                 ],
@@ -95,13 +95,13 @@ const getByFKId = (type, id, sortBy) => new Promise(async (resolve, reject) => {
                                 include: [{ model: User, as: "user" }],
                             },
                             {
-                                model: InteractRepCmt,
+                                model: Interact,
                                 include: [{ model: User, as: "user" }]
                             }
                         ]
                     },
                     {
-                        model: InteractCmt,
+                        model: Interact,
                         include: [{ model: User, as: "user" }]
                     }
                 ],
@@ -137,13 +137,13 @@ const getById = (commentId) => new Promise(async (resolve, reject) => {
                             include: [{ model: User, as: "user" }],
                         },
                         {
-                            model: InteractRepCmt,
+                            model: Interact,
                             include: [{ model: User, as: "user" }]
                         }
                     ]
                 },
                 {
-                    model: InteractCmt,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ],
@@ -201,13 +201,13 @@ const updateComment = (commentId, commentBody) => new Promise(async (resolve, re
                                 include: [{ model: User, as: "user" }],
                             },
                             {
-                                model: InteractRepCmt,
+                                model: Interact,
                                 include: [{ model: User, as: "user" }]
                             }
                         ]
                     },
                     {
-                        model: InteractCmt,
+                        model: Interact,
                         include: [{ model: User, as: "user" }]
                     }
                 ],
@@ -241,13 +241,13 @@ const deleteComment = (commentId) => new Promise(async (resolve, reject) => {
 
 const interactComment = (userId, commentId, type, reason) => new Promise(async (resolve, reject) => {
     try {
-        await InteractCmt.findOne({
+        await Interact.findOne({
             where: { userId, commentId, type }
         })
             .then(async (res) => {
                 if (res) {
                     if (reason) {
-                        await InteractCmt.create(
+                        await Interact.create(
                             {
                                 userId, commentId, type,
                                 deletedAt: null,
@@ -256,7 +256,7 @@ const interactComment = (userId, commentId, type, reason) => new Promise(async (
                             },
                         );
                     } else {
-                        await InteractCmt.update(
+                        await Interact.update(
                             {
                                 deletedAt: res.status === 1 ? new Date() : null,
                                 status: res.status === 1 ? 0 : 1,
@@ -270,7 +270,7 @@ const interactComment = (userId, commentId, type, reason) => new Promise(async (
                         message: "Interact comment successfully."
                     });
                 } else {
-                    await InteractCmt.create(
+                    await Interact.create(
                         {
                             userId, commentId, type,
                             deletedAt: null,

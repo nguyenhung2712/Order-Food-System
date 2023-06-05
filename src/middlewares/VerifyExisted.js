@@ -376,7 +376,7 @@ const areExistedComments = async (req, res, next) => {
         : await Comment.findAll({
             where: { blogId: id }
         });
-    if (!comments || comments.length === 0) {
+    if (!comments) {
         return res.json({
             status: "error",
             message: "Không tồn tại"

@@ -16,7 +16,13 @@ const getAllAvailable = async (req, res) => {
         const sortBy = req.query.sort;
         const query = req.query.query;
         const { categories } = req.body;
-        const response = await dishService.getAllAvailable(sortBy, categories, query);
+        const rating = req.query.rating !== "undefined"
+            ? req.query.rating
+                .split("star").filter(t => t !== "")
+                .join("").split(",").join("").split("").filter(t => t !== " ").map(t => Number(t))
+            : [0, 1, 2, 3, 4, 5];
+        console.log(rating);
+        const response = await dishService.getAllAvailable(sortBy, categories, query, rating);
         const items = JSON.parse(JSON.stringify(response.payload));
         const limit = Number(req.query.limit);
         const page = Number(req.query.page);
@@ -39,6 +45,7 @@ const getAllAvailable = async (req, res) => {
         results.results = items.slice(startIndex, endIndex);
         return res.json(results);
     } catch (error) {
+        console.log(error);
         return res.status(400).json(error);
     }
 }

@@ -12,7 +12,6 @@ const getAll = async (req, res) => {
 const getByFKId = async (req, res) => {
     try {
         const { type, id } = req.params;
-
         const sortBy = req.query.sort;
         const response = await commentService.getByFKId(type, id, sortBy);
         const items = JSON.parse(JSON.stringify(response.payload));
@@ -40,6 +39,7 @@ const getByFKId = async (req, res) => {
         } else {
             results.results = items;
         }
+
         return res.json(results);
     } catch (error) {
         console.log(error);

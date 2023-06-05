@@ -1,22 +1,14 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { User, Tracker, AdminStaff } = require("../models");
+const admin = require('firebase-admin');
 
-/* const validateToken = (req, res, next) => {
-    const accessToken = req.header("accessToken");
+const serviceAccount = require("../utils/serviceAccountKey.json");
 
-    if (!accessToken) return res.json({ error: "User not logged in!" });
-
-    try {
-        const validToken = verify(accessToken, "importantsecret");
-
-        if (validToken) {
-            return next();
-        }
-    } catch (err) {
-        return res.json({ error: err });
-    }
-}; */
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://react-chat-test-d4d3b-default-rtdb.asia-southeast1.firebasedatabase.app'
+});
 
 const { TokenExpiredError } = jwt;
 
@@ -24,7 +16,7 @@ const catchError = (err, res) => {
     if (err instanceof TokenExpiredError) {
         return res.status(401).send({ message: "Access Token đã hết hạn" });
     }
-    return res.sendStatus(401).send({ message: "Không được phép" });
+    return res.status(401).send({ message: "Không được phép" });
 }
 
 const validateToken = (req, res, next) => {
@@ -33,16 +25,26 @@ const validateToken = (req, res, next) => {
     if (!token) {
         return res.status(403).send({ message: "Token không tồn tại" });
     }
-
     jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+
         if (err) {
-            return catchError(err, res);
+            admin.auth().verifyIdToken(token)
+                .then((decodedToken) => {
+                    const user = User.findOne({ where: { email: decodedToken.email } });
+                    req.userId = user.id;
+                    next();
+                })
+                .catch((error) => {
+                    return catchError(err, res);
+                });
+        } else {
+            let id = decoded.id;
+            req.userId = id;
+            next();
         }
         /* console.log(decoded, req.statusCode); */
-        let id = decoded.id;
-        req.userId = id;
-        next();
-        req.headers['if-none-match'] = 'no-match-for-this';
+
+        /* req.headers['if-none-match'] = 'no-match-for-this';
         res.on('finish', async () => {
             let typeApi = req.method;
             let ipAddress = req.ip;
@@ -54,13 +56,13 @@ const validateToken = (req, res, next) => {
             if (apiParts[apiParts.length - 1].length === 36) {
                 apiParts[apiParts.length - 1] = ":id";
             }
-            /* apiText = apiParts.join("/");
+            apiText = apiParts.join("/");
             await Tracker.create({
                 typeApi, apiText, statusCode, ipAddress,
                 userId: user ? user.id : null,
                 adminId: admin ? admin.id : null,
-            }); */
-        });
+            });
+        }); */
     });
 };
 

@@ -112,6 +112,16 @@ const toggleUserAddress = async (req, res) => {
     }
 }
 
+const deleteUserAddress = async (req, res) => {
+    try {
+        const { userId, addressId } = req.body;
+        const response = await addressService.deleteUserAddress(userId, addressId)
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
 module.exports = {
     getAll,
     getByFKId,
@@ -124,5 +134,6 @@ module.exports = {
     getUserAddressByDefault,
     createUserAddress,
     updateUserAddress,
-    toggleUserAddress
+    toggleUserAddress,
+    deleteUserAddress
 }

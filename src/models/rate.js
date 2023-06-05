@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Rate.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
             Rate.belongsTo(models.Dish, { foreignKey: 'dishId', targetKey: 'id', as: 'product' });
+            Rate.hasMany(models.Interact, { foreignKey: 'ratingId' });
         }
     }
     Rate.init({

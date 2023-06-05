@@ -20,10 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             User.hasMany(models.Follow, { foreignKey: 'followingId' });
             User.hasMany(models.Follow, { foreignKey: 'followedId' });
             User.hasMany(models.Tracker, { foreignKey: 'userId' });
-            User.hasMany(models.InteractBlog, { foreignKey: 'userId' });
-            User.hasMany(models.InteractCmt, { foreignKey: 'userId' });
-            User.hasMany(models.InteractRepCmt, { foreignKey: 'userId' });
+            User.hasMany(models.Interact, { foreignKey: 'userId' });
             User.hasMany(models.History, { foreignKey: 'userId' });
+
+            User.hasMany(models.Interact, { foreignKey: 'reportedUId' });
+            User.hasMany(models.ArchiveType, { foreignKey: 'userId' });
         }
     }
     User.init({

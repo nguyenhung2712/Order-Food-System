@@ -1,6 +1,13 @@
-const { Blog, InteractBlog, User, History, Address, UserAddress, Province, District, Ward } = require("../models");
+const {
+    Blog, Interact, User, History,
+    Address, UserAddress, Province,
+    District, Ward, Reason, Archive, AdminStaff
+} = require("../models");
 const { v4: uuidv4 } = require("uuid");
 const { slugify } = require("../utils/createSlug");
+const { Op } = require('sequelize');
+
+const solveSessionId = "3d71db18-fec4-11ed-905b-d8d09055bd1c";
 
 const getAll = () => new Promise(async (resolve, reject) => {
     try {
@@ -25,7 +32,7 @@ const getAll = () => new Promise(async (resolve, reject) => {
                     ]
                 },
                 {
-                    model: InteractBlog,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ],
@@ -69,7 +76,7 @@ const getAllBySort = (sortBy) => new Promise(async (resolve, reject) => {
                     ]
                 },
                 {
-                    model: InteractBlog,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ],
@@ -117,7 +124,7 @@ const getBySortUserId = (userId, sortBy) => new Promise(async (resolve, reject) 
                     ]
                 },
                 {
-                    model: InteractBlog,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ],
@@ -160,7 +167,7 @@ const getByUserId = (userId) => new Promise(async (resolve, reject) => {
                     ]
                 },
                 {
-                    model: InteractBlog,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ],
@@ -200,7 +207,7 @@ const getById = (blogId) => new Promise(async (resolve, reject) => {
                     ]
                 },
                 {
-                    model: InteractBlog,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ]
@@ -239,7 +246,7 @@ const getBySlug = (slug) => new Promise(async (resolve, reject) => {
                     ]
                 },
                 {
-                    model: InteractBlog,
+                    model: Interact,
                     include: [{ model: User, as: "user" }]
                 }
             ]
@@ -310,7 +317,7 @@ const updateBlog = (blogId, blogBody) => new Promise(async (resolve, reject) => 
                         ]
                     },
                     {
-                        model: InteractBlog,
+                        model: Interact,
                         include: [{ model: User, as: "user" }]
                     }
                 ]
@@ -360,7 +367,7 @@ const deleteBlog = (blogId) => new Promise(async (resolve, reject) => {
                         ]
                     },
                     {
-                        model: InteractBlog,
+                        model: Interact,
                         include: [{ model: User, as: "user" }]
                     }
                 ]
@@ -385,7 +392,7 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
         await Blog.update(
             {
                 deletedAt: null,
-                status: 2
+                status: 1
             },
             { where: { id: blogId } }
         )
@@ -410,7 +417,7 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
                         ]
                     },
                     {
-                        model: InteractBlog,
+                        model: Interact,
                         include: [{ model: User, as: "user" }]
                     }
                 ]
@@ -429,13 +436,13 @@ const recoverBlog = (blogId) => new Promise(async (resolve, reject) => {
 
 const interactBlog = (userId, blogId, type, reason) => new Promise(async (resolve, reject) => {
     try {
-        await InteractBlog.findOne({
+        await Interact.findOne({
             where: { userId, blogId, type }
         })
             .then(async (res) => {
                 if (res) {
                     if (reason) {
-                        await InteractBlog.create(
+                        await Interact.create(
                             {
                                 userId, blogId, type,
                                 deletedAt: null,
@@ -444,7 +451,7 @@ const interactBlog = (userId, blogId, type, reason) => new Promise(async (resolv
                             },
                         )
                     } else {
-                        await InteractBlog.update(
+                        await Interact.update(
                             {
                                 deletedAt: res.status === 1 ? new Date() : null,
                                 status: res.status === 1 ? 0 : 1
@@ -457,7 +464,7 @@ const interactBlog = (userId, blogId, type, reason) => new Promise(async (resolv
                         message: "Interact blog successfully."
                     });
                 } else {
-                    await InteractBlog.create(
+                    await Interact.create(
                         {
                             userId, blogId, type,
                             deletedAt: null,
@@ -476,6 +483,112 @@ const interactBlog = (userId, blogId, type, reason) => new Promise(async (resolv
     }
 })
 
+const getAllReports = () => new Promise(async (resolve, reject) => {
+    try {
+        await Interact.findAll({
+            where: {
+                blogId: {
+                    [Op.not]: null
+                },
+                type: 2,
+                status: 1
+            },
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Blog, as: "blog", include: [
+                        { model: User, as: "user" }
+                    ]
+                },
+                { model: Reason, as: "reason" },
+            ]
+        })
+            .then(async (reports) => {
+                resolve({
+                    status: "success",
+                    message: "Get All Blog's Interact successfully.",
+                    payload: reports
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const solveReport = (blogId, userId) => new Promise(async (resolve, reject) => {
+    try {
+        await Blog.update({ status: 2 }, {
+            where: { id: blogId }
+        })
+            .then(async (res) => {
+                await Interact.update({ status: 0, deletedAt: new Date() }, {
+                    where: {
+                        blogId,
+                        type: 2
+                    }
+                });
+                await Archive.create({
+                    typeId: solveSessionId,
+                    blogId,
+                    adminId: userId
+                });
+                resolve({
+                    status: "success",
+                    message: "Solve report successfully.",
+                    payload: res
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const deleteReport = (reportId) => new Promise(async (resolve, reject) => {
+    try {
+        await Blog.destroy({
+            where: { id: reportId }
+        })
+            .then(async (res) => {
+                resolve({
+                    status: "success",
+                    message: "Delete report successfully.",
+                    payload: res
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getSolvedBlogs = () => new Promise(async (resolve, reject) => {
+    try {
+        await Blog.findAll({
+            include: [
+                {
+                    model: Archive,
+                    where: {
+                        typeId: solveSessionId,
+                        blogId: {
+                            [Op.not]: null
+                        }
+                    },
+                    include: [{ model: AdminStaff, as: "admin" }]
+                },
+                { model: User, as: "user" }
+            ],
+        })
+            .then(async (res) => {
+                resolve({
+                    status: "success",
+                    message: "Get solved blogs successfully.",
+                    payload: res
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     getAll,
     getAllBySort,
@@ -487,5 +600,9 @@ module.exports = {
     updateBlog,
     deleteBlog,
     recoverBlog,
-    interactBlog
+    interactBlog,
+    getAllReports,
+    solveReport,
+    getSolvedBlogs,
+    deleteReport
 }
