@@ -51,7 +51,7 @@ const validationSchema = Yup.object().shape({
 
 const Register = () => {
     const theme = useTheme();
-    const { register } = useAuth();
+    const { signup } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
@@ -59,9 +59,10 @@ const Register = () => {
         setLoading(true);
 
         try {
-            register(values.email, values.username, values.password);
-            navigate('/');
-            setLoading(false);
+            signup(values.email, values.username, values.password)
+                .then(res => {
+                    setLoading(false);
+                });
         } catch (e) {
             console.log(e);
             setLoading(false);

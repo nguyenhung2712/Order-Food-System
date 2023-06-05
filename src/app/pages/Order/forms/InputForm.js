@@ -6,7 +6,7 @@ import {
     Box, styled, IconButton, Divider, Button,
     Table, TableBody, TableCell, TableContainer, TableRow, TableHead,
     Radio, RadioGroup, FormControlLabel, FormControl, Autocomplete, Grid,
-    Alert
+    Alert, Backdrop, CircularProgress,
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
@@ -31,6 +31,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { nanoid } from 'nanoid';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { addDocument } from '../../../services/firebase/service';
 
 const IconButtonTopImage = styled(IconButton)(() => ({
     position: "absolute",
@@ -73,7 +74,7 @@ const defaultDetail = {
     quantity: ""
 };
 
-const InputForm = ({ id }) => {
+const InputForm = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -81,23 +82,28 @@ const InputForm = ({ id }) => {
     const [state, setState] = useState({});
     const [details, setDetails] = useState([]);
     const [flagState, setFlagState] = useState({});
-    const [formData, setFormData] = useState();
     const [products, setProducts] = useState([]);
+    const [defProducts, setDefProducts] = useState([]);
     const [users, setUsers] = useState([]);
-    const [fileArr, setFileArr] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [isEmpty, setEmpty] = useState(false);
+    const [isOverQtt, setOverQtt] = useState(false);
 
-    /* const isBlocking = () => {
-        return !deepObjectEqual(state, flagState) && !isSuccess;
+    const isBlocking = () => {
+        return (!deepObjectEqual(state, flagState) && !isSuccess) || details.length > 0;
     }
-    usePrompt('Thay đổi của bạn sẽ không được lưu. Đồng ý chuyển trang?', isBlocking()); */
+    usePrompt('Thay đổi của bạn sẽ không được lưu. Đồng ý chuyển trang?', isBlocking());
 
     useEffect(() => {
+        let randomNum = handleGenerateNumber();
         setState({
             ...state,
-            number: handleGenerateNumber()
+            number: randomNum
+        });
+        setFlagState({
+            ...state,
+            number: randomNum
         });
         (async () => {
             await UserService.getAllUsers()
@@ -121,8 +127,10 @@ const InputForm = ({ id }) => {
                     let labelProducts = products.filter(product => product.status !== 0).map(product => ({
                         label: product.dishName,
                         id: product.id,
-                        price: product.price
+                        price: product.price,
+                        quantityLeft: product.quantityLeft
                     }));
+                    setDefProducts(labelProducts);
                     setProducts(labelProducts);
                 })
                 .catch((err) => {
@@ -138,6 +146,10 @@ const InputForm = ({ id }) => {
             setLoading(false);
             return;
         }
+        if (isOverQtt) {
+            //Số lượng sản phẩm vượt quá giới hạn...
+            return;
+        }
         try {
             let paymentTotal = details.reduce((acc, detail) => acc + Number(detail.product.price) * detail.quantity, 0);
             await OrderService.createOrder({
@@ -149,7 +161,16 @@ const InputForm = ({ id }) => {
                 number: state.number,
                 note: '',
             })
-                .then((res) => {
+                .then(async (res) => {
+                    await addDocument("notifications", {
+                        title: "Thêm mới đơn hàng",
+                        message: `Đơn hàng ${res.data.payload.number} đã được thêm vào tài khoản của bạn.`,
+                        usePath: "/my-account/orders",
+                        readBy: [],
+                        image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685216317/invoice.png",
+                        receivedId: [state.user.id],
+                        status: 1
+                    });
                     details.forEach(async (detail) => {
                         await DetailService.createDetail({
                             orderId: res.data.payload.id,
@@ -179,11 +200,6 @@ const InputForm = ({ id }) => {
         }
     };
 
-
-    const handleChange = (event) => {
-        setState({ ...state, [event.target.name]: event.target.value });
-    };
-
     const handleGenerateNumber = () => {
         const date = new Date();
         let dateId =
@@ -200,7 +216,7 @@ const InputForm = ({ id }) => {
         <div>
             <SimpleCard
                 title={"Viết hóa đơn"}
-                sx={{ position: "relative" }}
+                sx={{ position: "relative", overflow: "visible" }}
             >
                 <ValidatorForm onSubmit={() => { }} onError={() => null}>
                     <Box sx={{ display: "flex", justifyContent: "flex-end", position: "absolute", top: 0, right: 16 }}>
@@ -291,56 +307,65 @@ const InputForm = ({ id }) => {
                                     "marginBottom": "8px"
                                 }}
                             >Thông tin giao hàng</H4>
-                            <Grid container spacing={2}>
-                                <Grid item lg={5} md={5} sm={5} xs={5} sx={{ height: "fit-content" }}>
-                                    <Autocomplete
-                                        disablePortal
-                                        options={users}
-                                        sx={{ minWidth: "fit-content", my: 1 }}
-                                        onChange={(event, newValue) => setState({ ...state, user: newValue })}
-                                        renderOption={(props, option) => {
-                                            return (
-                                                <li {...props} key={option.id}>
-                                                    {option.label}
-                                                </li>
-                                            );
-                                        }}
-                                        renderInput={(params) => <TextField {...params} label="Khách hàng" size="small" />}
-                                    />
-                                    <Autocomplete
-                                        disablePortal
-                                        options={
-                                            state.user && users.filter(user => user.id === state.user.id)[0].addresses[0].title
-                                                ? users.filter(user => user.id === state.user.id)[0].addresses
-                                                : []
-                                        }
-                                        sx={{ minWidth: "fit-content", my: 1 }}
-                                        onChange={(event, newValue) => setState({ ...state, address: newValue })}
-                                        getOptionLabel={(option) => option.title || ""}
-                                        renderOption={(props, option) => {
-                                            return (
-                                                <li {...props} /* key={option.address.addressId + option.address.userId} */>
-                                                    {option.title}
-                                                </li>
-                                            );
-                                        }}
-                                        renderInput={(params) =>
-                                            <TextField {...params} label="Địa chỉ" size="small" />
-                                        }
-                                    />
+                            <Box sx={{
+                                display: "flex",
+                                justifyContent: "center"
+                            }}>
+                                <Grid container spacing={2}>
+                                    <Grid item lg={5} md={5} sm={5} xs={5} sx={{ height: "fit-content" }}>
+                                        <Autocomplete
+                                            disablePortal
+                                            options={users}
+                                            sx={{ minWidth: "fit-content", my: 1 }}
+                                            onChange={(event, newValue) => setState({ ...state, user: newValue })}
+                                            renderOption={(props, option) => {
+                                                return (
+                                                    <li {...props} key={option.id}>
+                                                        {option.label + " | " + option.email}
+                                                    </li>
+                                                );
+                                            }}
+                                            renderInput={(params) => <TextField {...params} label="Khách hàng" size="small" />}
+                                        />
+                                        <Autocomplete
+                                            disablePortal
+                                            options={
+                                                state.user && users.filter(user => user.id === state.user.id)[0].addresses[0].title
+                                                    ? users.filter(user => user.id === state.user.id)[0].addresses
+                                                    : []
+                                            }
+                                            sx={{ minWidth: "fit-content", my: 1 }}
+                                            onChange={(event, newValue) => setState({ ...state, address: newValue })}
+                                            getOptionLabel={(option) => option.title || ""}
+                                            renderOption={(props, option) => {
+                                                return (
+                                                    <li {...props} /* key={option.address.addressId + option.address.userId} */>
+                                                        {option.title}
+                                                    </li>
+                                                );
+                                            }}
+                                            renderInput={(params) =>
+                                                <TextField {...params} label="Địa chỉ" size="small" />
+                                            }
+                                        />
+                                    </Grid>
                                 </Grid>
-                            </Grid>
-                            {state.user && <Paragraph>{state.user.email}</Paragraph>}
-                            {
-                                state.address &&
-                                <Paragraph>
+                                <Box>
+                                    {state.user && <Paragraph>{state.user.email}</Paragraph>}
                                     {
-                                        state.address.address.address + ", " + state.address.address.ward.wardName + " - " +
-                                        state.address.address.district.districtName + ", " + state.address.address.province.provinceName
+                                        state.address &&
+                                        <Paragraph>
+                                            {
+                                                state.address.address.address + ", " + state.address.address.ward.wardName + " - " +
+                                                state.address.address.district.districtName + ", " + state.address.address.province.provinceName
+                                            }
+                                        </Paragraph>
                                     }
-                                </Paragraph>
-                            }
-                            {(state.user && state.user.phone && state.user.phone !== "") && <Paragraph>+84{state.user.phone.slice(1)}</Paragraph>}
+                                    {(state.user && state.user.phone && state.user.phone !== "") && <Paragraph>+84{state.user.phone.slice(1)}</Paragraph>}
+                                </Box>
+                            </Box>
+
+
                         </Box>
                     </Box>
                     <TableContainer sx={{ marginTop: "16px" }}>
@@ -374,6 +399,7 @@ const InputForm = ({ id }) => {
                                                 options={products}
                                                 sx={{ minWidth: "fit-content" }}
                                                 onChange={(event, newValue) => {
+                                                    setProducts(products.filter(product => product.id !== newValue.id));
                                                     setDetails([...details].map((object, i) => {
                                                         if (i === index) {
                                                             return {
@@ -383,6 +409,7 @@ const InputForm = ({ id }) => {
                                                         }
                                                         else return object;
                                                     }));
+
                                                 }}
                                                 renderInput={(params) =>
                                                     <TextField {...params} label="Tên" size="small" />
@@ -406,7 +433,13 @@ const InputForm = ({ id }) => {
                                                 type="number"
                                                 name="quantity"
                                                 value={row.quantity || ""}
+                                                error={isOverQtt}
                                                 onChange={(event) => {
+                                                    if (Number(event.target.value) > Number(row.product.quantityLeft)) {
+                                                        setOverQtt(true);
+                                                    } else {
+                                                        setOverQtt(false);
+                                                    }
                                                     setDetails([...details].map((object, i) => {
                                                         if (i === index) {
                                                             return {
@@ -438,6 +471,7 @@ const InputForm = ({ id }) => {
                                                 sx={{ my: 2 }}
                                                 onClick={() => {
                                                     setDetails(prev => prev.filter((item, i) => i !== index));
+                                                    setProducts([...products, defProducts.filter(product => product.id === row.product.id)[0]]);
                                                 }}
                                             >
                                                 <DeleteIcon />
@@ -470,6 +504,12 @@ const InputForm = ({ id }) => {
                 </ValidatorForm>
                 {isEmpty && <Alert severity="error">This is an error alert — check it out!</Alert>}
             </SimpleCard>
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </div >
     );
 };

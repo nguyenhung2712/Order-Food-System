@@ -8,7 +8,7 @@ import {
     Icon,
     styled,
     Switch,
-    Box
+    Box, Backdrop, CircularProgress
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 
@@ -301,7 +301,12 @@ const InputForm = ({ id }) => {
                     </Box>
                 </ValidatorForm>
             </SimpleCard>
-
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </div>
     );
 };

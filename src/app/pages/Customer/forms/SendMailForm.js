@@ -32,7 +32,6 @@ const itemsPerPage = 10;
 
 const SendMailForm = ({ histories }) => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState();
     const [page, setPage] = useState(1);
     return (
         <Box>

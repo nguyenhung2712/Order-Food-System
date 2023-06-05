@@ -1,5 +1,8 @@
 export const navigations = [
     { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+    { name: 'Thống kê sản phẩm', path: '/analytic/products', icon: 'analytics' },
+    { name: 'Thống kê đơn hàng', path: '/analytic/orders', icon: 'analytics' },
+    { name: 'Thống kê blog', path: '/analytic/blogs', icon: 'analytics' },
     { label: 'Quản lý', type: 'label' },
     {
         name: 'Món ăn',
@@ -9,34 +12,22 @@ export const navigations = [
     {
         name: 'Đơn hàng',
         icon: 'receipt',
-        children: [
-            { name: 'Danh sách các đơn', iconText: 'OI', path: '/order/manage', },
-            { name: 'Viết đơn hàng', iconText: 'WO', path: '/order/add' },
-        ],
+        path: '/order/manage'
     },
     {
         name: 'Blog',
         icon: 'feed',
-        children: [
-            { name: 'Danh sách blog', iconText: 'BI', path: '/blog/manage' },
-            { name: 'Báo cáo', iconText: 'RB', path: '/blog/report' },
-        ],
+        path: '/blog/manage'
     },
     {
         name: 'Khách hàng',
         icon: 'person',
-        children: [
-            { name: 'Danh sách khách hàng', iconText: 'CI', path: '/customer/manage' },
-            { name: 'Báo cáo', iconText: 'RU', path: '/customer/report' },
-        ],
+        path: '/customer/manage'
     },
     {
         name: 'Nhân viên',
         icon: 'support_agent',
-        children: [
-            { name: 'Danh sách nhân viên', iconText: 'SI', path: '/staff/manage' },
-            { name: 'Nhân viên mới', iconText: 'NS', path: '/staff/add' },
-        ],
+        path: '/staff/manage'
     },
     { label: 'Apps', type: 'label' },
     {

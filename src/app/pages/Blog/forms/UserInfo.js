@@ -62,7 +62,7 @@ const UserInfo = ({ data }) => {
                                 </TableRow>
                                 {
                                     data.UserAddresses && data.UserAddresses.length > 0 && data.UserAddresses[0].userId && data.UserAddresses.map((address, index) => (
-                                        <TableRow>
+                                        <TableRow key={index}>
                                             <TableCell sx={{ paddingLeft: 4 }}>Địa chỉ {index + 1}</TableCell>
                                             <TableCell align="left">
                                                 {

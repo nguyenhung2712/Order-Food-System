@@ -25,13 +25,17 @@ const uploadAvatar = async (id, formData) => {
     );
 };
 
-/* const deleteUser = async (userId) => {
-    return await axiosInstance.put("/user/delete/" + userId);
+const sendWarningMail = async (userId) => {
+    return await axiosInstance.post("/user/warn/" + userId);
 };
 
-const recoverUser = async (userId) => {
-    return await axiosInstance.put("/user/recover/" + userId);
-}; */
+const sendRestoreMail = async (userId) => {
+    return await axiosInstance.post("/user/restore/" + userId);
+};
+
+const sendNewestOrder = async (userId) => {
+    return await axiosInstance.post("/user/newest-order/" + userId);
+};
 
 const UserService = {
     getAllUsers,
@@ -39,8 +43,9 @@ const UserService = {
     createUser,
     updateUser,
     uploadAvatar,
-    /* deleteUser,
-    recoverUser */
+    sendWarningMail,
+    sendRestoreMail,
+    sendNewestOrder
 };
 
 export default UserService;

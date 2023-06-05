@@ -5,9 +5,13 @@ import { useRoutes } from 'react-router-dom';
 import { MatxTheme } from './components';
 import { AuthProvider } from './contexts/JWTAuthContext';
 import { SettingsProvider } from './contexts/SettingsContext';
+import { AppProvider } from './contexts/AppContext';
+import { ToastContainer, default as cloneElement } from 'react-toastify';
+
 import { Store } from './redux/Store';
 import routes from './routes';
 import Modal from './components/Modal';
+import './App.css';
 
 const App = () => {
     const content = useRoutes(routes);
@@ -16,8 +20,11 @@ const App = () => {
             <SettingsProvider>
                 <MatxTheme>
                     <AuthProvider>
-                        <Modal />
-                        {content}
+                        <AppProvider>
+                            <Modal />
+                            {content}
+                            <ToastContainer />
+                        </AppProvider>
                     </AuthProvider>
                 </MatxTheme>
             </SettingsProvider>

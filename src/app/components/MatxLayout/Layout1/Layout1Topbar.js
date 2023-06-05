@@ -3,15 +3,16 @@ import { Box, styled, useTheme } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { CustomMenu, MatxSearchBox } from '../..';
 import { themeShadows } from '../../MatxTheme/themeColors';
-/* import { NotificationProvider } from '../../../contexts/NotificationContext'; */
 import useAuth from '../../../hooks/useAuth';
 import useSettings from '../../../hooks/useSettings';
 import { topBarHeight } from '../../../utils/constant';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Span } from '../../Typography';
-/* import NotificationBar from '../../NotificationBar/NotificationBar';
-import ShoppingCart from '../../ShoppingCart'; */
+import ChatAlert from '../../ChatAlert';
+/* import { NotificationProvider } from '../../../contexts/NotificationContext'; */
+import NotificationBar from '../../NotificationBar/NotificationBar';
+/* import ShoppingCart from '../../ShoppingCart'; */
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.text.primary,
@@ -104,36 +105,26 @@ const Layout1Topbar = () => {
                     </StyledIconButton>
 
                     <IconBox>
-                        <StyledIconButton>
+                        {/* <StyledIconButton>
                             <Icon>mail_outline</Icon>
-                        </StyledIconButton>
+                        </StyledIconButton> */}
 
-                        <StyledIconButton>
+                        <StyledIconButton onClick={() => navigate("/calendar")}>
                             <Icon>web_asset</Icon>
-                        </StyledIconButton>
-
-                        <StyledIconButton>
-                            <Icon>star_outline</Icon>
                         </StyledIconButton>
                     </IconBox>
                 </Box>
 
                 <Box display="flex" alignItems="center">
-                    <MatxSearchBox />
-
-                    {/* <NotificationProvider>
-                        <NotificationBar />
-                    </NotificationProvider> */}
-
-                    {/* <ShoppingCart /> */}
-
+                    <ChatAlert />
+                    <NotificationBar />
                     <CustomMenu
                         menuButton={
                             <UserMenu>
                                 <Hidden xsDown>
-                                <Span>
-                                    Hi <strong>{user.username}</strong>
-                                </Span>
+                                    <Span>
+                                        <strong>{user.username}</strong>
+                                    </Span>
                                 </Hidden>
                                 <Avatar src={user.avatar} sx={{ cursor: 'pointer' }} />
                             </UserMenu>
@@ -153,10 +144,10 @@ const Layout1Topbar = () => {
                             </Link>
                         </StyledItem>
 
-                        <StyledItem>
+                        {/* <StyledItem>
                             <Icon> settings </Icon>
                             <Span> Settings </Span>
-                        </StyledItem>
+                        </StyledItem> */}
 
                         <StyledItem onClick={() => { signout(); navigate("/auth/login") }}>
                             <Icon> power_settings_new </Icon>

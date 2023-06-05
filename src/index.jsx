@@ -9,14 +9,25 @@ import { Store } from './app/redux/Store';
 import setupInterceptors from './app/services/InterceptorAxios';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
     <StyledEngineProvider injectFirst>
         <BrowserRouter>
             <CssBaseline />
             <App />
         </BrowserRouter>
-    </StyledEngineProvider>,
-    document.getElementById('root')
+    </StyledEngineProvider>
 );
-
+if (module.hot) {
+    module.hot.accept('./app/App', () => {
+        root.render(
+            <StyledEngineProvider injectFirst>
+                <BrowserRouter>
+                    <CssBaseline />
+                    <App />
+                </BrowserRouter>
+            </StyledEngineProvider>
+        );
+    })
+}
 setupInterceptors(Store);

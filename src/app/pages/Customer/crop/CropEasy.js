@@ -15,7 +15,6 @@ import useAuth from '../../../hooks/useAuth';
 import getCroppedImg from './cropImage';
 
 const CropEasy = ({ photoURL, setOpenCrop, setPhotoURL, setFile, open, handleClose }) => {
-    /* const { setAlert, setLoading } = useAuth(); */
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [rotation, setRotation] = useState(0);

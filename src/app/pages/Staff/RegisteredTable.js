@@ -6,7 +6,7 @@ import {
     Box, Chip,
     styled, Typography,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, CircularProgress
+    Toolbar, Tooltip, CircularProgress, Backdrop
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -36,12 +36,6 @@ const headCells = [
         numeric: false,
         disablePadding: false,
         label: 'Tạo lúc',
-    },
-    {
-        id: 'actions',
-        numeric: true,
-        disablePadding: false,
-        label: 'Xem chi tiết',
     },
 ];
 
@@ -259,13 +253,6 @@ const RegisteredTable = ({ rows, setRender }) => {
                                                 row.createdAt.getUTCFullYear()
                                             }
                                         </TableCell>
-                                        <TableCell >
-                                            <Stack direction="row" spacing={1} justifyContent="center">
-                                                <Button aria-label="east" onClick={() => handleViewDetail(row.id)}>
-                                                    <EastIcon />
-                                                </Button>
-                                            </Stack>
-                                        </TableCell>
                                     </TableRow>
                                 );
                             })
@@ -300,6 +287,12 @@ const RegisteredTable = ({ rows, setRender }) => {
                     },
                 }}
             />
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     );
 }

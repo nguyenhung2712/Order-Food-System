@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useReducer, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import axios from 'axios';
 import { MatxLoading } from '../components';
@@ -7,6 +8,7 @@ import TokenService from '../services/token.service';
 import StaffService from '../services/staff.service';
 import { authReducer } from '../redux/reducers/AuthReducer';
 import { login, logout, init } from '../redux/actions/AuthActions';
+import { addDocument, insertField } from '../services/firebase/service';
 
 const initialState = {
     isAuthenticated: false,
@@ -45,21 +47,25 @@ const AuthContext = createContext({
 
 export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
-    const [modal, setModal] = useState({ isOpen: false, title: '', content: '' });
+    const navigate = useNavigate();
     const signin = async (username, password) => {
         const response = await AuthService.login({ username, password });
         const { staff } = response.payload;
         dispatch(login(staff));
+        navigate("/");
     }
 
-    const authRegister = async (email, username, password) => {
-        const response = await axios.post('/api/auth/register', {
-            email,
-            username,
-            password,
+    const signup = async (email, username, password) => {
+        const response = await AuthService.register({ username, email, password });
+        const { staff } = response.data;
+        /* addDocument("staffs", {
+            email: staff.email,
+            id: staff.id
         });
-        const { user } = response.data;
-        dispatch(authRegister(user));
+        insertField("rooms", {
+            email: staff.email,
+            id: staff.id
+        }); */
     }
 
     const signout = () => {
@@ -69,7 +75,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        ; (async () => {
+        (async () => {
             try {
                 const accessToken = TokenService.getLocalAccessToken();
                 if (accessToken && isValidToken(accessToken)) {
@@ -84,7 +90,7 @@ export const AuthProvider = ({ children }) => {
                 dispatch(init(false, null));
             }
         })()
-    }, [])
+    }, []);
 
     if (!state.isInitialised) {
         return <MatxLoading />;
@@ -97,8 +103,7 @@ export const AuthProvider = ({ children }) => {
                 method: 'JWT',
                 signin,
                 signout,
-                authRegister,
-                modal, setModal
+                signup
             }}
         >
             {children}

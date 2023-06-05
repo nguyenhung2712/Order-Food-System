@@ -28,6 +28,8 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
+import { addDocument } from '../../services/firebase/service';
+
 const headCells = [
     {
         id: 'number',
@@ -63,7 +65,7 @@ const headCells = [
         id: 'actions',
         numeric: true,
         disablePadding: false,
-        label: 'Tác vụ',
+        label: 'Xem',
     },
 ];
 
@@ -91,6 +93,7 @@ export default function EnhancedTable() {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('dishName');
     const [selected, setSelected] = useState([]);
+    const [selectedData, setSelectedData] = useState([]);
     const [page, setPage] = useState(0);
     const [isRender, setIsRender] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -107,6 +110,7 @@ export default function EnhancedTable() {
                         predictDate: convertToDateTimeStr(order, "predictDate", true),
                         username: order.user.firstName + " " + order.user.lastName,
                         status: order.status,
+                        user: order.user
                     }));
                     setRows(rows);
                     setState(orders);
@@ -125,7 +129,7 @@ export default function EnhancedTable() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = rows.filter((n) => n.status !== 0).map((n) => n.id);
+            const newSelected = rows.filter((n) => n.status !== 0)/* .map((n) => n.id) */;
             setSelected(newSelected);
             return;
         } else {
@@ -180,11 +184,21 @@ export default function EnhancedTable() {
             icon: "info",
             buttons: ["Hủy bỏ", "Đồng ý"],
         })
-            .then(result => {
+            .then(async (result) => {
                 if (result) {
-                    selectedArr.forEach(async (id) => {
-                        await OrderService.updateOrder(id, { status })
-                            .then(res => {
+                    selectedArr.forEach(async (row) => {
+                        await OrderService.updateOrder(row.id, { status })
+                            .then(async (res) => {
+                                await addDocument("notifications", {
+                                    title: "Cập nhật đơn hàng",
+                                    message: `Đơn hàng ${row.number} đã được cập nhật trạng thái thành ${type}`,
+                                    usePath: "/my-account/orders",
+                                    staffPath: null,
+                                    readBy: [],
+                                    image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685216317/invoice.png",
+                                    receivedId: [row.user.id],
+                                    status: 1
+                                });
                                 setIsRender(curr => !curr);
                             });
                     });
@@ -209,9 +223,18 @@ export default function EnhancedTable() {
         })
             .then(result => {
                 if (result) {
-                    selectedArr.forEach(async (id) => {
-                        await OrderService.deleteOrder(id)
-                            .then(res => {
+                    selectedArr.forEach(async (row) => {
+                        await OrderService.deleteOrder(row.id)
+                            .then(async (res) => {
+                                await addDocument("notifications", {
+                                    title: "Cập nhật đơn hàng",
+                                    message: `Đơn hàng ${row.number} đã được tạm khóa. Hãy liên hệ nhân viên để biết thêm chi tiết.`,
+                                    usePath: "/my=account/orders",
+                                    readBy: [],
+                                    image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685216317/invoice.png",
+                                    receivedId: [row.user.id],
+                                    status: 1
+                                });
                                 setIsRender(curr => !curr);
                             });
                     });
@@ -220,8 +243,8 @@ export default function EnhancedTable() {
             });
     }
 
-    const isSelected = (name) => selected.indexOf(name) !== -1;
-
+    const isSelected = (name) => selected.map(select => select.id).indexOf(name) !== -1;
+    console.log(selected);
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
@@ -333,7 +356,7 @@ export default function EnhancedTable() {
                                     return (
                                         <TableRow
                                             hover={row.status !== 0 ? true : false}
-                                            onClick={(event) => row.status !== 0 ? handleClick(event, row.id) : {}}
+                                            onClick={(event) => row.status !== 0 ? handleClick(event, row) : {}}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
@@ -372,14 +395,14 @@ export default function EnhancedTable() {
                                             <TableCell align="center">
                                                 {
                                                     row.status === 4
-                                                        ? <Chip label="Đã nhận đơn" color="warning" />
+                                                        ? <Chip label="Đã nhận đơn" color="warning" size="small" />
                                                         : row.status === 3
-                                                            ? <Chip label="Đã duyệt" color="secondary" />
+                                                            ? <Chip label="Đã duyệt" color="secondary" size="small" />
                                                             : row.status === 2
-                                                                ? <Chip label="Đang giao" color="primary" />
+                                                                ? <Chip label="Đang giao" color="primary" size="small" />
                                                                 : row.status === 1
-                                                                    ? <Chip label="Đã gửi hàng" color="success" />
-                                                                    : <Chip label="Đã hủy" color="error" />
+                                                                    ? <Chip label="Đã gửi hàng" color="success" size="small" />
+                                                                    : <Chip label="Đã hủy" color="error" size="small" />
                                                 }
                                             </TableCell>
                                             <TableCell align="right">

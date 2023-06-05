@@ -6,19 +6,16 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import {
-    FormControl,
-    FormControlLabel, InputLabel,
-    Grid,
-    Icon, IconButton,
-    styled,
-    Switch, Select,
-    MenuItem,
-    Box
+    FormControl, FormControlLabel, InputLabel,
+    Grid, Backdrop, CircularProgress, Icon, Chip, styled,
+    Switch, Select, MenuItem, Box, useTheme
 } from "@mui/material";
 import { LoadingButton } from '@mui/lab';
 import { Editor } from '@tinymce/tinymce-react';
 
+import Swal from 'sweetalert2';
 import swal from 'sweetalert';
+import { toast } from 'react-toastify';
 
 import { SimpleCard } from "../../../components";
 import { Span } from "../../../components/Typography";
@@ -31,6 +28,7 @@ import { create, update, recover } from "../../../redux/actions/BlogActions";
 
 import { H2 } from "../../../components/Typography";
 import { deepObjectEqual } from "../../../utils/utils";
+import { addDocument } from '../../../services/firebase/service';
 
 const TextField = styled(TextValidator)(() => ({
     width: "100%",
@@ -39,6 +37,10 @@ const TextField = styled(TextValidator)(() => ({
 
 const InputForm = ({ id }) => {
     const editorRef = useRef(null);
+
+    const { palette } = useTheme();
+    const errorColor = palette.error.main;
+    const primaryColor = palette.primary.main;
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -77,7 +79,7 @@ const InputForm = ({ id }) => {
         })()
     }, []);
     const handleSubmit = async (event) => {
-        setLoading(true);
+
         let { user, ...tempState } = state;
         if (!tempState.userId) {
             setState({ ...state, userId: users[0].id });
@@ -87,33 +89,55 @@ const InputForm = ({ id }) => {
 
         let content = editorRef.current.getContent();
         tempState.content = content;
-        /* if (content !== '') {
-            
-            
-        } */
+
         try {
+            setLoading(true);
             if (id) {
-                await BlogService.updateBlog(id, tempState);
+                await BlogService.updateBlog(id, tempState)
+                    .then(async (res) => {
+                        await addDocument("notifications", {
+                            title: "Cập nhật blog",
+                            message: `Một trong các blog của bạn đã được cập nhật thông tin. Hãy liên hệ nhân viên để biết thêm chi tiết.`,
+                            usePath: "/my-account/blogs",
+                            staffPath: null,
+                            readBy: [],
+                            image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685216331/blogging_1.png",
+                            receivedId: [tempState.userId],
+                            status: 1
+                        });
+                    });
                 dispatch(update(id, state));
             } else {
                 await BlogService.createBlog(tempState)
-                    .then(res => {
-                        console.log(res);
+                    .then(async (res) => {
+                        await addDocument("notifications", {
+                            title: "Thêm mới blog",
+                            message: `Một blog mới đã được thêm cho tài khoản của bạn. Hãy liên hệ nhân viên để biết thêm chi tiết.`,
+                            usePath: "/my-account/blogs",
+                            staffPath: null,
+                            readBy: [],
+                            image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685216331/blogging_1.png",
+                            receivedId: [tempState.userId],
+                            status: 1
+                        });
                     });
                 dispatch(create(state));
             }
+            setLoading(false);
             setIsSuccess(true);
-            swal({
+            Swal.fire({
                 title: `${id ? "Cập nhật" : "Tạo mới"} thành công`,
                 text: "Đồng ý chuyển đến trang quản lý ?",
-                icon: "success",
-                buttons: ["Hủy bỏ", "Đồng ý"],
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: primaryColor,
+                cancelButtonColor: errorColor,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
             })
                 .then(result => {
-                    if (result) {
+                    if (result.isConfirmed) {
                         navigate("/blog/manage");
-                    } else {
-                        setLoading(false);
                     }
                 });
         } catch (err) {
@@ -135,30 +159,57 @@ const InputForm = ({ id }) => {
     }
 
     const handleRecover = (event) => {
-        setLoading(true);
-        swal({
-            title: "Khôi phục nội dung",
-            text: "Xác nhận khôi phục nội dung này ?",
-            icon: "info",
-            buttons: ["Hủy bỏ", "Đồng ý"],
+        Swal.fire({
+            title: 'Khôi phục blog',
+            text: "Xác nhận khôi phục blog này ?",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: primaryColor,
+            cancelButtonColor: errorColor,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
         })
             .then(result => {
-                if (result) {
+                if (result.isConfirmed) {
+                    setLoading(true);
                     setState({ ...state, status: 1 });
                     BlogService.recoverBlog(id)
                         .then(res => {
                             setLoading(false);
+                            toast.success('Đã khôi phục blog thành công', {
+                                position: "top-right",
+                                autoClose: 2500,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: false,
+                                progress: undefined,
+                                theme: "light",
+                            });
                             dispatch(recover(id));
                         });
                 } else {
-                    setLoading(false)
+
                 }
             });
     }
 
     return (
-        <div>
-            <SimpleCard title={!id ? "Thêm blog" : state.status === 0 ? "Chỉnh sửa blog (Đã tạm xóa)" : "Chỉnh sửa sản phẩm"}>
+        <div style={{ position: "relative" }}>
+            {
+                state.status === 2 &&
+                <Box sx={{
+                    position: "absolute",
+                    right: "12px",
+                    top: "12px"
+                }}>
+                    <Chip label="Đã xử lý vi phạm" variant="outlined" size="medium"
+                        color="warning"
+                    />
+                </Box>
+            }
+
+            <SimpleCard title={!id ? "Thêm blog" : (state.status === 0) ? "Chỉnh sửa blog (Đã tạm xóa)" : "Chỉnh sửa blog"}>
                 <ValidatorForm onSubmit={handleSubmit} onError={() => null}>
                     <Grid container spacing={6}>
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2 }}>
@@ -171,7 +222,7 @@ const InputForm = ({ id }) => {
                                 value={state.header || ""}
                                 validators={["required"]}
                                 errorMessages={["This field is required"]}
-                                disabled={state.status === 0 ? true : false}
+                                disabled={(state.status === 0 || state.status === 2) ? true : false}
                             />
                         </Grid>
 
@@ -187,7 +238,7 @@ const InputForm = ({ id }) => {
                                     value={state.userId || ""}
                                     label="Người viết"
                                     onChange={handleChange}
-                                    disabled={state.status === 0 ? true : false}
+                                    disabled={(state.status === 0 || state.status === 2) ? true : false}
                                 >
                                     <MenuItem
                                         value=""
@@ -216,7 +267,7 @@ const InputForm = ({ id }) => {
                                             />
                                         }
                                         label={state.status === 1 ? "Bình thường" : "Tạm ẩn"}
-                                        disabled={state.status === 0 ? true : false}
+                                        disabled={(state.status === 0 || state.status === 2) ? true : false}
                                     />
                                 </Box>
                             }
@@ -269,6 +320,7 @@ const InputForm = ({ id }) => {
                                     branding: false
                                 }}
                                 onEditorChange={handleEditorChange}
+                                disabled={state.status === 0 || state.status === 2}
                             />
                         </Grid>
                     </Grid>
@@ -279,12 +331,13 @@ const InputForm = ({ id }) => {
                             loading={loading}
                             variant="contained"
                             sx={{ my: 2 }}
+                            disabled={loading || (state.status === 2 || state.status === 0)}
                         >
                             <Icon>send</Icon>
                             <Span sx={{ pl: 1, textTransform: "capitalize" }}>{id ? "Cập nhật" : "Thêm mới"}</Span>
                         </LoadingButton>
                         {
-                            state.status === 0 &&
+                            (state.status === 0 || state.status === 2) &&
                             <LoadingButton
                                 type="button"
                                 color="warning"
@@ -300,7 +353,12 @@ const InputForm = ({ id }) => {
                     </Box>
                 </ValidatorForm>
             </SimpleCard>
-
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </div>
     );
 };

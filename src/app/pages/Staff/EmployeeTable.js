@@ -6,7 +6,7 @@ import {
     Box, Chip,
     styled, Typography,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, CircularProgress, Button
+    Toolbar, Tooltip, CircularProgress, Button, Backdrop
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -284,12 +284,12 @@ const EmployeeTable = ({ rows, setRender }) => {
                                         <TableCell align="center">
                                             {
                                                 row.status === 2
-                                                    ? <Chip label="Tạm ẩn" color="warning" />
+                                                    ? <Chip label="Tạm ẩn" color="warning" size="small" />
                                                     : row.status === 1
-                                                        ? <Chip label="Có sẵn" color="primary" />
+                                                        ? <Chip label="Bình thường" color="primary" size="small" />
                                                         : row.status === 3
-                                                            ? <Chip label="Vô hiệu hóa" color="error" />
-                                                            : <Chip label="Tạm xóa" />
+                                                            ? <Chip label="Vô hiệu hóa" color="error" size="small" />
+                                                            : <Chip label="Tạm xóa" size="small" />
                                             }
                                         </TableCell>
 
@@ -337,6 +337,12 @@ const EmployeeTable = ({ rows, setRender }) => {
                     },
                 }}
             />
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     );
 }

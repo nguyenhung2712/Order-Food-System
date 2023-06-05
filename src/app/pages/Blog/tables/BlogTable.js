@@ -6,7 +6,8 @@ import {
     Box, Chip,
     styled, Typography,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, CardMedia, Button
+    Toolbar, Tooltip, CardMedia, Button, useTheme,
+    Backdrop, CircularProgress, TextField
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -15,15 +16,15 @@ import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import EastIcon from '@mui/icons-material/East';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 
-import swal from 'sweetalert';
-
-import { convertToDateTimeStr, getComparator, stableSort } from "../../utils/utils";
-import { SortTableHead } from "../../components";
-import BlogService from "../../services/blog.service";
-import { init, unable } from "../../redux/actions/BlogActions";
+import { convertToDateTimeStr, getComparator, stableSort } from "../../../utils/utils";
+import { SortTableHead } from "../../../components";
+import BlogService from "../../../services/blog.service";
+import { init, unable } from "../../../redux/actions/BlogActions";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { addDocument } from '../../../services/firebase/service';
 import { CSVLink } from 'react-csv';
 
 const headCells = [
@@ -44,6 +45,12 @@ const headCells = [
         numeric: true,
         disablePadding: false,
         label: 'Người viết',
+    },
+    {
+        id: 'status',
+        numeric: true,
+        disablePadding: false,
+        label: 'Tình trạng',
     },
     {
         id: 'actions',
@@ -70,16 +77,24 @@ const StyledIconBtn = styled(IconButton)(({ theme }) => ({
 
 export default function EnhancedTable() {
     const placeholderImage = `/assets/images/viet-blog-3.jpg`;
+
+    const { palette } = useTheme();
+    const errorColor = palette.error.main;
+    const primaryColor = palette.primary.main;
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const [rows, setRows] = useState([]);
+    const [filteredRows, setFilteredRows] = useState([]);
+    const [filterText, setFilterText] = useState('');
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('header');
     const [selected, setSelected] = useState([]);
     const [page, setPage] = useState(0);
     const [isRender, setIsRender] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -90,11 +105,13 @@ export default function EnhancedTable() {
                         id: blog.id,
                         header: blog.header,
                         user: blog.user.firstName + " " + blog.user.lastName,
+                        userId: blog.user.id,
                         status: blog.status,
                         image: getImageUrl(blog.content) ? getImageUrl(blog.content) : placeholderImage,
-                        createdAt: convertToDateTimeStr(blog, "createdAt")
+                        createdAt: convertToDateTimeStr(blog, "createdAt", true)
                     }));
                     setRows(rows);
+                    setFilteredRows(rows);
                     dispatch(init(blogs));
                 })
                 .catch((err) => {
@@ -102,6 +119,16 @@ export default function EnhancedTable() {
                 });
         })()
     }, [isRender]);
+    useEffect(() => {
+        if (filterText === "") {
+            setFilteredRows(rows);
+        } else {
+            setFilteredRows(rows.filter((row) =>
+                row.header.toLowerCase().includes(filterText.toLowerCase()) ||
+                row.user.toLowerCase().includes(filterText.toLowerCase())
+            ))
+        }
+    }, [filterText]);
 
     function getImageUrl(str) {
         let urlRegex = /(https?:\/\/[^\s]+)/g;
@@ -119,10 +146,10 @@ export default function EnhancedTable() {
     };
 
     const handleSelectAllClick = (event) => {
+        console.log(event.target.checked)
         if (event.target.checked) {
-            const newSelected = rows.filter((n) => n.status !== 0).map((n) => n.id);
+            const newSelected = rows.filter((n) => (n.status !== 0 && n.status !== 2)).map((n) => n.id);
             setSelected(newSelected);
-            return;
         } else {
             setSelected([]);
         }
@@ -166,25 +193,55 @@ export default function EnhancedTable() {
 
     const handleDelete = (event) => {
         let selectedArr = selected;
-        swal({
-            title: "Xóa nội dung",
-            text: "Đồng ý xóa các nội dung đã chọn ?",
-            icon: "warning",
-            buttons: ["Hủy bỏ", "Đồng ý"],
+        Swal.fire({
+            title: 'Xóa blog',
+            text: "Xác nhận xóa các blog đã chọn ?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: primaryColor,
+            cancelButtonColor: errorColor,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
         })
             .then(result => {
-                if (result) {
+                if (result.isConfirmed) {
+                    setLoading(true);
                     selectedArr.forEach(async (id) => {
                         await BlogService.deleteBlog(id)
-                            .then(res => {
+                            .then(async (res) => {
+                                await addDocument("notifications", {
+                                    title: "Cập nhật blog",
+                                    message: `Một trong các blog của bạn đã được tạm xóa. Hãy liên hệ nhân viên để biết thêm chi tiết.`,
+                                    usePath: "/my-account/blogs",
+                                    staffPath: null,
+                                    readBy: [],
+                                    image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685216331/blogging_1.png",
+                                    receivedId: [rows.filter(blog => blog.id === id)[0].userId],
+                                    status: 1
+                                });
                                 dispatch(unable(id));
                                 setIsRender(curr => !curr);
                             });
+                    });
+                    setLoading(false);
+                    toast.success('Đã xóa blog thành công.', {
+                        position: "top-right",
+                        autoClose: 2500,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: false,
+                        progress: undefined,
+                        theme: "light",
                     });
                     setSelected([]);
                 }
             });
     }
+
+    const handleFilterChange = (event) => {
+        setFilterText(event.target.value);
+    };
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
@@ -193,8 +250,39 @@ export default function EnhancedTable() {
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
     return (
-        <Box sx={{ width: '100%' }}>
-
+        <Box sx={{ width: '100%', position: "relative" }}>
+            <Box sx={{ display: "flex", alignItems: "center", position: "absolute", top: "-55px", right: "4px" }}>
+                <TextField
+                    label="Search"
+                    size="small"
+                    sx={{
+                        marginRight: "14px",
+                        width: "220px"
+                    }}
+                    value={filterText}
+                    onChange={handleFilterChange}
+                />
+                <Button
+                    variant="contained"
+                    component="label"
+                    color="primary"
+                    sx={{
+                        my: 1,
+                        fontSize: "1rem",
+                        borderRadius: "6px !important",
+                        border: 1
+                    }}
+                >
+                    <CSVLink
+                        data={filteredRows}
+                        filename={"blogs-data.csv"}
+                        target="_blank"
+                        style={{ display: 'flex', alignItems: 'center', textDecoration: "none", color: "#fff" }}
+                    >
+                        <FileDownloadIcon />
+                    </CSVLink>
+                </Button>
+            </Box>
             <Toolbar
                 sx={{
                     pl: { sm: 2 },
@@ -224,35 +312,14 @@ export default function EnhancedTable() {
                     </Typography>
                 )}
 
-                {selected.length > 0 ? (
+                {
+                    selected.length > 0 &&
                     <Tooltip title="Delete">
                         <IconButton onClick={handleDelete}>
                             <DeleteIcon />
                         </IconButton>
                     </Tooltip>
-                ) : (
-                    <Button
-                        variant="contained"
-                        component="label"
-                        color="primary"
-                        sx={{
-                            my: 2,
-                            fontSize: "1rem",
-                            borderRadius: "6px !important",
-
-                            border: 1
-                        }}
-                    >
-                        <CSVLink
-                            data={rows}
-                            filename={"blogs-data.csv"}
-                            target="_blank"
-                            style={{ display: 'flex', alignItems: 'center', textDecoration: "none", color: "#fff" }}
-                        >
-                            <FileDownloadIcon />
-                        </CSVLink>
-                    </Button>
-                )}
+                }
             </Toolbar>
             <TableContainer>
                 <Table
@@ -266,11 +333,11 @@ export default function EnhancedTable() {
                         orderBy={orderBy}
                         onSelectAllClick={handleSelectAllClick}
                         onRequestSort={handleRequestSort}
-                        rowCount={rows.filter((n) => n.status !== 0).length}
+                        rowCount={filteredRows.filter((n) => (n.status !== 0 && n.status !== 2)).length}
                         headCells={headCells}
                     />
                     <TableBody>
-                        {stableSort(rows, getComparator(order, orderBy))
+                        {stableSort(filteredRows, getComparator(order, orderBy))
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                             .map((row, index) => {
                                 const isItemSelected = isSelected(row.id);
@@ -278,15 +345,14 @@ export default function EnhancedTable() {
 
                                 return (
                                     <TableRow
-                                        hover={row.status !== 0 ? true : false}
-                                        onClick={(event) => row.status !== 0 ? handleClick(event, row.id) : {}}
+                                        hover={(row.status !== 0 && row.status !== 2) ? true : false}
+                                        onClick={(event) => (row.status !== 0 && row.status !== 2) ? handleClick(event, row.id) : {}}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={index}
                                         selected={isItemSelected}
-
-                                        sx={row.status === 0 ? { backgroundColor: '#F4F4F5' } : { backgroundColor: '#fff' }}
+                                        sx={(row.status === 0 || row.status === 2) ? { backgroundColor: '#F4F4F5' } : { backgroundColor: '#fff' }}
                                     >
                                         <TableCell padding="checkbox">
                                             <Checkbox
@@ -295,7 +361,7 @@ export default function EnhancedTable() {
                                                 inputProps={{
                                                     'aria-labelledby': labelId,
                                                 }}
-                                                disabled={row.status !== 0 ? false : true}
+                                                disabled={(row.status !== 0 && row.status !== 2) ? false : true}
                                             />
                                         </TableCell>
                                         <TableCell
@@ -308,7 +374,7 @@ export default function EnhancedTable() {
                                                 sx={{
                                                     borderColor: 'error.main',
                                                     border: 2, borderRadius: '10px',
-                                                    height: 100
+                                                    height: 75, width: 120
                                                 }}
                                                 image={row.image}
                                                 title="Product Image"
@@ -320,6 +386,15 @@ export default function EnhancedTable() {
                                         </TableCell>
 
                                         <TableCell align="center">{row.user}</TableCell>
+                                        <TableCell align="center">
+                                            {
+                                                row.status === 2
+                                                    ? <Chip label="Đã xử lý" color="warning" />
+                                                    : row.status === 1
+                                                        ? <Chip label="Bình thường" color="info" />
+                                                        : <Chip label="Tạm xóa" />
+                                            }
+                                        </TableCell>
                                         <TableCell align="right">
                                             <Stack direction="row" spacing={1} justifyContent="center">
                                                 <StyledIconBtn aria-label="edit" onClick={() => handleOpenEdit(row.id)}>
@@ -349,11 +424,14 @@ export default function EnhancedTable() {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={rows.length}
+                count={filteredRows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                labelDisplayedRows={({ from, to, count }) => {
+                    return `${from} - ${to} của ${count}`;
+                }}
                 labelRowsPerPage={"Dòng dữ liệu trên trang"}
                 sx={{
                     ".MuiTablePagination-selectLabel": {
@@ -365,6 +443,12 @@ export default function EnhancedTable() {
 
                 }}
             />
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }}
+                open={isLoading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     );
 }

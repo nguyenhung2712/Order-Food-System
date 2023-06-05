@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import React from 'react';
 import { makeStyles } from '@mui/styles';
-import { Typography, Divider, Grid, Paper } from '@mui/material';
+import {
+    Typography, Grid, Paper, Box, Button, SwipeableDrawer
+} from '@mui/material';
+import { Breadcrumb, SimpleCard } from "../../components";
 import UserChatList from './UserChatList';
 import ChatContent from './ChatContent';
-import ChatSendMessage from './ChatSendMessage';
-import ConverService from '../../services/conver.service';
+import ChatHeader from './ChatHeader';
+import { useTheme } from '@mui/system';
 
 const useStyles = makeStyles({
     table: {
@@ -15,9 +18,9 @@ const useStyles = makeStyles({
         width: '100%',
         height: '80vh'
     },
-    headBG: {
+    /* headBG: {
         backgroundColor: '#e0e0e0'
-    },
+    }, */
     borderRight500: {
         borderRight: '1px solid #e0e0e0'
     },
@@ -27,51 +30,40 @@ const useStyles = makeStyles({
     }
 });
 
+const drawerBleeding = 56;
+
 const Chat = () => {
+    const theme = useTheme();
+    const container = useRef();
     const classes = useStyles();
-    const [convers, setConvers] = useState([]);
-    const [curConver, setCurConver] = useState();
-    const [isRender, setRender] = useState(false);
-
-    useEffect(() => {
-        (async () => {
-            await ConverService.getAllConvers()
-                .then(res => {
-                    let convers = res.data.payload;
-                    setConvers(convers);
-                    if (curConver) {
-                        setCurConver(convers.filter(conver => conver.id === curConver.id)[0])
-                    }
-                });
-        })()
-    }, [isRender])
-
+    const [isOpenList, setOpenList] = useState(true);
+    const toggleDrawer = () => () => {
+        setOpenList(prev => !prev);
+    };
     return (
-        <div>
-            <Grid container>
-                <Grid item xs={12} >
-                    <Typography variant="h5" className="header-message">Chat</Typography>
-                </Grid>
-            </Grid>
-            <Grid container component={Paper} className={classes.chatSection}>
-                <UserChatList
-                    classes={classes}
-                    setCurConver={setCurConver}
-                    data={convers}
-                />
-                <Grid item xs={9}>
-                    {/* <ChatContent
-                        classes={classes}
-                        data={curConver.Messages}
-                    /> */}
-                    <Divider />
-                    <ChatSendMessage
-                        render={setRender}
-                        conver={curConver ? curConver : {}}
-                    />
-                </Grid>
-            </Grid>
-        </div>
+        <Box sx={{ margin: "12px 20px", height: "100%", display: "flex", flexDirection: "column" }}>
+            <Breadcrumb routeSegments={[{ name: "Chat" }]} />
+            <SimpleCard
+                sx={{ padding: 0, margin: "12px 0 16px", flexGrow: 1 }}
+
+            >
+                <Box sx={{ display: "flex", height: "100%" }}>
+                    {/* <Button onClick={toggleDrawer}>Open Drawer</Button> */}
+
+                    <Box ><UserChatList classes={classes} /></Box>
+                    <Box sx={{
+                        flexGrow: 1,
+                        backgroundColor: theme.palette.action.hover,
+                        height: "100%"
+                    }}>
+                        <ChatHeader />
+                        <ChatContent classes={classes} />
+                    </Box>
+
+                </Box>
+            </SimpleCard>
+
+        </Box>
     );
 }
 

@@ -2,7 +2,7 @@
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider"; */
 import { useEffect, useState } from "react";
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,12 +12,13 @@ import {
     Icon, IconButton,
     styled,
     Switch, Select,
-    MenuItem,
+    MenuItem, Backdrop, CircularProgress,
     Box, ImageList, ImageListItem
 } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { LoadingButton } from '@mui/lab';
 import swal from 'sweetalert';
+import { useDropzone } from 'react-dropzone';
 
 import { SimpleCard } from "../../../components";
 import { Span } from "../../../components/Typography";
@@ -56,6 +57,17 @@ const InputForm = ({ id }) => {
     const [loading, setLoading] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
+    const onDrop = useCallback(acceptedFiles => {
+        let uploadData = new FormData();
+        for (let i = 0; i < acceptedFiles.length; i++) {
+            uploadData.append("files", acceptedFiles[i]);
+            setFileArr(curr => [...curr, { url: URL.createObjectURL(acceptedFiles[i]), file: acceptedFiles[i] }]);
+        }
+        setFormData(uploadData);
+    }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
+
     const isBlocking = () => {
         return !deepObjectEqual(state, flagState) && !isSuccess;
     }
@@ -77,7 +89,7 @@ const InputForm = ({ id }) => {
                         let productImage = product.image.split('|').filter(image => image !== '');
                         if (fileArr.length === 0) {
                             productImage.forEach(image => {
-                                setFileArr(curr => [...curr, image]);
+                                setFileArr(curr => [...curr, { url: image }]);
                             })
                         }
                         setFlagState(res.data.payload);
@@ -140,18 +152,33 @@ const InputForm = ({ id }) => {
         setState({ ...state, status: state.status === 1 ? 2 : 1 });
     }
 
-    const handleDeleteImage = (url) => {
+    const handleDeleteImage = (image) => {
+        if (formData) {
+            let fData = new FormData();
+            let values = formData.getAll("images");
+            let index = values.indexOf(image.file);
+            values.splice(index, 1);
+            for (let i = 0; i < values.length; i++) {
+                fData.append("images", values[i]);
+            }
+            setFormData(fData);
+        }
+        setFileArr(curr => curr.filter(imageUrl => imageUrl.url !== image.url));
         if (id) {
             setState({
                 ...state,
                 image: state.image.split("|")
-                    .filter(image => (image !== "") && (image !== url))
+                    .filter(imageUrl => (imageUrl !== "") && (imageUrl !== image.url))
                     .reduce((acc, image) => {
                         return acc + "|" + image;
                     }, "")
             });
         }
-        setFileArr(curr => curr.filter(imageUrl => imageUrl !== url));
+
+        /* if (id) {
+            
+        } */
+        /* setFileArr(curr => curr.filter(imageUrl => imageUrl !== url)); */
     }
 
     const uploadMultipleFiles = (event) => {
@@ -159,7 +186,7 @@ const InputForm = ({ id }) => {
         const files = event.target.files;
         for (let i = 0; i < files.length; i++) {
             uploadData.append("files", event.target.files[i]);
-            setFileArr(curr => [...curr, URL.createObjectURL(files[i])]);
+            setFileArr(curr => [...curr, { url: URL.createObjectURL(files[i]), file: event.target.files[i] }]);
         }
         setFormData(uploadData);
     }
@@ -257,23 +284,38 @@ const InputForm = ({ id }) => {
                                 errorMessages={["This field is required"]}
                                 disabled={state.status === 0 ? true : false}
                             />
-                            {
-                                id &&
-                                <Box>
-                                    <InputLabel>Trạng thái</InputLabel>
-                                    <FormControlLabel
-                                        control={
-                                            <Switch
-                                                checked={state.status === 1 ? true : false}
-                                                onChange={handleStatusChange}
-                                                name="status"
-                                            />
-                                        }
-                                        label={state.status === 1 ? "Bình thường" : "Tạm ẩn"}
+                            <Grid container spacing={2}>
+                                <Grid item lg={8} md={8} sm={8} xs={8} sx={{ mt: 2 }}>
+                                    <TextField
+                                        type="number"
+                                        name="quantityInDay"
+                                        label="Số lượng bán trong ngày"
+                                        onChange={handleChange}
+                                        value={state.quantityInDay || ""}
+                                        errorMessages={["This field is required"]}
+                                        validators={["required",/*  "minStringLength:1", "maxStringLength: 9" */]}
                                         disabled={state.status === 0 ? true : false}
+                                        InputProps={{ inputProps: { min: 1, max: 500 } }}
                                     />
-                                </Box>
-                            }
+                                </Grid>
+                                {
+                                    id &&
+                                    <Grid item lg={4} md={4} sm={4} xs={4} sx={{ mt: 2 }}>
+                                        <InputLabel>Trạng thái</InputLabel>
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={state.status === 1 ? true : false}
+                                                    onChange={handleStatusChange}
+                                                    name="status"
+                                                />
+                                            }
+                                            label={state.status === 1 ? "Bình thường" : "Tạm ẩn"}
+                                            disabled={state.status === 0 ? true : false}
+                                        />
+                                    </Grid>
+                                }
+                            </Grid>
                         </Grid>
 
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2 }}>
@@ -289,38 +331,58 @@ const InputForm = ({ id }) => {
                                     }}
                                 >
                                     <ImageList variant="masonry" cols={3} gap={8}>
-                                        {(fileArr || []).map((url, index) => (
+                                        {(fileArr || []).map((image, index) => (
                                             <ImageListItem key={index}>
                                                 <img
-                                                    src={`${url}?w=248&fit=crop&auto=format`}
-                                                    srcSet={`${url}`}
-                                                    alt={url}
+                                                    src={`${image.url}?w=248&fit=crop&auto=format`}
+                                                    srcSet={`${image.url}`}
+                                                    alt={image.url}
                                                     loading="lazy"
                                                 />
                                                 <IconButtonTopImage
                                                     aria-label="delete"
                                                     color="error"
-                                                    onClick={() => handleDeleteImage(url)}
+                                                    onClick={() => handleDeleteImage(image)}
                                                     disabled={state.status === 0 ? true : false}
                                                 >
-                                                    <DeleteIcon
-                                                        color="error"
-                                                    />
+                                                    <DeleteIcon color="error" />
                                                 </IconButtonTopImage>
                                             </ImageListItem>
                                         ))}
                                     </ImageList>
                                 </Box>
-                                <TextField
+                                <Box {...getRootProps()} sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: "100%",
+                                    height: "160px",
+                                    cursor: "pointer",
+                                    borderRadius: "4px",
+                                    margin: "12px 0",
+                                    transition: "all 350ms ease-in-out 0s",
+                                    border: "2px dashed rgba(52, 49, 76, 0.3)",
+                                    backgroundColor: "rgba(0, 0, 0, 0.01)",
+                                    '&:hover': {
+                                        backgroundColor: "rgba(52, 49, 76, 0.2) !important"
+                                    }
+                                }}>
+                                    <input {...getInputProps()} />
+                                    <Box>
+                                        <p>Thả file tại đây...</p>
+                                    </Box>
+                                </Box>
+
+                                {/* <TextField
                                     type="file"
                                     onChange={(event) => uploadMultipleFiles(event)}
-                                    /* validators={["required", "isEmail"]}
-                                    errorMessages={["this field is required", "email is not valid"]} */
+                                    validators={["required", "isEmail"]}
+                                    errorMessages={["this field is required", "email is not valid"]}
                                     inputProps={{
                                         multiple: true
                                     }}
                                     disabled={state.status === 0 ? true : false}
-                                />
+                                /> */}
                             </div>
                         </Grid>
                     </Grid>
@@ -352,7 +414,12 @@ const InputForm = ({ id }) => {
                     </Box>
                 </ValidatorForm>
             </SimpleCard>
-
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </div>
     );
 };

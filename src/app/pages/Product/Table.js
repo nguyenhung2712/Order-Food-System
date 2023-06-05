@@ -58,27 +58,18 @@ const headCells = [
         label: 'Tình trạng',
     },
     {
+        id: 'quantity',
+        numeric: true,
+        disablePadding: false,
+        label: 'Số lượng',
+    },
+    {
         id: 'actions',
         numeric: true,
         disablePadding: false,
         label: 'Tác vụ',
     },
 ];
-
-/* const Button = styled(IconButton)(({ theme }) => ({
-    height: 44,
-    whiteSpace: 'pre',
-    overflow: 'hidden',
-    color: theme.palette.text.primary,
-    '&:hover': { background: 'rgba(255, 255, 255, 0.08)' },
-    '& .icon': {
-        width: 36,
-        fontSize: '18px',
-        paddingLeft: '16px',
-        paddingRight: '16px',
-        verticalAlign: 'middle',
-    },
-})); */
 
 const StyledIconBtn = styled(IconButton)(({ theme }) => ({
     height: 44,
@@ -113,6 +104,7 @@ export default function EnhancedTable() {
             await ProductService.getAllProducts()
                 .then((res) => {
                     let products = res.data.payload;
+                    console.log(products);
                     products.forEach(product => {
                         let imageArr = product.image.split("|")
                             .filter(image => image !== "");
@@ -125,6 +117,7 @@ export default function EnhancedTable() {
                         typeName: product.type.typeName,
                         dishName: product.dishName,
                         status: product.status,
+                        quantityLeft: product.quantityLeft,
                         price: product.price,
                         ratings: product.Rates
                     }));
@@ -333,7 +326,7 @@ export default function EnhancedTable() {
                                                 sx={{
                                                     borderColor: 'error.main',
                                                     border: 2, borderRadius: '10px',
-                                                    height: 100
+                                                    height: 75
                                                 }}
                                                 image={row.image[0]}
                                                 title="Product Image"
@@ -360,7 +353,7 @@ export default function EnhancedTable() {
                                                     let widthPercent;
                                                     if (idx + 1 >= ratingScore) {
                                                         if (ratingScore - idx > 0) {
-                                                            widthPercent = (round(ratingScore - idx, 2) * 100).toString() + "%";
+                                                            widthPercent = ((round(ratingScore - idx, 2) + 0.08) * 100).toString() + "%";
                                                         } else {
                                                             widthPercent = "0%";
                                                         }
@@ -394,10 +387,21 @@ export default function EnhancedTable() {
                                         <TableCell align="center">
                                             {
                                                 row.status === 2
-                                                    ? <Chip label="Tạm ẩn" color="error" /* color="disabled" */ />
+                                                    ? <Chip label="Tạm ẩn" color="error" size="small" />
                                                     : row.status === 0
-                                                        ? <Chip label="Tạm xóa" />
-                                                        : <Chip label="Có sẵn" color="primary" />
+                                                        ? <Chip label="Tạm xóa" size="small" />
+                                                        : row.status === 1 && Number(row.quantityLeft) > 0
+                                                            ? <Chip label="Có sẵn" color="primary" size="small" />
+                                                            : <Chip label="Hết hàng" color="error" size="small" />
+                                            }
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            {
+                                                Number(row.quantityLeft) === 0
+                                                    ? <Chip label="Hết hàng" color="error" size="small" />
+                                                    : Number(row.quantityLeft) < 30
+                                                        ? <Chip label={`Chỉ còn ${row.quantityLeft}`} color="warning" size="small" />
+                                                        : <Chip label="Còn hàng" color="primary" size="small" />
                                             }
                                         </TableCell>
                                         <TableCell align="right">

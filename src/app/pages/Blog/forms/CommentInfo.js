@@ -15,7 +15,6 @@ const CommentInfo = ({ data, isFiltered, filterText, filterType }) => {
     const repCommentRef = useRef([]);
     const [comments, setComments] = useState([]);
     const [filteredComment, setFilteredComment] = useState([]);
-    const [isLoading, setLoading] = useState(false);
     const [isShowMore, setShowMore] = useState(false);
 
     const [page, setPage] = useState(1);

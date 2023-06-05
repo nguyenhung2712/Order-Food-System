@@ -1,11 +1,17 @@
 const getLocalRefreshToken = () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    return user.refreshToken;
+    if (user) {
+        return user.refreshToken;
+    }
+    return null;
 };
 
 const getLocalAccessToken = () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    return user.accessToken;
+    if (user) {
+        return user.accessToken;
+    }
+    return null;
 };
 
 const updateLocalAccessToken = (token) => {

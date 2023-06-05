@@ -7,20 +7,18 @@ export function useBlocker(blocker, when = true) {
 
     React.useEffect(() => {
         if (!when) return;
+        console.log(navigator);
+        if (navigator) {
+            const unblock = navigator.block((tx) => blocker({
+                ...tx,
+                retry() {
+                    unblock();
+                    tx.retry();
+                },
+            }));
 
-        const unblock = navigator.block((tx) => {
-        const autoUnblockingTx = {
-            ...tx,
-            retry() {
-                unblock();
-                tx.retry();
-            },
-        };
-
-        blocker(autoUnblockingTx);
-        });
-
-        return unblock;
+            return unblock;
+        }
     }, [navigator, blocker, when]);
 }
 

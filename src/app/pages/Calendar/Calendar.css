@@ -1,0 +1,38 @@
+.fc-toolbar-title {
+    text-transform: capitalize;
+}
+
+a {
+    text-transform: none;
+    color: "#000";
+}
+
+a:hover {
+    color: "#000";
+}
+
+.fc-prev-button,
+.fc-dayGridMonth-button {
+    border-top-left-radius: 1.078rem !important;
+    border-bottom-left-radius: 1.078rem !important;
+}
+
+.fc-next-button,
+.fc-listMonth-button {
+    border-top-right-radius: 1.078rem !important;
+    border-bottom-right-radius: 1.078rem !important;
+}
+
+.fc-button {
+    border: none !important;
+    background-color: #1976D2 !important;
+}
+
+.fc-button:hover {
+    background-color: #4793de !important;
+
+}
+
+.fc-button:focus {
+    box-shadow: none !important;
+}

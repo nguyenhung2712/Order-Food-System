@@ -58,16 +58,7 @@ const Login = () => {
     const handleFormSubmit = async (values) => {
         setLoading(true);
         try {
-
-            await signin(values.username, values.password)
-                .then(
-                    (value) => {
-                        navigate("/");
-                    },
-                    (error) => {
-                        console.log(error);
-                    }
-                );
+            await signin(values.username, values.password);
         } catch (e) {
             setLoading(false);
         }

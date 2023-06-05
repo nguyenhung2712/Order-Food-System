@@ -5,14 +5,14 @@ import useAuth from '../hooks/useAuth';
 import React from 'react';
 
 const Modal = () => {
-    const {
+    /* const {
         modal,
         setModal
     } = useAuth();
 
     const handleClose = () => {
         setModal({ ...modal, isOpen: false });
-    };
+    }; */
 
     /* useEffect(() => {
         if (modal.isOpen === false) {
@@ -22,7 +22,8 @@ const Modal = () => {
         }
     }, [modal?.isOpen]); */
     return (
-        <Dialog open={modal.isOpen} onClose={handleClose}>
+        <>
+            {/* <Dialog open={modal.isOpen} onClose={handleClose}>
             <DialogTitle>
                 {modal.title}
                 <IconButton
@@ -38,9 +39,10 @@ const Modal = () => {
                     <Close />
                 </IconButton>
             </DialogTitle>
-            {/* {location === 'modal' && <Notify />} */}
+
             {modal.content}
-        </Dialog>
+        </Dialog> */}
+        </>
     );
 };
 

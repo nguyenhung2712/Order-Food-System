@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
     Box, Divider,
-    Button, styled
+    Button, styled, Backdrop, CircularProgress
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import NotInterestedIcon from "@mui/icons-material/NotInterested";
@@ -182,6 +182,12 @@ const ActionsForm = ({ data, setRender }) => {
                 </Box>
 
             </Box>
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={loading}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     );
 };

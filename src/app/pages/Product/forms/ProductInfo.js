@@ -4,7 +4,7 @@ import {
     Grid,
     Chip, Pagination, Avatar,
     Box, Divider,
-    Tabs, Tab,
+    Tabs, Tab, useTheme,
     ListItem, ListItemText, ListItemAvatar, IconButton, Backdrop, CircularProgress
 } from "@mui/material";
 
@@ -17,31 +17,26 @@ import { convertToVND } from "../../../utils/utils";
 import StarIcon from '@mui/icons-material/Star';
 import DeleteIcon from '@mui/icons-material/Delete';
 import swal from "sweetalert";
+import RatingInfo from "./RatingInfo";
 
 const itemsPerPage = 4;
 
 const ProductInfo = ({ id }) => {
-
+    const { palette } = useTheme();
+    console.log(palette);
     const [temp, setTemp] = useState(false);
     const [isLoading, setLoading] = useState(false);
 
     const [state, setState] = useState({});
     const [ratings, setRatings] = useState([]);
-    const [page, setPage] = useState(1);
     const [fiveRatings, setFiveRatings] = useState([]);
-    const [fivePage, setFivePage] = useState(1);
     const [fourRatings, setFourRatings] = useState([]);
-    const [fourPage, setFourPage] = useState(1);
     const [threeRatings, setThreeRatings] = useState([]);
-    const [threePage, setThreePage] = useState(1);
     const [twoRatings, setTwoRatings] = useState([]);
-    const [twoPage, setTwoPage] = useState(1);
     const [oneRatings, setOneRatings] = useState([]);
-    const [onePage, setOnePage] = useState(1);
 
     const [ratingScore, setRatingScore] = useState(0);
     const [tabValue, setTabValue] = useState(0);
-    const [rateTabValue, setRateTabValue] = useState(0);
     const [imageArr, setImageArr] = useState([]);
 
     useEffect(() => {
@@ -72,12 +67,8 @@ const ProductInfo = ({ id }) => {
                     .then((res) => {
                         let ratings = res.data.payload;
                         if (ratings.length > 0) {
-                            setRatingScore(round(ratings.reduce((acc, rating) => acc + Number(rating.score), 0) / ratings.length, 2));
+                            setRatingScore(round(ratings.reduce((acc, rating) => acc + Number(rating.score), 0) / ratings.length, 1));
                         }
-                    });
-                await RateService.getRatingById(state.id)
-                    .then((res) => {
-                        let ratings = res.data.payload;
                         setRatings(ratings);
                         setFiveRatings(ratings.filter(rating => Number(rating.score) === 5));
                         setFourRatings(ratings.filter(rating => Number(rating.score) === 4));
@@ -89,27 +80,7 @@ const ProductInfo = ({ id }) => {
         })();
     }, [state, temp]);
 
-    function handleDeleteRating(ratingId) {
-        swal({
-            title: "Xóa nội dung",
-            text: "Đồng ý xóa nội dung này?",
-            icon: "warning",
-            buttons: ["Hủy bỏ", "Đồng ý"],
-        })
-            .then(async (result) => {
-                if (result) {
-                    setLoading(true);
-                    await RateService.deleteRating(ratingId)
-                        .then(res => {
-                            setTemp(prev => !prev);
-                            setLoading(false);
-                        });
-                } else {
-                    /* setLoading(false); */
-                }
-            });
 
-    }
     const round = (value, precision) => {
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
@@ -124,18 +95,21 @@ const ProductInfo = ({ id }) => {
                         <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2, }}>
                             {
                                 imageArr && imageArr.map((image, index) =>
-                                    <TabPanel
-                                        value={tabValue} index={index} key={index}
-                                        style={{ display: 'flex', justifyContent: 'center' }}
-                                    >
-                                        <img
-                                            style={{
-                                                border: '5px solid #6a75c9', borderRadius: '10px',
-                                                height: '340px', width: '80%',
-                                            }}
-                                            src={image}
-                                            alt="Product Image"
-                                        />
+                                    <TabPanel value={tabValue} index={index} key={index} >
+                                        <Box sx={{
+                                            display: 'flex', justifyContent: 'center'
+                                        }}>
+                                            <img
+                                                style={{
+                                                    border: '3px solid', borderRadius: '10px',
+                                                    borderColor: palette.primary.main,
+                                                    height: '340px', width: '80%',
+                                                }}
+                                                src={image}
+                                                alt="Product Image"
+                                            />
+                                        </Box>
+
                                     </TabPanel>
                                 )
                             }
@@ -185,34 +159,34 @@ const ProductInfo = ({ id }) => {
                             <Divider />
                             <H4
                                 sx={{
-                                    marginTop: 1,
-                                    marginBottom: 1
-                                }}
-                            >Loại: {state.type.typeName}</H4>
-                            <H4
-                                sx={{
-                                    marginBottom: 1
+                                    margin: "12px 0"
                                 }}
                             >
-                                Tình trạng:
+                                <Chip label={state.type.typeName} color="primary" size="small" sx={{ marginLeft: 2 }} />
                                 {
                                     state.status === 2
                                         ? <Chip label="Tạm ẩn" color="error" size="small" sx={{ marginLeft: 2 }} />
                                         : state.status === 0
                                             ? <Chip label="Tạm xóa" size="small" sx={{ marginLeft: 2 }} />
-                                            : <Chip label="Có sẵn" color="primary" size="small" sx={{ marginLeft: 2 }} />
+                                            : state.status === 1 && Number(state.quantityLeft) > 0
+                                                ? <Chip label="Có sẵn" color="primary" size="small" sx={{ marginLeft: 2 }} />
+                                                : <Chip label="Hết hàng" color="error" size="small" sx={{ marginLeft: 2 }} />
                                 }
                             </H4>
                             <Divider />
                             <H4
                                 sx={{
                                     marginTop: 1,
-                                    marginBottom: 1
+                                    marginBottom: 1,
+                                    fontSize: "30px",
+                                    fontWeight: "600"
                                 }}
-                            >Giá bán: {convertToVND(state.price)}</H4>
+                            >{convertToVND(state.price)}</H4>
                             <Box sx={{
                                 display: 'flex',
-                                alignItems: 'center'
+                                alignItems: 'center',
+                                marginTop: 1,
+                                marginBottom: 1,
                             }}>
                                 <span
                                     style={{
@@ -225,7 +199,7 @@ const ProductInfo = ({ id }) => {
                                     let widthPercent;
                                     if (idx + 1 >= ratingScore) {
                                         if (ratingScore - idx > 0) {
-                                            widthPercent = (round(ratingScore - idx, 2) * 100).toString() + "%";
+                                            widthPercent = ((round(ratingScore - idx, 2) + 0.08) * 100).toString() + "%";
                                         } else {
                                             widthPercent = "0%";
                                         }
@@ -262,19 +236,37 @@ const ProductInfo = ({ id }) => {
                                     marginBottom: 1
                                 }}
                             >Nguyên liệu</H2>
-                            <ul className="list">
-                                {
-                                    state.ingredients.map((ingre, index) =>
-                                        <li
-                                            key={index}
-                                            style={{
-                                                textTransform: "capitalize",
-                                                margin: 5
-                                            }}
-                                        >{ingre}</li>
-                                    )
-                                }
-                            </ul>
+                            <Box sx={{
+                                display: "flex",
+                                justifyContent: "space-around"
+                            }}>
+                                <ul className="list">
+                                    {
+                                        state.ingredients.slice(0, state.ingredients.length / 2).map((ingre, index) =>
+                                            <li
+                                                key={index}
+                                                style={{
+                                                    textTransform: "capitalize",
+                                                    margin: 5
+                                                }}
+                                            >{ingre}</li>
+                                        )
+                                    }
+                                </ul>
+                                <ul className="list">
+                                    {
+                                        state.ingredients.slice(state.ingredients.length / 2 + 1, state.ingredients.length).map((ingre, index) =>
+                                            <li
+                                                key={index}
+                                                style={{
+                                                    textTransform: "capitalize",
+                                                    margin: 5
+                                                }}
+                                            >{ingre}</li>
+                                        )
+                                    }
+                                </ul>
+                            </Box>
                         </Grid>
                     </Grid>
                 }
@@ -286,387 +278,17 @@ const ProductInfo = ({ id }) => {
                 }}
             >
                 <H4>Thông tin đánh giá</H4>
-                <Grid container spacing={6}>
-                    <Grid item lg={6} md={6} sm={12} xs={12} sx={{ mt: 2, }}>
-                        <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
-                            <Tabs
-                                value={rateTabValue}
-                                onChange={(event, newValue) => setRateTabValue(newValue)}
-                                variant="scrollable"
-                                scrollButtons="auto"
-                                aria-label="scrollable auto tabs"
-                            >
-                                <Tab
-                                    {...a11yProps(10)}
-                                    label="Tất cả"
-                                />
-                                <Tab
-                                    {...a11yProps(11)}
-                                    label="5 sao"
-                                />
-                                <Tab
-                                    {...a11yProps(12)}
-                                    label="4 sao"
-                                />
-                                <Tab
-                                    {...a11yProps(13)}
-                                    label="3 sao"
-                                />
-                                <Tab
-                                    {...a11yProps(14)}
-                                    label="2 sao"
-                                />
-                                <Tab
-                                    {...a11yProps(15)}
-                                    label="1 sao"
-                                />
-                            </Tabs>
-                        </Box>
-                        <TabPanel value={rateTabValue} index={0}>
-                            {
-                                ratings &&
-                                ratings
-                                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-                                    .map(rating => (
-                                        <ListItem
-                                            key={rating.id}
-                                            alignItems="flex-start"
-                                            secondaryAction={
-                                                <IconButton
-                                                    edge="end" aria-label="comments"
-                                                    onClick={() => handleDeleteRating(rating.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            }
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={rating.user.avatar} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={rating.user.firstName + " " + rating.user.lastName}
-                                                secondary={
-                                                    <>
-                                                        <Span>{rating.remarks}</Span>
-                                                        <Span sx={{
-                                                            display: 'flex'
-                                                        }}>
-                                                            {[...Array(5)].map((_, idx) => (
-                                                                <StarIcon
-                                                                    key={idx}
-                                                                    fontSize="small"
-                                                                    sx={{
-                                                                        color: idx < rating.score ? "orange" : "gray"
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Span>
-                                                    </>
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                            }
-                            <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-                                <Pagination
-                                    count={Math.ceil(ratings.length / itemsPerPage)}
-                                    page={page}
-                                    onChange={(event, val) => setPage(val)}
-                                    defaultPage={1}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
-                        </TabPanel>
-                        <TabPanel value={rateTabValue} index={1}>
-                            {
-                                fiveRatings &&
-                                fiveRatings
-                                    .slice((fivePage - 1) * itemsPerPage, fivePage * itemsPerPage)
-                                    .map(rating => (
-                                        <ListItem
-                                            key={rating.id}
-                                            alignItems="flex-start"
-                                            secondaryAction={
-                                                <IconButton
-                                                    edge="end" aria-label="comments"
-                                                    onClick={() => handleDeleteRating(rating.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            }
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={rating.user.avatar} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={rating.user.firstName + " " + rating.user.lastName}
-                                                secondary={
-                                                    <>
-                                                        <Span>{rating.remarks}</Span>
-                                                        <Span sx={{
-                                                            display: 'flex'
-                                                        }}>
-                                                            {[...Array(5)].map((_, idx) => (
-                                                                <StarIcon
-                                                                    key={idx}
-                                                                    fontSize="small"
-                                                                    sx={{
-                                                                        color: idx < rating.score ? "orange" : "gray"
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Span>
-                                                    </>
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                            }
-                            <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-                                <Pagination
-                                    count={Math.ceil(fiveRatings.length / itemsPerPage)}
-                                    page={page}
-                                    onChange={(event, val) => setFivePage(val)}
-                                    defaultPage={1}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
-                        </TabPanel>
-                        <TabPanel value={rateTabValue} index={2}>
-                            {
-                                fourRatings &&
-                                fourRatings
-                                    .slice((fourPage - 1) * itemsPerPage, fourPage * itemsPerPage)
-                                    .map(rating => (
-                                        <ListItem
-                                            key={rating.id}
-                                            alignItems="flex-start"
-                                            secondaryAction={
-                                                <IconButton
-                                                    edge="end" aria-label="comments"
-                                                    onClick={() => handleDeleteRating(rating.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            }
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={rating.user.avatar} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={rating.user.firstName + " " + rating.user.lastName}
-                                                secondary={
-                                                    <>
-                                                        <Span>{rating.remarks}</Span>
-                                                        <Span sx={{
-                                                            display: 'flex'
-                                                        }}>
-                                                            {[...Array(5)].map((_, idx) => (
-                                                                <StarIcon
-                                                                    key={idx}
-                                                                    fontSize="small"
-                                                                    sx={{
-                                                                        color: idx < rating.score ? "orange" : "gray"
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Span>
-                                                    </>
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                            }
-                            <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-                                <Pagination
-                                    count={Math.ceil(fourRatings.length / itemsPerPage)}
-                                    page={page}
-                                    onChange={(event, val) => setFourPage(val)}
-                                    defaultPage={1}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
-                        </TabPanel>
-                        <TabPanel value={rateTabValue} index={3}>
-                            {
-                                threeRatings &&
-                                threeRatings
-                                    .slice((threePage - 1) * itemsPerPage, threePage * itemsPerPage)
-                                    .map(rating => (
-                                        <ListItem
-                                            key={rating.id}
-                                            alignItems="flex-start"
-                                            secondaryAction={
-                                                <IconButton
-                                                    edge="end" aria-label="comments"
-                                                    onClick={() => handleDeleteRating(rating.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            }
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={rating.user.avatar} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={rating.user.firstName + " " + rating.user.lastName}
-                                                secondary={
-                                                    <>
-                                                        <Span>{rating.remarks}</Span>
-                                                        <Span sx={{
-                                                            display: 'flex'
-                                                        }}>
-                                                            {[...Array(5)].map((_, idx) => (
-                                                                <StarIcon
-                                                                    key={idx}
-                                                                    fontSize="small"
-                                                                    sx={{
-                                                                        color: idx < rating.score ? "orange" : "gray"
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Span>
-                                                    </>
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                            }
-                            <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-                                <Pagination
-                                    count={Math.ceil(threeRatings.length / itemsPerPage)}
-                                    page={page}
-                                    onChange={(event, val) => setThreePage(val)}
-                                    defaultPage={1}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
-                        </TabPanel>
-                        <TabPanel value={rateTabValue} index={4}>
-                            {
-                                twoRatings &&
-                                twoRatings
-                                    .slice((twoPage - 1) * itemsPerPage, twoPage * itemsPerPage)
-                                    .map(rating => (
-                                        <ListItem
-                                            key={rating.id}
-                                            alignItems="flex-start"
-                                            secondaryAction={
-                                                <IconButton
-                                                    edge="end" aria-label="comments"
-                                                    onClick={() => handleDeleteRating(rating.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            }
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={rating.user.avatar} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={rating.user.firstName + " " + rating.user.lastName}
-                                                secondary={
-                                                    <>
-                                                        <Span>{rating.remarks}</Span>
-                                                        <Span sx={{
-                                                            display: 'flex'
-                                                        }}>
-                                                            {[...Array(5)].map((_, idx) => (
-                                                                <StarIcon
-                                                                    key={idx}
-                                                                    fontSize="small"
-                                                                    sx={{
-                                                                        color: idx < rating.score ? "orange" : "gray"
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Span>
-                                                    </>
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                            }
-                            <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-                                <Pagination
-                                    count={Math.ceil(twoRatings.length / itemsPerPage)}
-                                    page={page}
-                                    onChange={(event, val) => setTwoPage(val)}
-                                    defaultPage={1}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
-                        </TabPanel>
-                        <TabPanel value={rateTabValue} index={5}>
-                            {
-                                oneRatings &&
-                                oneRatings
-                                    .slice((onePage - 1) * itemsPerPage, onePage * itemsPerPage)
-                                    .map(rating => (
-                                        <ListItem
-                                            key={rating.id}
-                                            alignItems="flex-start"
-                                            secondaryAction={
-                                                <IconButton
-                                                    edge="end" aria-label="comments"
-                                                    onClick={() => handleDeleteRating(rating.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            }
-                                        >
-                                            <ListItemAvatar>
-                                                <Avatar src={rating.user.avatar} />
-                                            </ListItemAvatar>
-                                            <ListItemText
-                                                primary={rating.user.firstName + " " + rating.user.lastName}
-                                                secondary={
-                                                    <>
-                                                        <Span>{rating.remarks}</Span>
-                                                        <Span sx={{
-                                                            display: 'flex'
-                                                        }}>
-                                                            {[...Array(5)].map((_, idx) => (
-                                                                <StarIcon
-                                                                    key={idx}
-                                                                    fontSize="small"
-                                                                    sx={{
-                                                                        color: idx < rating.score ? "orange" : "gray"
-                                                                    }}
-                                                                />
-                                                            ))}
-                                                        </Span>
-                                                    </>
-                                                }
-                                            />
-                                        </ListItem>
-                                    ))
-                            }
-                            <Box sx={{ display: "flex", justifyContent: "center", marginTop: "16px" }}>
-                                <Pagination
-                                    count={Math.ceil(oneRatings.length / itemsPerPage)}
-                                    page={page}
-                                    onChange={(event, val) => setOnePage(val)}
-                                    defaultPage={1}
-                                    color="primary"
-                                    showFirstButton
-                                    showLastButton
-                                />
-                            </Box>
-                        </TabPanel>
-                    </Grid>
-                </Grid>
-
+                <RatingInfo
+                    ratings={ratings}
+                    fiveRatings={fiveRatings}
+                    fourRatings={fourRatings}
+                    threeRatings={threeRatings}
+                    twoRatings={twoRatings}
+                    oneRatings={oneRatings}
+                    setLoading={setLoading}
+                    setTemp={setTemp}
+                    ratingScore={ratingScore}
+                />
             </Box>
             <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}

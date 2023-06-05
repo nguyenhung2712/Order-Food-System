@@ -24,6 +24,7 @@ import UserService from "../../services/user.service";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { CSVLink } from 'react-csv';
 import EditIcon from '@mui/icons-material/Edit';
+import { addDocument } from '../../services/firebase/service';
 
 const headCells = [
     {
@@ -177,7 +178,17 @@ export default function EnhancedTable() {
                 if (result) {
                     selectedArr.forEach(async (id) => {
                         await UserService.updateUser(id, { status: 0 })
-                            .then(res => {
+                            .then(async (res) => {
+                                await addDocument("notifications", {
+                                    title: "Cập nhật tài khoản",
+                                    message: `Tài khoản của bạn đã tạm xóa. Hãy liên hệ nhân viên để biết thêm chi tiết.`,
+                                    usePath: "/my-account/account-details",
+                                    staffPath: null,
+                                    readBy: [],
+                                    image: "https://res.cloudinary.com/duijwi8od/image/upload/v1685217417/insurance.png",
+                                    receivedId: [id],
+                                    status: 1
+                                });
                                 setIsRender(curr => !curr);
                             });
                     });

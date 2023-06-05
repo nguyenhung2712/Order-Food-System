@@ -1,0 +1,9 @@
+.po-doughnut-chart {
+    height: 100% !important;
+}
+
+@media (max-width: 600px) {
+    .po-doughnut-chart {
+        height: 350px !important
+    }
+}

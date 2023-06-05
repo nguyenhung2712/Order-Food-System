@@ -126,7 +126,7 @@ export function scrollTo(scrollableElement, elmID) {
 
 export function getTimeDifference(date) {
     let difference = differenceInSeconds(new Date(), date);
-    if (difference < 60) return `${Math.floor(difference)} giây trước`;
+    if (difference < 60) return "vài giây trước";
     else if (difference < 3600) return `${Math.floor(difference / 60)} phút trước`;
     else if (difference < 86400) return `${Math.floor(difference / 3660)} giờ trước`;
     else if (difference < 86400 * 30) return `${Math.floor(difference / 86400)} ngày trước`;
@@ -249,5 +249,45 @@ export function convertToDateTimeStr(data, type, isShowTime) {
         return day + "/" + month + "/" + year + " | " + hour + ':' + minute;
     } else {
         return day + "/" + month + "/" + year;
+    }
+}
+
+export function numberFormatter(num, digits) {
+    const lookup = [
+        { value: 1, symbol: "" },
+        { value: 1e3, symbol: "K" },
+        { value: 1e6, symbol: "M" },
+        { value: 1e9, symbol: "G" },
+        { value: 1e12, symbol: "T" },
+        { value: 1e15, symbol: "P" },
+        { value: 1e18, symbol: "E" }
+    ];
+    const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+    var item = lookup.slice().reverse().find(function (item) {
+        return num >= item.value;
+    });
+    return item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
+}
+
+export function getFirstAndLastDate(num, isYear = false) {
+    let firstDate = new Date();
+    let lastDate;
+    if (!isYear) {
+        firstDate.setMonth(firstDate.getMonth() - num);
+        firstDate.setDate(1);
+        lastDate = new Date(firstDate.getFullYear(), firstDate.getMonth() + num, 0);
+    } else {
+        firstDate = new Date();
+        firstDate.setFullYear(firstDate.getFullYear() - num);
+        firstDate.setMonth(0);
+        firstDate.setDate(1);
+
+        lastDate = new Date(firstDate.getFullYear() + num, 0, 0);
+    }
+    lastDate.setHours(23);
+    lastDate.setMinutes(59);
+    lastDate.setSeconds(59);
+    return {
+        firstDate, lastDate
     }
 }
