@@ -1,4 +1,4 @@
-import { Box, Select, Grid, MenuItem, IconButton, styled, Divider, useTheme } from '@mui/material';
+import { Box, Select, Grid, MenuItem, Skeleton, Divider, useTheme } from '@mui/material';
 import { Paragraph, H5, H4 } from '../../../components/Typography';
 import React, { useState, useEffect } from 'react';
 import { convertToVND, getFirstAndLastDate } from '../../../utils/utils';
@@ -9,87 +9,100 @@ const PurchaseOrder = ({ data }) => {
     const [filterType, setFilterType] = useState("this_month");
     const [purchaseValue, setPurValue] = useState();
     useEffect(() => {
-        setPurValue({
-            quantity: data.orders.filter(order => {
-                switch (filterType) {
-                    case "last_month": {
-                        let { firstDate, lastDate } = getFirstAndLastDate(1);
-                        return (
-                            [1, 2, 3, 4].includes(order.status) &&
-                            new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                            new Date(order.updatedAt).getTime() >= firstDate.getTime())
-                    }
-                    case "last_6_month": {
-                        let { firstDate, lastDate } = getFirstAndLastDate(6);
-                        return (
-                            [1, 2, 3, 4].includes(order.status) &&
-                            new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                            new Date(order.updatedAt).getTime() >= firstDate.getTime())
-                    }
-                    case "last_year": {
-                        let { firstDate, lastDate } = getFirstAndLastDate(1, true);
-                        return (
-                            [1, 2, 3, 4].includes(order.status) &&
-                            new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                            new Date(order.updatedAt).getTime() >= firstDate.getTime())
-                    }
-                    default: {
-                        let lastDate = new Date();
-                        let firstDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
-                        return (
-                            [1, 2, 3, 4].includes(order.status) &&
-                            new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                            new Date(order.updatedAt).getTime() >= firstDate.getTime())
-                    }
-                }
-            }).length,
-            revenue: convertToVND(data.orders.reduce((acc1, order) => {
-                switch (filterType) {
-                    case "last_month": {
-                        let { firstDate, lastDate } = getFirstAndLastDate(1);
-                        return acc1 + (
-                            order.status === 1 &&
+        if (data) {
+            setPurValue({
+                quantity: data.orders.filter(order => {
+                    switch (filterType) {
+                        case "last_month": {
+                            let { firstDate, lastDate } = getFirstAndLastDate(1);
+                            return (
+                                [1, 2, 3, 4].includes(order.status) &&
                                 new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                                new Date(order.updatedAt).getTime() >= firstDate.getTime()
-                                ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
-                                : 0
-                        )
-                    }
-                    case "last_6_month": {
-                        let { firstDate, lastDate } = getFirstAndLastDate(6);
-                        return acc1 + (
-                            order.status === 1 &&
+                                new Date(order.updatedAt).getTime() >= firstDate.getTime())
+                        }
+                        case "last_6_month": {
+                            let { firstDate, lastDate } = getFirstAndLastDate(6);
+                            return (
+                                [1, 2, 3, 4].includes(order.status) &&
                                 new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                                new Date(order.updatedAt).getTime() >= firstDate.getTime()
-                                ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
-                                : 0
-                        )
-                    }
-                    case "last_year": {
-                        let { firstDate, lastDate } = getFirstAndLastDate(1, true);
-                        return acc1 + (
-                            order.status === 1 &&
+                                new Date(order.updatedAt).getTime() >= firstDate.getTime())
+                        }
+                        case "last_year": {
+                            let { firstDate, lastDate } = getFirstAndLastDate(1, true);
+                            return (
+                                [1, 2, 3, 4].includes(order.status) &&
                                 new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                                new Date(order.updatedAt).getTime() >= firstDate.getTime()
-                                ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
-                                : 0
-                        )
-                    }
-                    default: {
-                        let lastDate = new Date();
-                        let firstDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
-                        return acc1 + (
-                            order.status === 1 &&
+                                new Date(order.updatedAt).getTime() >= firstDate.getTime())
+                        }
+                        default: {
+                            let lastDate = new Date();
+                            let firstDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
+                            return (
+                                [1, 2, 3, 4].includes(order.status) &&
                                 new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
-                                new Date(order.updatedAt).getTime() >= firstDate.getTime()
-                                ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
-                                : 0
-                        )
+                                new Date(order.updatedAt).getTime() >= firstDate.getTime())
+                        }
                     }
-                }
-            }, 0))
-        })
+                }).length,
+                revenue: convertToVND(data.orders.reduce((acc1, order) => {
+                    switch (filterType) {
+                        case "last_month": {
+                            let { firstDate, lastDate } = getFirstAndLastDate(1);
+                            return acc1 + (
+                                order.status === 1 &&
+                                    new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
+                                    new Date(order.updatedAt).getTime() >= firstDate.getTime()
+                                    ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
+                                    : 0
+                            )
+                        }
+                        case "last_6_month": {
+                            let { firstDate, lastDate } = getFirstAndLastDate(6);
+                            return acc1 + (
+                                order.status === 1 &&
+                                    new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
+                                    new Date(order.updatedAt).getTime() >= firstDate.getTime()
+                                    ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
+                                    : 0
+                            )
+                        }
+                        case "last_year": {
+                            let { firstDate, lastDate } = getFirstAndLastDate(1, true);
+                            return acc1 + (
+                                order.status === 1 &&
+                                    new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
+                                    new Date(order.updatedAt).getTime() >= firstDate.getTime()
+                                    ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
+                                    : 0
+                            )
+                        }
+                        default: {
+                            let lastDate = new Date();
+                            let firstDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
+                            return acc1 + (
+                                order.status === 1 &&
+                                    new Date(order.updatedAt).getTime() <= lastDate.getTime() &&
+                                    new Date(order.updatedAt).getTime() >= firstDate.getTime()
+                                    ? order.OrderDetails.reduce((acc2, detail) => acc2 + Number(detail.price) * detail.quantity, 0)
+                                    : 0
+                            )
+                        }
+                    }
+                }, 0))
+            })
+        }
     }, [data, filterType]);
+
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"310px"}
+                />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{

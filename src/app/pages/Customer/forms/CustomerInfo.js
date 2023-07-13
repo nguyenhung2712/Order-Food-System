@@ -1,16 +1,23 @@
 import {
-    Table, TableCell, TableContainer, TableHead, TableRow, Paper, Chip,
-    Box, Divider,
-    Button, CardMedia, Stack
+    Table, TableCell, TableContainer, TableHead, TableRow,
+    Box, Divider, CardMedia, Stack, Skeleton, Paper, Chip,
 } from "@mui/material";
 import React from 'react';
 
-import { H2, Paragraph, H3, H1 } from "../../../components/Typography";
+import { Paragraph, H3 } from "../../../components/Typography";
 import { convertToDateTimeStr } from "../../../utils/utils";
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import PersonIcon from '@mui/icons-material/Person';
 
 const UserInfo = ({ data }) => {
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"450px"}
+                />
+            </Box>
+        );
+    }
     return (
         <div>
             <Box>
@@ -121,20 +128,6 @@ const UserInfo = ({ data }) => {
                             }
                         </TableHead>
                     </Table>
-                    <Box
-                        sx={{
-                            "padding": "16px",
-                            "display": "flex",
-                            "WebkitBoxAlign": "center",
-                            "alignItems": "center",
-                            "WebkitBoxPack": "justify",
-                            "justifyContent": "space-between"
-                        }}
-                    >
-                        <Button>
-                            <LockOpenIcon /> Khôi phục mật khẩu
-                        </Button>
-                    </Box>
                 </TableContainer>
             </Box>
         </div>

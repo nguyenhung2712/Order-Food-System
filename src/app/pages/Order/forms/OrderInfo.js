@@ -1,15 +1,15 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import React from 'react';
 import {
-    Box, styled, Button, IconButton, Divider,
+    Box, Chip, Button, Divider, Skeleton, Grid,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { withStyles } from '@mui/styles';
-import { H4, H5, Paragraph, Span } from "../../../components/Typography";
+import { H4, H5, Paragraph, Span, H3 } from "../../../components/Typography";
 import { convertToVND } from "../../../utils/utils";
 import PrintIcon from '@mui/icons-material/Print';
+import { Breadcrumb, SimpleCard } from "../../../components";
 
 import ReactToPrint from 'react-to-print';
 
@@ -24,6 +24,27 @@ const OrderInfo = ({ data }) => {
     const navigate = useNavigate();
     const printRef = useRef();
 
+    if (!data) {
+        return (
+            //Chỉnh sửa lại....
+            <SimpleCard title="Thông tin sản phẩm">
+                <Grid container spacing={2}>
+                    <Grid item lg={6} md={6} sm={12} xs={12}>
+                        <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                            <Skeleton
+                                variant="rounded" width={"100%"}
+                                height={"450px"}
+                            />
+                        </Box>
+                    </Grid>
+                    <Grid item lg={6} md={6} sm={12} xs={12}>
+
+                    </Grid>
+                </Grid>
+            </SimpleCard>
+        );
+    }
+
     return (
         <>
             <Box
@@ -32,12 +53,7 @@ const OrderInfo = ({ data }) => {
                     justifyContent: "space-between"
                 }}
             >
-                <IconButton
-                    sx={{ height: "40px" }}
-                    onClick={() => navigate(-1)}
-                >
-                    <ArrowBackIcon />
-                </IconButton>
+                <H3 sx={{ marginBottom: "8px" }}>Thông tin đơn hàng</H3>
                 <ReactToPrint
                     trigger={() => <Button
                         variant="contained"
@@ -59,17 +75,29 @@ const OrderInfo = ({ data }) => {
                     }}
                 >
                     <Box>
-                        <H4>Thông tin đơn hàng</H4>
-                        <Paragraph
-                            sx={{ fontSize: "14px", marginBottom: "16px" }}
-                        >Mã đơn</Paragraph>
+
+                        <H4
+                            sx={{ fontSize: "16px", marginBottom: "10px" }}
+                        >Mã đơn</H4>
                         <Paragraph
                             sx={{ fontSize: "14px", margin: 0 }}
                         ># {data.number}</Paragraph>
                     </Box>
                     <Box sx={{ textAlign: "right" }}>
-                        <H4>
-                            Tình trạng đơn: <Span sx={{ fontWeight: "normal" }}>{data.status}</Span>
+                        <H4 sx={{ marginBottom: "8px" }}>
+                            Tình trạng đơn: <Span sx={{ fontWeight: "normal" }}>
+                                {
+                                    data.status === 4
+                                        ? <Chip label="Đã nhận đơn" color="warning" size="small" />
+                                        : data.status === 3
+                                            ? <Chip label="Đã duyệt" color="secondary" size="small" />
+                                            : data.status === 2
+                                                ? <Chip label="Đang giao" color="primary" size="small" />
+                                                : data.status === 1
+                                                    ? <Chip label="Đã gửi hàng" color="success" size="small" />
+                                                    : <Chip label="Đã hủy" color="error" size="small" />
+                                }
+                            </Span>
                         </H4>
                         <H4>Ngày đặt: <Span sx={{ fontWeight: "normal" }}>{data.createdAt}</Span></H4>
                     </Box>
@@ -83,16 +111,18 @@ const OrderInfo = ({ data }) => {
                             "lineHeight": "1.5",
                             "textTransform": "none",
                             "fontSize": "15px",
-                            "marginBottom": "8px"
+                            "margin": "8px 0 10px"
                         }}
                     >Thông tin giao hàng</H4>
                     <Paragraph
                         sx={{ "marginTop": "0px", "fontSize": "16px", "textTransform": "none", "marginBottom": "16px" }}
                     >{data.titleAddress}</Paragraph>
-                    <Paragraph>{data.email}</Paragraph>
-                    <Paragraph>
-                        {data.street}</Paragraph>
-                    <Paragraph>+84{data.phone.slice(1)}</Paragraph>
+                    <H5 sx={{ marginBottom: "8px" }}>Địa chỉ mail: <Paragraph sx={{ fontWeight: 400, display: "inline", fontSize: "14px" }}>{data.email}</Paragraph>
+                    </H5>
+                    <H5 sx={{ marginBottom: "8px" }}>Địa chỉ giao: <Paragraph sx={{ fontWeight: 400, display: "inline", fontSize: "14px" }}>{data.street}</Paragraph>
+                    </H5>
+                    <H5 sx={{ marginBottom: "8px" }}>Điện thoại liên lạc: {data.phone && <Paragraph sx={{ fontWeight: 400, display: "inline", fontSize: "14px" }}>{"+84" + data.phone.slice(1)}</Paragraph>}
+                    </H5>
                 </Box>
                 <TableContainer sx={{ marginTop: "16px" }}>
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">

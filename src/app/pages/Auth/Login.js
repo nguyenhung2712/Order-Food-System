@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import React from 'react';
+import { toast } from 'react-toastify';
 
 const FlexBox = styled(Box)(() => ({ display: 'flex', alignItems: 'center' }));
 
@@ -35,9 +36,9 @@ const Root = styled(JustifyBox)(() => ({
 
 // inital login credentials
 const initialValues = {
-    username: 'jaser2712',
-    password: 'hung2712',
-    remember: true,
+    username: '',
+    password: '',
+    remember: false,
 };
 
 // form field validation schema
@@ -56,6 +57,26 @@ const Login = () => {
     const { signin } = useAuth();
 
     const handleFormSubmit = async (values) => {
+        /* toast.error('Bạn chưa xác thực tài khoản.', {
+            position: "top-right",
+            autoClose: 2500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+            theme: "light",
+        });
+        toast.error('Bạn chưa được duyệt bởi quản trị viên.', {
+            position: "top-right",
+            autoClose: 2500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: false,
+            progress: undefined,
+            theme: "light",
+        }); */
         setLoading(true);
         try {
             await signin(values.username, values.password);

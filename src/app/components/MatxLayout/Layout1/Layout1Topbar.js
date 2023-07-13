@@ -1,7 +1,7 @@
 import { Avatar, Hidden, Icon, IconButton, MenuItem, useMediaQuery } from '@mui/material';
 import { Box, styled, useTheme } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
-import { CustomMenu, MatxSearchBox } from '../..';
+import { CustomMenu } from '../..';
 import { themeShadows } from '../../MatxTheme/themeColors';
 import useAuth from '../../../hooks/useAuth';
 import useSettings from '../../../hooks/useSettings';
@@ -10,9 +10,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Span } from '../../Typography';
 import ChatAlert from '../../ChatAlert';
-/* import { NotificationProvider } from '../../../contexts/NotificationContext'; */
 import NotificationBar from '../../NotificationBar/NotificationBar';
-/* import ShoppingCart from '../../ShoppingCart'; */
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
     color: theme.palette.text.primary,
@@ -105,10 +103,6 @@ const Layout1Topbar = () => {
                     </StyledIconButton>
 
                     <IconBox>
-                        {/* <StyledIconButton>
-                            <Icon>mail_outline</Icon>
-                        </StyledIconButton> */}
-
                         <StyledIconButton onClick={() => navigate("/calendar")}>
                             <Icon>web_asset</Icon>
                         </StyledIconButton>
@@ -133,25 +127,20 @@ const Layout1Topbar = () => {
                         <StyledItem>
                             <Link to="/">
                                 <Icon> home </Icon>
-                                <Span> Home </Span>
+                                <Span> Trang chủ </Span>
                             </Link>
                         </StyledItem>
 
                         <StyledItem>
-                            <Link to="/page-layouts/user-profile">
+                            <Link to="/profile">
                                 <Icon> person </Icon>
-                                <Span> Profile </Span>
+                                <Span> Thông tin cá nhân </Span>
                             </Link>
                         </StyledItem>
 
-                        {/* <StyledItem>
-                            <Icon> settings </Icon>
-                            <Span> Settings </Span>
-                        </StyledItem> */}
-
                         <StyledItem onClick={() => { signout(); navigate("/auth/login") }}>
                             <Icon> power_settings_new </Icon>
-                            <Span> Logout </Span>
+                            <Span> Đăng xuất </Span>
                         </StyledItem>
                     </CustomMenu>
                 </Box>

@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import React from 'react';
-import { Fab, Grid, TextField, IconButton, ImageList, ImageListItem, Box, styled, Backdrop } from '@mui/material';
+import { Fab, Grid, TextField, IconButton, ImageList, ImageListItem, Box, styled, /* Backdrop */ } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import useAuth from '../../hooks/useAuth';
 import { addDocument } from '../../services/firebase/service';
@@ -9,6 +9,9 @@ import { AppContext } from '../../contexts/AppContext';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CircularProgress from '@mui/material/CircularProgress';
+import { toastify } from '../../utils/utils';
+
+const MAX_FILE_ACCEPT = 5;
 
 const IconButtonTopImage = styled(IconButton)(() => ({
     position: "absolute",
@@ -57,6 +60,14 @@ const ChatSendMessage = () => {
     }
 
     const uploadMultipleFiles = (event) => {
+        if (images.length + event.target.files.length > MAX_FILE_ACCEPT) {
+            toastify({
+                message: "Ảnh vượt giới hạn số lượng: 5",
+                type: "error",
+                position: "top-right"
+            });
+            return;
+        }
         let uploadData = new FormData();
         const files = event.target.files;
         for (let i = 0; i < files.length; i++) {
@@ -134,7 +145,7 @@ const ChatSendMessage = () => {
                         disabled={isLoading}
                     />
                     <Box sx={{ position: "absolute", right: "14px", top: "7px", display: "flex", alignItems: "center" }}>
-                        {isLoading && <CircularProgress />}
+                        {isLoading && <CircularProgress size={18} />}
                         <IconButton
                             onClick={() => uploadRef.current.click()}
                             disabled={isLoading}
@@ -168,12 +179,12 @@ const ChatSendMessage = () => {
                     ><SendIcon /></Fab>
                 </Grid>
             </Grid >
-            <Backdrop
+            {/* <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
                 open={isLoading}
             >
                 <CircularProgress color="inherit" />
-            </Backdrop>
+            </Backdrop> */}
         </>
     )
 }

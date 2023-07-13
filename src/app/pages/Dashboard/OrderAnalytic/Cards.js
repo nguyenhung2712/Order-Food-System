@@ -1,17 +1,35 @@
-import { Box, Card, Grid, Icon, IconButton, styled, Tooltip, useTheme } from '@mui/material';
+import { Box, Grid, Icon, IconButton, Skeleton, Tooltip, useTheme } from '@mui/material';
 import { Paragraph } from '../../../components/Typography';
 import React from 'react';
-import { convertToVND } from '../../../utils/utils';
 
 const Cards = ({ data }) => {
     const { palette } = useTheme();
+    if (!data) {
+        return (
+            <Grid container spacing={3} sx={{ mb: '24px', height: "80%" }}>
+                {
+                    [1, 2, 3, 4].map((_, idx) => (
+                        <Grid item lg={3} md={3} sm={6} xs={12} key={idx}>
+
+                            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                                <Skeleton
+                                    variant="rounded" width={"100%"}
+                                    height={"150px"}
+                                />
+                            </Box>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        );
+    }
     const cardList = [
         { name: 'Được đóng gói', amount: data.packaged, icon: 'card_giftcard' },
         { name: 'Được vận chuyển', amount: data.shipping, icon: 'local_shipping' },
         { name: 'Đã giao hàng', amount: data.delivered, icon: 'assignment_turned_in' },
         { name: 'Được lập hóa đơn', amount: data.billed, icon: 'assignment' },
     ];
-    console.log(palette)
+
     return (
         <Grid container spacing={3} sx={{ mb: '24px', height: "80%" }}>
             {cardList.map((item, index) => (

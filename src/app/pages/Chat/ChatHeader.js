@@ -1,15 +1,13 @@
-import { useRef, useEffect, useState } from 'react';
 import React from 'react';
-import {
-    Avatar, IconButton, Box, Badge
-} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Avatar, IconButton, Box, Badge } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { AppContext } from '../../contexts/AppContext';
 import useAuth from '../../hooks/useAuth';
 import { useTheme } from '@mui/system';
 import { H5 } from "../../components/Typography";
 import ShortTextIcon from '@mui/icons-material/ShortText';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+/* import MoreVertIcon from '@mui/icons-material/MoreVert'; */
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
     '& .MuiBadge-badge': {
@@ -40,8 +38,9 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
     },
 }));
 
-const ChatHeader = () => {
+const ChatHeader = ({ onToggleUserList }) => {
     const theme = useTheme();
+    const navigate = useNavigate();
     const { selectedRoom } = React.useContext(AppContext);
     const { user: { id } } = useAuth();
 
@@ -63,6 +62,7 @@ const ChatHeader = () => {
             >
                 <IconButton
                     sx={{ color: theme.palette.primary.contrastText }}
+                    onClick={onToggleUserList}
                 >
                     <ShortTextIcon />
                 </IconButton>
@@ -70,7 +70,11 @@ const ChatHeader = () => {
                     selectedRoom
                     && Object.keys(selectedRoom).length !== 0 &&
                     <>
-                        <Box>
+                        <Box sx={{ cursor: "pointer" }}
+                            onClick={() => {
+                                navigate(`/customer/${selectedRoom.userId}`)
+                            }}
+                        >
                             <StyledBadge
                                 overlap="circular"
                                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
@@ -82,20 +86,24 @@ const ChatHeader = () => {
                         <H5
                             sx={{
                                 color: theme.palette.primary.contrastText,
-                                marginLeft: "16px"
+                                marginLeft: "16px",
+                                cursor: "pointer"
+                            }}
+                            onClick={() => {
+                                navigate(`/customer/${selectedRoom.userId}`)
                             }}
                         >{selectedRoom.name}</H5>
                     </>
                 }
 
             </Box>
-            <Box className="MuiBox-root css-1uf0tls">
+            {/* <Box className="MuiBox-root css-1uf0tls">
                 <IconButton
                     sx={{ color: theme.palette.primary.contrastText }}
                 >
                     <MoreVertIcon />
                 </IconButton>
-            </Box>
+            </Box> */}
         </Box>
     )
 }

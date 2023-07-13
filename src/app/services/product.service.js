@@ -1,11 +1,15 @@
 import axiosInstance from "../../axios";
 
-const getAllProducts = async () => {
-    return await axiosInstance.get("/dish/all");
+const getStatisticInfo = async (productId) => {
+    return await axiosInstance.get("/dish/statistic/" + productId);
 };
 
-const getProductById = async (productId) => {
-    return await axiosInstance.get("/dish/" + productId);
+const getAllProducts = async (config) => {
+    return await axiosInstance.get("/dish/all", config);
+};
+
+const getProductById = async (productId, config) => {
+    return await axiosInstance.get("/dish/" + productId, config);
 };
 
 const createProduct = async (product) => {
@@ -17,13 +21,13 @@ const updateProduct = async (productId, newInfo) => {
 };
 
 const uploadImage = async (id, formData) => {
-    return await axiosInstance.post("/dish/upload-image/" + id, 
+    return await axiosInstance.post("/dish/upload-image/" + id,
         formData,
-        { 
-            headers: { 'Content-Type':'multipart/form-data' } 
+        {
+            headers: { 'Content-Type': 'multipart/form-data' }
         }
     );
-};  
+};
 
 const deleteProduct = async (productId) => {
     return await axiosInstance.put("/dish/delete/" + productId);
@@ -40,7 +44,8 @@ const ProductService = {
     updateProduct,
     deleteProduct,
     recoverProduct,
-    uploadImage
+    uploadImage,
+    getStatisticInfo
 };
 
 export default ProductService;

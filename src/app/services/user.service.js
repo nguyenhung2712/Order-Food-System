@@ -1,7 +1,7 @@
 import axiosInstance from "../../axios";
 
-const getAllUsers = async () => {
-    return await axiosInstance.get("/user/all");
+const getAllUsers = async (config) => {
+    return await axiosInstance.get("/user/all", config);
 };
 
 const getUserById = async (userId) => {

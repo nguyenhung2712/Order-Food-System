@@ -2,6 +2,7 @@
 import chartsRoute from './views/charts/ChartsRoute';
 import dashboardRoutes from './views/dashboard/DashboardRoutes';
 import materialRoutes from './views/material-kit/MaterialRoutes'; */
+import React from 'react';
 import AuthGuard from './auth/AuthGuard';
 import NotFound from './pages/Auth/NotFound';
 import AuthRoutes from './pages/Auth/AuthRoutes';
@@ -13,7 +14,7 @@ import OrderRoutes from './pages/Order/OrderRoutes';
 import CustomerRoutes from './pages/Customer/CustomerRoutes';
 import DashboardRoutes from './pages/Dashboard/DashboardRoutes';
 import CalendarRoutes from './pages/Calendar/CalendarRoutes';
-import React from 'react';
+import ProfileRoutes from './pages/Profile/ProfileRoutes';
 
 import { Navigate } from 'react-router-dom';
 import Layout from './components/MatxLayout/Layout';
@@ -41,7 +42,8 @@ const routes = [
         ),
         children: [
             ...ProductRoutes, ...BlogRoutes, ...StaffRoutes, ...CalendarRoutes,
-            ...ChatRoutes, ...OrderRoutes, ...CustomerRoutes, ...DashboardRoutes],
+            ...ChatRoutes, ...OrderRoutes, ...CustomerRoutes, ...DashboardRoutes, ...ProfileRoutes
+        ],
     },
     ...AuthRoutes,
     { path: '/unauthorized', element: <NotFound /> },

@@ -1,10 +1,11 @@
 /* import { useState, useEffect } from "react"; */
 import { useParams } from 'react-router-dom';
-import React from 'react';
+import React, { useState } from 'react';
 import { Stack } from "@mui/material";
 import { Box, styled } from "@mui/system";
-import { Breadcrumb, SimpleCard } from "../../components";
-import ProductInfo from "./forms/ProductInfo";
+import { LinearProgress } from "@mui/material";
+import { Breadcrumb } from "../../components";
+import DetailInfo from "./forms/DetailInfo";
 
 const Container = styled("div")(({ theme }) => ({
     margin: "30px",
@@ -17,20 +18,31 @@ const Container = styled("div")(({ theme }) => ({
 
 const ProductDetail = () => {
     const { id } = useParams();
-    return (
-        <Container>
-            <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/product/manage" }, { name: "Thông tin" }]} />
-            </Box>
+    const [loading, setLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
 
-            <Stack spacing={3}>
-                <SimpleCard title="Thông tin sản phẩm">
-                    <ProductInfo
-                        id={id}
+    return (
+        <>
+            {
+                loading && <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
+            <Container>
+                <Box className="breadcrumb">
+                    <Breadcrumb routeSegments={[{ name: "Quản lý món ăn", path: "/product/manage" }, { name: "Thông tin món ăn" }]} />
+                </Box>
+
+                <Stack spacing={3}>
+                    <DetailInfo id={id}
+                        onSetLoading={setLoading}
+                        onSetProgress={setProgress}
                     />
-                </SimpleCard>
-            </Stack>
-        </Container>
+                </Stack>
+            </Container>
+        </>
     );
 };
 

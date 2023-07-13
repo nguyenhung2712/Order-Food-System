@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import FullCalendar from "@fullcalendar/react";
-import { formatDate } from '@fullcalendar/core'
 import viLocale from '@fullcalendar/core/locales/vi';
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -9,36 +8,41 @@ import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 
 import {
-    Box, List, ListItem, ListItemText, Typography, useTheme,
+    Box, List, ListItem, LinearProgress, Backdrop, CircularProgress, useTheme,
     Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-    TextField, Button, Autocomplete, Chip, Grid, Backdrop, CircularProgress
+    TextField, Button, Autocomplete, Chip, Grid,
 } from "@mui/material";
-import { LoadingButton } from '@mui/lab';
 import ScheduleService from "../../services/schedule.service";
 import StaffService from "../../services/staff.service";
 import { SimpleCard, Breadcrumb } from "../../components";
 import "./Calendar.css";
-import Swal from "sweetalert2";
-import { deepObjectEqual } from "../../utils/utils";
+
+import { deepObjectEqual, sweetAlert, toastify } from "../../utils/utils";
 import { addDocument } from '../../services/firebase/service';
+
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import dayjs from "dayjs";
 
 const Calendar = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const theme = useTheme();
+
     const colors = [
         "#D50000", "#E67C73", "#F4511E",
         "#F6BF26", "#33B679", "#0B8043",
         "#039BE5", "#3F51B5", "#7986CB",
         "#8E24AA", "#616161"
     ];
-    /* const colors = tokens(theme.palette.mode); */
-    const [isLoading, setLoading] = useState(false);
+    const { palette } = useTheme();
+    const errorColor = palette.error.main;
+    const primaryColor = palette.primary.main;
     const [isValidStaff, setValidStaff] = useState(true);
     const [isValidType, setValidType] = useState(true);
     const [isValidTitle, setValidTitle] = useState(true);
     const [openSchedule, setOpenSchedule] = useState(false);
-    const [currentEvents, setCurrentEvents] = useState([]);
     const [schedules, setSchedules] = useState([]);
     const [staffs, setStaffs] = useState([]);
     const [types, setTypes] = useState([]);
@@ -46,6 +50,10 @@ const Calendar = () => {
     const [fragEvent, setFragEvent] = useState({});
     const [isRender, setRender] = useState(false);
 
+    const [progress, setProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [actionLoading, setActLoading] = useState(false);
+    console.log(currentEvent)
     useEffect(() => {
         (async () => {
             await StaffService.getAllStaffs()
@@ -72,8 +80,19 @@ const Calendar = () => {
         })()
     }, [])
     useEffect(() => {
+        setLoading(true);
         (async () => {
-            await ScheduleService.getAllSchedules()
+            await ScheduleService.getAllSchedules({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    setProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then(res => {
                     setSchedules(res.data.payload);
                 });
@@ -87,7 +106,7 @@ const Calendar = () => {
 
             setOpenSchedule(true);
         }
-    }, [id, schedules])
+    }, [id, schedules]);
 
     const handleDateClick = async (selected) => {
         let event = {
@@ -124,7 +143,7 @@ const Calendar = () => {
     };
 
     const handleSchedule = async () => {
-        setLoading(true);
+
         let { id, admins, type, color, ...event } = currentEvent;
         if ((!currentEvent.admins || (currentEvent.admins && currentEvent.admins.length === 0))
             || !currentEvent.type || !currentEvent.title) {
@@ -143,26 +162,24 @@ const Calendar = () => {
         if (deepObjectEqual(currentEvent, fragEvent)) {
             emptyState();
             if (id && id.length === 36) {
-                Swal.fire({
-                    icon: 'success',
-                    title: "Thành công",
-                    text: "Đã cập nhật lịch trình thành công",
-                    showConfirmButton: false,
-                    timer: 1500
-                })
+                toastify({
+                    message: "Đã cập nhật lịch trình",
+                    position: "top-right",
+                    type: "success"
+                });
             } else {
-                Swal.fire({
-                    icon: 'success',
-                    title: "Thành công",
-                    text: "Đã thêm lịch trình thành công",
-                    icon: "success",
-                    showConfirmButton: false,
-                    timer: 1500
-                })
+                toastify({
+                    message: "Đã thêm lịch trình",
+                    position: "top-right",
+                    type: "success"
+                });
             }
+            setActLoading(false);
             return;
         }
         if (id && id.length === 36) {
+            setActLoading(true);
+            emptyState();
             await ScheduleService.updateSchedule(id, {
                 ...event,
                 color: color ? color : "#039BE5"
@@ -180,18 +197,18 @@ const Calendar = () => {
                         receivedId: staffIds,
                         status: 1
                     });
-                    setLoading(false);
-                    emptyState();
                     setRender(prev => !prev);
-                    Swal.fire({
-                        icon: 'success',
-                        title: "Thành công",
-                        text: "Đã cập nhật lịch trình thành công",
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
+                    setActLoading(false);
+                    toastify({
+                        message: "Đã cập nhật lịch trình",
+                        position: "top-right",
+                        type: "success"
+                    });
+
                 })
         } else {
+            setActLoading(true);
+            emptyState();
             await ScheduleService.createSchedule({
                 ...event,
                 color: color ? color : "#039BE5"
@@ -208,30 +225,30 @@ const Calendar = () => {
                         receivedId: staffIds,
                         status: 1
                     });
-                    setLoading(false);
                     setRender(prev => !prev);
-                    emptyState();
-                    Swal.fire({
-                        icon: 'success',
-                        title: "Thành công",
-                        text: "Đã thêm lịch trình thành công",
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
+                    setActLoading(false);
+
+                    toastify({
+                        message: "Đã thêm lịch trình",
+                        position: "top-right",
+                        type: "success"
+                    });
+
                 })
         }
     }
 
     const handleChangeScheduleDate = async (event) => {
-        Swal.fire({
-            icon: 'info',
+        sweetAlert({
+            icon: "warning",
             title: "Cập nhật thời gian",
             text: `Đồng ý cập nhật thời gian của lịch trình ${event.event.title} ?`,
-            showCancelButton: true,
-            confirmButtonText: 'Đồng ý',
-            cancelButtonText: 'Hủy bỏ',
+            confirmColor: primaryColor,
+            cancelColor: errorColor,
         })
             .then(async (result) => {
+                setActLoading(true);
+                emptyState();
                 if (result.isConfirmed) {
                     await ScheduleService.updateSchedule(event.event.id, {
                         start: event.event.startStr,
@@ -251,26 +268,41 @@ const Calendar = () => {
                                 status: 1
                             });
                             setRender(prev => !prev);
+                            setActLoading(false);
+                            toastify({
+                                message: "Đã cập nhật lịch trình",
+                                position: "top-right",
+                                type: "success"
+                            });
                         })
+                } else {
+                    setActLoading(false);
+                    event.revert();
                 }
             })
     }
 
     const handleDeleteSchedule = async () => {
-        Swal.fire({
-            icon: 'warning',
+        sweetAlert({
+            icon: "warning",
             title: "Cảnh báo",
-            text: "Đồng ý xóa lịch trình này ? ",
-            showCancelButton: true,
-            confirmButtonText: 'Đồng ý',
-            cancelButtonText: 'Hủy bỏ',
+            text: "Đồng ý xóa lịch trình này?",
+            confirmColor: primaryColor,
+            cancelColor: errorColor,
         })
             .then(async (result) => {
+                setActLoading(true);
+                emptyState();
                 if (result.isConfirmed) {
                     await ScheduleService.deleteSchedule(currentEvent.id)
                         .then(res => {
                             setRender(prev => !prev);
-                            emptyState();
+                            setActLoading(false);
+                            toastify({
+                                message: "Đã xóa lịch trình",
+                                position: "top-right",
+                                type: "success"
+                            });
                         });
                 }
             });
@@ -278,13 +310,12 @@ const Calendar = () => {
 
     const handleCloseSchedule = async () => {
         if (!deepObjectEqual(currentEvent, fragEvent)) {
-            Swal.fire({
-                icon: 'warning',
+            sweetAlert({
+                icon: "warning",
                 title: "Cảnh báo",
-                text: "Thay đổi của bạn sẽ không được lưu. Đồng  ý hủy?",
-                showCancelButton: true,
-                confirmButtonText: 'Đồng ý',
-                cancelButtonText: 'Hủy bỏ',
+                text: "Thay đổi của bạn sẽ không được lưu. Đồng ý hủy?",
+                confirmColor: primaryColor,
+                cancelColor: errorColor,
             })
                 .then(result => {
                     if (result.isConfirmed) {
@@ -306,19 +337,36 @@ const Calendar = () => {
     }
 
     const emptyState = () => {
-        setOpenSchedule(false);
         setValidStaff(true);
         setValidType(true);
         setValidTitle(true);
-        setCurrentEvents([]);
-        setCurrentEvent({});
+        setOpenSchedule(false);
     }
-
     return (
         <>
+            {
+                loading &&
+                <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
             <Box m="20px">
-                <Box className="breadcrumb">
+                <Box className="breadcrumb" sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Breadcrumb routeSegments={[{ name: "Lịch trình" }]} />
+                    <Button
+                        variant="contained"
+                        component="label"
+                        color="primary"
+                        sx={{ my: 2 }}
+                        onClick={() => {
+                            setCurrentEvent({});
+                            setOpenSchedule(true);
+                        }}
+                    >
+                        Thêm mới
+                    </Button>
                 </Box>
                 <SimpleCard>
                     <Box flex="1 1 100%" ml="15px" className="fc-litera">
@@ -343,7 +391,6 @@ const Calendar = () => {
                             dayMaxEvents={true}
                             select={handleDateClick}
                             eventClick={handleEventClick}
-                            eventsSet={(events) => setCurrentEvents(events)}
                             events={schedules}
                             eventResize={handleChangeScheduleDate}
                             eventDrop={handleChangeScheduleDate}
@@ -367,7 +414,7 @@ const Calendar = () => {
                     <DialogContentText sx={{ color: currentEvent.color ? "#F5F5F4" : "" }}>
                         {currentEvent.id && currentEvent.id.length === 36 ? "Chỉnh sửa" : "Thêm"} lịch trình cho một hoặc nhiều nhân viên
                     </DialogContentText>
-                    <Grid container spacing={2} sx={{ mt: 2 }}>
+                    <Grid container spacing={1} sx={{ mt: 2 }}>
                         <Grid item lg={8} md={8} sm={12} xs={12}>
                             {
                                 staffs && staffs.length > 0 &&
@@ -499,6 +546,73 @@ const Calendar = () => {
                                 />
                             }
                         </Grid>
+                        <Grid item lg={6} md={6} sm={6} xs={12}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DemoContainer components={['DateTimePicker']}>
+                                    <DateTimePicker label="Thời gian bắt đầu"
+                                        value={currentEvent.start ? dayjs(currentEvent.start) : null}
+                                        onChange={(newValue) => {
+                                            setCurrentEvent(prev => ({ ...prev, start: newValue.toISOString() }))
+                                        }}
+                                        sx={{
+                                            '& fieldset': {
+                                                borderColor: currentEvent.color ? "#D6D3D1" : ""
+                                            },
+                                            '& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: currentEvent.color ? "#FAFAFA" : ""
+                                            },
+                                            '& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: currentEvent.color ? "2px solid #FAFAFA" : ""
+                                            },
+                                            '& input, & label': {
+                                                color: currentEvent.color ? "#FAFAFA !important" : ""
+                                            },
+                                            '& .MuiIconButton-root': {
+                                                color: currentEvent.color ? "#FAFAFA" : "",
+                                                marginLeft: currentEvent.color ? "6px" : ""
+                                            },
+                                            '& .MuiIconButton-root:hover': {
+                                                backgroundColor: currentEvent.color ? "#fafafa80" : ""
+                                            }
+                                        }}
+                                    />
+                                </DemoContainer>
+                            </LocalizationProvider>
+                        </Grid>
+                        <Grid item lg={6} md={6} sm={6} xs={12}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DemoContainer components={['DateTimePicker']}>
+                                    <DateTimePicker label="Thời gian kết thúc"
+                                        value={currentEvent.end ? dayjs(currentEvent.end) : null}
+                                        onChange={(newValue) => {
+                                            setCurrentEvent(prev => ({ ...prev, end: newValue.toISOString() }))
+                                        }}
+                                        sx={{
+                                            '& fieldset': {
+                                                borderColor: currentEvent.color ? "#D6D3D1" : ""
+                                            },
+                                            '& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline': {
+                                                borderColor: currentEvent.color ? "#FAFAFA" : ""
+                                            },
+                                            '& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: currentEvent.color ? "2px solid #FAFAFA" : ""
+                                            },
+                                            '& input, & label': {
+                                                color: currentEvent.color ? "#FAFAFA !important" : ""
+                                            },
+                                            '& .MuiIconButton-root': {
+                                                color: currentEvent.color ? "#FAFAFA" : "",
+                                                marginLeft: currentEvent.color ? "6px" : ""
+                                            },
+                                            '& .MuiIconButton-root:hover': {
+                                                backgroundColor: currentEvent.color ? "#fafafa80" : ""
+                                            }
+                                        }}
+                                    />
+                                </DemoContainer>
+                            </LocalizationProvider>
+                        </Grid>
+
                         <Box>
                             <List sx={{ display: "flex", flexWrap: "wrap", paddingLeft: "20px" }}>
                                 {colors.map((color, index) => (
@@ -559,28 +673,51 @@ const Calendar = () => {
                 <DialogActions sx={{ padding: "0 24px 10px", justifyContent: (currentEvent.id && currentEvent.id.length === 36) ? "space-between" : "end" }}>
                     {
                         currentEvent.id && currentEvent.id.length === 36 &&
-                        <Button onClick={handleDeleteSchedule} variant="contained">
+                        <Button onClick={handleDeleteSchedule} variant="contained" sx={{
+                            backgroundColor: "#fafafa",
+                            color: "#5e5e5e",
+                            '&:hover': {
+                                backgroundColor: "#fafafab3",
+                                color: "#5e5e5e",
+                            }
+                        }}>
                             Xóa
                         </Button>
                     }
                     <Box>
                         <Button onClick={handleCloseSchedule} variant="contained"
-                            sx={{ marginRight: "8px" }}
+
+                            sx={currentEvent.color ? {
+                                marginRight: "8px",
+                                backgroundColor: "#fafafa",
+                                color: "#5e5e5e",
+                                '&:hover': {
+                                    backgroundColor: "#fafafab3",
+                                    color: "#5e5e5e",
+                                }
+                            } : { marginRight: "8px", }}
                         >
                             Hủy
                         </Button>
-                        <LoadingButton
+                        <Button
                             onClick={handleSchedule} variant="contained"
-                            type="button" loading={isLoading}
-                        >
-                            Lưu
-                        </LoadingButton >
+                            type="button"
+                            sx={currentEvent.color ? {
+                                backgroundColor: "#fafafa",
+                                color: "#5e5e5e",
+                                '&:hover': {
+                                    backgroundColor: "#fafafab3",
+                                    color: "#5e5e5e",
+                                }
+                            } : {}}
+                        > Lưu
+                        </Button >
                     </Box>
                 </DialogActions>
             </Dialog >
             <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={isLoading}
+                open={actionLoading}
             >
                 <CircularProgress color="inherit" />
             </Backdrop>

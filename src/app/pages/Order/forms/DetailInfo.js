@@ -46,30 +46,6 @@ const DetailInfo = ({ data }) => {
 
     return (
         <>
-            {/* <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between"
-                }}
-            >
-                <IconButton
-                    sx={{ height: "40px" }}
-                    onClick={() => navigate(-1)}
-                >
-                    <ArrowBackIcon />
-                </IconButton>
-                <ReactToPrint
-                    trigger={() => <Button
-                        variant="contained"
-                        component="label"
-                        color="primary"
-                        sx={{ my: 2 }}
-                    >
-                        <PrintIcon />
-                    </Button>}
-                    content={() => printRef.current}
-                />
-            </Box > */}
             <Box sx={{ position: "absolute", top: "24px", right: "24px" }}>
                 <Paragraph sx={{ color: "rgba(52, 49, 76, 0.54)", fontSize: "14px" }}>
                     {data.createdAtTime}

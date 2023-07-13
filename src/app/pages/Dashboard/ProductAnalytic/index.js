@@ -1,116 +1,163 @@
-import { Card, Grid, styled, useTheme, Box } from '@mui/material';
-import { Fragment } from 'react';
-import React, { useEffect, useState } from 'react';
+import { LinearProgress, Grid, styled } from '@mui/material';
+import React, { useEffect, useState, Fragment } from 'react';
 import AnalyticService from '../../../services/analytic.service';
 import LocationService from '../../../services/location.service';
 import BarChart from "./BarChart";
 import MapChart from "./MapChart";
+import LineChart from "./LineChart";
+import TopSellingTable from "./TopSellingTable";
+import TypeDoughnutChart from "./TypeDoughnutChart";
+import RegionDoughnutChart from "./RegionDoughnutChart";
+import Cards from "./Cards";
+import { H3 } from '../../../components/Typography';
 
 const ContentBox = styled('div')(({ theme }) => ({
     margin: '30px 30px',
     [theme.breakpoints.down('sm')]: { margin: '16px' },
 }));
 
-const Title = styled('span')(() => ({
-    fontSize: '1rem',
-    fontWeight: '500',
-    marginRight: '.5rem',
-    textTransform: 'capitalize',
-}));
-
-const SubTitle = styled('span')(({ theme }) => ({
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary,
-}));
-
-const H4 = styled('h4')(({ theme }) => ({
-    fontSize: '1rem',
-    fontWeight: '500',
-    marginBottom: '16px',
-    textTransform: 'capitalize',
-    color: theme.palette.text.secondary,
-}));
-
-const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
 const ProductAnalytics = () => {
 
-    const { palette } = useTheme();
-    const [products, setProducts] = useState([]);
-    const [temp, setTemp] = useState([]);
+    const [products, setProducts] = useState();
+    const [details, setDetails] = useState();
+    const [types, setTypes] = useState();
+    const [provinces, setProvinces] = useState([]);
+    const [regions, setRegions] = useState([]);
+    const [cardsValue, setCardsValue] = useState();
+
+    const [progress, setProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
-        const curDate = new Date();
+        setLoading(true);
         (async () => {
-            /*  await AnalyticService.getDbAnalytics()
-                 .then(res => {
-                     const data = res.data.payload;
-                     setProducts(data.products.map(product => {
-                         let { OrderDetails, ...remains } = product;
-                         return {
-                             ...remains,
-                             revenue: OrderDetails.reduce((acc, detail) => {
-                                 return acc + (
-                                     detail.order.status === 1
-                                         ? Number(detail.price) * detail.quantity
-                                         : 0
-                                 );
-                             }, 0),
-                             revenueWithTime: OrderDetails.map(detail => {
-                                 return detail.order.status === 1
-                                     ? {
-                                         date: detail.order.updatedAt,
-                                         revenue: Number(detail.price) * detail.quantity
-                                     }
-                                     : null
-                             }),
-                         }
-                     }));
-                 }); */
+            await AnalyticService.getProductAnalytics({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    setProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 600);
+                    }
+                },
+            })
+                .then(res => {
+                    let { types, products, details, } = res.data.payload;
+                    setTypes(types);
+                    setDetails(details);
+                    setCardsValue({
+                        prodSold: details.reduce((acc, detail) => {
+                            return acc + (
+                                [1, 2].includes(detail.order.status)
+                                    ? detail.quantity
+                                    : 0
+                            );
+                        }, 0),
+                        prodRevenue: details.reduce((acc, detail) => {
+                            return acc + (
+                                [1, 2].includes(detail.order.status)
+                                    ? Number(detail.price) * detail.quantity
+                                    : 0
+                            );
+                        }, 0),
+                        pendProd: details.reduce((acc, detail) => {
+                            return acc + (
+                                [3].includes(detail.order.status)
+                                    ? detail.quantity
+                                    : 0
+                            );
+                        }, 0),
+                        cancProd: details.reduce((acc, detail) => {
+                            return acc + (
+                                [0].includes(detail.order.status)
+                                    ? detail.quantity
+                                    : 0
+                            );
+                        }, 0)
+                    });
+
+                    setProducts(products.map(product => {
+                        let { OrderDetails, ...remains } = product;
+                        return {
+                            ...remains,
+                            revenue: OrderDetails.reduce((acc, detail) => {
+                                return acc + (
+                                    detail.order.status === 1
+                                        ? Number(detail.price) * detail.quantity
+                                        : 0
+                                );
+                            }, 0),
+                            revenueWithTime: OrderDetails.map(detail => {
+                                return detail.order.status === 1
+                                    ? {
+                                        date: detail.order.updatedAt,
+                                        revenue: Number(detail.price) * detail.quantity
+                                    }
+                                    : null
+                            }),
+                        }
+                    }));
+                });
             await LocationService.getAllProvinces()
                 .then(res => {
-                    setTemp(res.data.payload.map((province, index) => {
-                        let provinceName = province.provinceName;
-                        if (Number(province.id) === 46) {
-                            provinceName = "Thừa Thiên - Huế";
-                        }
-                        if (Number(province.id) === 79) {
-                            provinceName = "Hồ Chí Minh city";
-                        }
-                        return {
-                            name: provinceName,
-                            value: index * 100000
-                        }
-                    }))
-                })
+                    setProvinces(res.data.payload);
+                });
+            await LocationService.getAllRegions()
+                .then(res => {
+                    setRegions(res.data.payload);
+                });
         })()
     }, []);
 
     return (
         <Fragment>
+            {
+                loading &&
+                <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
             <ContentBox className="">
-
-
-
-                <Grid container spacing={3}>
+                <H3 sx={{
+                    fontSize: "18px",
+                    fontWeight: "500",
+                    marginBottom: "16px"
+                }}>Tổng quan</H3>
+                <Cards data={cardsValue} />
+                <Grid container spacing={2}>
                     <Grid item lg={12} md={12} sm={12} xs={12}>
-                        <BarChart
-                            months={months}
-                        />
+                        <BarChart data={types} />
                     </Grid>
 
-                    <Grid item lg={6} md={6} sm={6} xs={12}>
-                        <MapChart data={temp} />
+                    <Grid item lg={4} md={12} sm={12} xs={12}>
+                        <MapChart provinceData={provinces} data={details} />
                     </Grid>
-                    <Grid item lg={4} md={4} sm={4} xs={12}>
-
+                    <Grid item lg={8} md={12} sm={12} xs={12}>
+                        <Grid container spacing={2}>
+                            <Grid item lg={6} md={6} sm={6} xs={12}>
+                                <TypeDoughnutChart
+                                    height="300px"
+                                    data={types}
+                                />
+                            </Grid>
+                            <Grid item lg={6} md={6} sm={6} xs={12}>
+                                <RegionDoughnutChart
+                                    height="300px"
+                                    data={details}
+                                    regionData={regions}
+                                />
+                            </Grid>
+                            <Grid item lg={12} md={12} sm={12} xs={12}>
+                                <TopSellingTable data={products} />
+                            </Grid>
+                        </Grid>
                     </Grid>
-                    <Grid item lg={6} md={6} sm={6} xs={12}>
-
+                    <Grid item lg={12} md={12} sm={12} xs={12}>
+                        <LineChart data={details} />
                     </Grid>
-                    <Grid item lg={6} md={6} sm={6} xs={12}>
-
-                    </Grid>
-
                 </Grid>
             </ContentBox>
         </Fragment >

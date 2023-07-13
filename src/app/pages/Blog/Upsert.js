@@ -20,7 +20,7 @@ const BlogUpsert = () => {
     return (
         <Container>
             <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/blog/manage" }, { name: id ? "Cập nhật" : "Thêm mới" }]} />
+                <Breadcrumb routeSegments={[{ name: "Quản lý blog", path: "/blog/manage" }, { name: id ? "Cập nhật blog" : "Thêm mới blog" }]} />
             </Box>
 
             <Stack spacing={3}>

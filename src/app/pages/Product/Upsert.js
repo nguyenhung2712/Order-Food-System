@@ -21,17 +21,10 @@ const ProductUpsert = () => {
     return (
         <Container>
             <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/product/manage" }, { name: id ? "Cập nhật" : "Thêm mới" }]} />
+                <Breadcrumb routeSegments={[{ name: "Quản lý món ăn", path: "/product/manage" }, { name: id ? "Cập nhật món ăn" : "Thêm mới món ăn" }]} />
             </Box>
-
             <Stack spacing={3}>
-                {
-                    id
-                        ? <InputForm
-                            id={id}
-                        />
-                        : <InputForm />
-                }
+                {id ? <InputForm id={id} /> : <InputForm />}
             </Stack>
         </Container>
     );

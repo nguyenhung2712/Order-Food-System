@@ -1,4 +1,4 @@
-import { Grid, styled, useTheme, Box } from '@mui/material';
+import { Grid, styled, LinearProgress } from '@mui/material';
 import { Fragment } from 'react';
 import React, { useEffect, useState } from 'react';
 import Cards from './Cards';
@@ -23,18 +23,30 @@ const H4 = styled('h4')(({ theme }) => ({
 
 
 const OrderAnalytics = () => {
-
-    const { palette } = useTheme();
-    const [products, setProducts] = useState([]);
+    const [products, setProducts] = useState();
     const [cardData1, setCardData1] = useState();
     const [cardData2, setCardData2] = useState();
     const [stockData, setStockData] = useState();
-    const [orders, setOrders] = useState([]);
+    const [orders, setOrders] = useState();
+    const [loading, setLoading] = useState();
+    const [progress, setProgress] = useState();
 
     useEffect(() => {
-        const curDate = new Date();
+        setLoading(true);
+
         (async () => {
-            await AnalyticService.getDbAnalytics()
+            await AnalyticService.getDbAnalytics({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+
+                    setProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then(res => {
                     const data = res.data.payload;
                     setProducts(data.products.map(product => {
@@ -73,33 +85,36 @@ const OrderAnalytics = () => {
 
     return (
         <Fragment>
+            {
+                loading &&
+                <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
             <ContentBox className="">
                 <Grid container spacing={3}>
                     <Grid item lg={8} md={8} sm={8} xs={12}>
                         <H4>Hoạt động bán hàng</H4>
-                        {cardData1 && <Cards data={cardData1} />}
+                        <Cards data={cardData1} />
                     </Grid>
                     <Grid item lg={4} md={4} sm={4} xs={12}>
-                        <H4>Hoạt động bán hàng trong ngày</H4>
-                        {cardData2 && <Cards2 data={cardData2} />}
+                        <H4>HĐ bán hàng (trong ngày)</H4>
+                        <Cards2 data={cardData2} />
                     </Grid>
                     <Grid item lg={6} md={6} sm={12} xs={12}>
-                        {stockData && <PurchaseOrder data={stockData} />}
+                        <PurchaseOrder data={stockData} />
                     </Grid>
                     <Grid item lg={6} md={6} sm={12} xs={12}>
                         <TopSellingTable data={products} />
                     </Grid>
                 </Grid>
-                {
-                    orders &&
-                    <LineChart
-                        /* title="Doanh thu qua 12 tháng"
-                        titleColor={palette.background.paper} */
-                        subColor={"#bcc4cd"}
-                        color={"#fff"}
-                        data={orders}
-                    />
-                }
+                <LineChart
+                    subColor={"#bcc4cd"}
+                    color={"#fff"}
+                    data={orders}
+                />
 
             </ContentBox>
         </Fragment >

@@ -3,10 +3,9 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
-    Box, CardMedia, Chip,
-    styled, Typography,
-    Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, Button, Popper, Fade, Paper, ClickAwayListener, MenuList, MenuItem
+    Box, Chip, Typography, Table, TableBody, TableCell, useTheme,
+    TablePagination, TableRow, Stack, Toolbar, Tooltip, Button,
+    TextField, Skeleton
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -14,11 +13,8 @@ import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import EastIcon from '@mui/icons-material/East';
 import DeleteIcon from '@mui/icons-material/Delete';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
-import swal from 'sweetalert';
-
-import { convertToDateTimeStr, getComparator, stableSort } from "../../utils/utils";
+import { convertToDateTimeStr, getComparator, stableSort, sweetAlert, toastify } from "../../utils/utils";
 import { SortTableHead } from "../../components";
 import OrderService from "../../services/order.service";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
@@ -69,49 +65,52 @@ const headCells = [
     },
 ];
 
-const StyledIconBtn = styled(IconButton)(({ theme }) => ({
-    height: 44,
-    whiteSpace: 'pre',
-    overflow: 'hidden',
-    color: theme.palette.text.primary,
-    '&:hover': { background: 'rgba(255, 255, 255, 0.08)' },
-    '& .icon': {
-        width: 36,
-        fontSize: '18px',
-        paddingLeft: '16px',
-        paddingRight: '16px',
-        verticalAlign: 'middle',
-    },
-}));
-
-export default function EnhancedTable() {
+export default function OrderTable({ onSetProgress, onSetLoading }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { palette } = useTheme();
+
     const [anchorEl, setAnchorEl] = useState(null);
-    const [rows, setRows] = useState([]);
-    const [state, setState] = useState([]);
+    const errorColor = palette.error.main;
+    const primaryColor = palette.primary.main;
+    const [filteredRows, setFilteredRows] = useState();
+    const [filterText, setFilterText] = useState('');
+
+    const [rows, setRows] = useState();
+    const [state, setState] = useState();
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('dishName');
     const [selected, setSelected] = useState([]);
-    const [selectedData, setSelectedData] = useState([]);
     const [page, setPage] = useState(0);
     const [isRender, setIsRender] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
+        onSetLoading(true);
         (async () => {
-            await OrderService.getAllOrders()
+            await OrderService.getAllOrders({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    onSetProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            onSetLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then((res) => {
                     let orders = res.data.payload;
                     let rows = orders.map(order => ({
                         id: order.id,
                         number: order.number,
-                        createdAt: convertToDateTimeStr(order, "createdAt", true),
-                        predictDate: convertToDateTimeStr(order, "predictDate", true),
+                        createdAt: new Date(order.createdAt),
+                        predictDate: new Date(order.predictDate),
                         username: order.user.firstName + " " + order.user.lastName,
                         status: order.status,
                         user: order.user
                     }));
+                    setFilteredRows(rows);
                     setRows(rows);
                     setState(orders);
                 })
@@ -120,6 +119,27 @@ export default function EnhancedTable() {
                 });
         })();
     }, [isRender]);
+
+    useEffect(() => {
+        if (filterText === "") {
+            setFilteredRows(rows);
+        } else {
+            setFilteredRows(rows.filter((row) => {
+                let type = "";
+                switch (row.status) {
+                    case 4: type = "Đã nhận đơn"; break;
+                    case 3: type = "Đã duyệt"; break;
+                    case 2: type = "Đang giao"; break;
+                    default: type = "Đã giao"; break;
+                }
+                return row.number.toLowerCase().indexOf(filterText.toLowerCase()) > -1 ||
+                    row.username.toLowerCase().indexOf(filterText.toLowerCase()) > -1 ||
+                    type.toLowerCase().indexOf(filterText.toLowerCase()) > -1 ||
+                    convertToDateTimeStr(row, "predictDate", true).indexOf(filterText.toLowerCase()) > -1 ||
+                    convertToDateTimeStr(row, "createdAt", true).indexOf(filterText.toLowerCase()) > -1
+            }))
+        }
+    }, [filterText]);
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -178,14 +198,15 @@ export default function EnhancedTable() {
             case 2: type = "Đang giao"; break;
             default: type = "Đã giao"; break;
         }
-        swal({
-            title: "Thay đổi tình trạng",
-            text: `Đồng ý chuyển sang trạng thái ${type}?`,
-            icon: "info",
-            buttons: ["Hủy bỏ", "Đồng ý"],
+        sweetAlert({
+            title: 'Cập nhật tình trạng',
+            text: `Đồng ý cập nhật đơn hàng sang trạng thái ${type}?`,
+            icon: 'info',
+            confirmColor: primaryColor,
+            cancelColor: errorColor,
         })
             .then(async (result) => {
-                if (result) {
+                if (result.isConfirmed) {
                     selectedArr.forEach(async (row) => {
                         await OrderService.updateOrder(row.id, { status })
                             .then(async (res) => {
@@ -199,30 +220,30 @@ export default function EnhancedTable() {
                                     receivedId: [row.user.id],
                                     status: 1
                                 });
+                                toastify({
+                                    message: "Đã cập nhật trạng thái đơn hàng",
+                                    position: "top-right",
+                                    type: "success"
+                                });
                                 setIsRender(curr => !curr);
                             });
                     });
                     setSelected([]);
                 }
             });
-        /* const { status } = event.currentTarget.dataset;
-        await OrderService.updateOrder(id, { status: Number(status) })
-            .then(res => {
-                setIsRender(curr => !curr);
-            });
-        setOpenAction(false); */
     }
 
     const handleDelete = (event) => {
         let selectedArr = selected;
-        swal({
-            title: "Xóa nội dung",
-            text: "Đồng ý xóa các nội dung đã chọn ?",
+        sweetAlert({
+            title: "Xóa đơn hàng",
+            text: "Đồng ý xóa các đơn hàng đã chọn ?",
             icon: "warning",
-            buttons: ["Hủy bỏ", "Đồng ý"],
+            confirmColor: primaryColor,
+            cancelColor: errorColor,
         })
             .then(result => {
-                if (result) {
+                if (result.isConfirmed) {
                     selectedArr.forEach(async (row) => {
                         await OrderService.deleteOrder(row.id)
                             .then(async (res) => {
@@ -238,27 +259,70 @@ export default function EnhancedTable() {
                                 setIsRender(curr => !curr);
                             });
                     });
+                    toastify({
+                        message: "Đã tạm xóa các đơn hàng",
+                        position: "top-right",
+                        type: "success"
+                    });
                     setSelected([]);
                 }
             });
     }
 
     const isSelected = (name) => selected.map(select => select.id).indexOf(name) !== -1;
-    console.log(selected);
-    // Avoid a layout jump when reaching the last page with empty rows.
+
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-    const round = (value, precision) => {
-        var multiplier = Math.pow(10, precision || 0);
-        return Math.round(value * multiplier) / multiplier;
+    const handleFilterChange = (event) => {
+        setFilterText(event.target.value);
+    };
+
+    if (!rows || !filteredRows) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"550px"}
+                />
+            </Box>
+        );
     }
 
-
-
     return (
-        <Box sx={{ width: '100%' }}>
-
+        <Box sx={{ width: '100%', position: "relative" }}>
+            <Box sx={{ display: "flex", alignItems: "center", position: "absolute", top: "-55px", right: "4px" }}>
+                <TextField
+                    label="Tìm kiếm"
+                    size="small"
+                    sx={{
+                        marginRight: "14px",
+                        width: "220px"
+                    }}
+                    value={filterText}
+                    onChange={handleFilterChange}
+                />
+                <Button
+                    variant="contained"
+                    component="label"
+                    color="primary"
+                    sx={{
+                        my: 1,
+                        fontSize: "1rem",
+                        borderRadius: "6px !important",
+                        border: 1
+                    }}
+                >
+                    <CSVLink
+                        data={filteredRows}
+                        filename={"orders-data.csv"}
+                        target="_blank"
+                        style={{ display: 'flex', alignItems: 'center', textDecoration: "none", color: "#fff" }}
+                    >
+                        <FileDownloadIcon />
+                    </CSVLink>
+                </Button>
+            </Box>
             <Toolbar
                 sx={{
                     pl: { sm: 2 },
@@ -288,47 +352,37 @@ export default function EnhancedTable() {
                     </Typography>
                 )}
 
-                {selected.length > 0 ? (
-                    <Stack direction="row" spacing={1} justifyContent="center">
-                        <StyledIconBtn onClick={(e) => handleUpdateStatus(e, 4)}>
-                            <CallReceivedIcon />
-                        </StyledIconBtn>
-                        <StyledIconBtn onClick={(e) => handleUpdateStatus(e, 3)}>
-                            <HowToRegIcon />
-                        </StyledIconBtn>
-                        <StyledIconBtn onClick={(e) => handleUpdateStatus(e, 2)}>
-                            <LocalShippingIcon />
-                        </StyledIconBtn>
-                        <StyledIconBtn onClick={(e) => handleUpdateStatus(e, 1)}>
-                            <CheckCircleIcon />
-                        </StyledIconBtn>
-                        <StyledIconBtn onClick={handleDelete}>
-                            <DeleteIcon />
-                        </StyledIconBtn>
-                    </Stack>
-                ) : (
-                    <Button
-                        variant="contained"
-                        component="label"
-                        color="primary"
-                        sx={{
-                            my: 2,
-                            fontSize: "1rem",
-                            borderRadius: "6px !important",
-
-                            border: 1
-                        }}
-                    >
-                        <CSVLink
-                            data={state}
-                            filename={"orders-data.csv"}
-                            target="_blank"
-                            style={{ display: 'flex', alignItems: 'center', textDecoration: "none", color: "#fff" }}
-                        >
-                            <FileDownloadIcon />
-                        </CSVLink>
-                    </Button>
-                )}
+                {
+                    selected.length > 0 && (
+                        <Stack direction="row" spacing={1} justifyContent="center">
+                            <Tooltip title="Đã tiếp nhận">
+                                <IconButton onClick={(e) => handleUpdateStatus(e, 4)}>
+                                    <CallReceivedIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Đã xác nhận">
+                                <IconButton onClick={(e) => handleUpdateStatus(e, 3)}>
+                                    <HowToRegIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Đang vận chuyển">
+                                <IconButton onClick={(e) => handleUpdateStatus(e, 2)}>
+                                    <LocalShippingIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Đã giao">
+                                <IconButton onClick={(e) => handleUpdateStatus(e, 1)}>
+                                    <CheckCircleIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Hủy">
+                                <IconButton onClick={handleDelete}>
+                                    <DeleteIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </Stack>
+                    )
+                }
             </Toolbar>
             <TableContainer>
                 <Table
@@ -342,12 +396,12 @@ export default function EnhancedTable() {
                         orderBy={orderBy}
                         onSelectAllClick={handleSelectAllClick}
                         onRequestSort={handleRequestSort}
-                        rowCount={rows.filter((n) => n.status !== 0).length}
+                        rowCount={filteredRows.filter((n) => n.status !== 0).length}
                         headCells={headCells}
                     />
                     <TableBody>
                         {
-                            stableSort(rows, getComparator(order, orderBy))
+                            stableSort(filteredRows, getComparator(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
                                     const isItemSelected = isSelected(row.id);
@@ -383,15 +437,14 @@ export default function EnhancedTable() {
                                                 padding="none"
                                                 align="center"
                                             >
-                                                {row.createdAt}
+                                                {convertToDateTimeStr(row, "createdAt", true)}
                                             </TableCell>
                                             <TableCell align="center">
-                                                {row.predictDate}
+                                                {convertToDateTimeStr(row, "predictDate", true)}
                                             </TableCell>
                                             <TableCell align="center">
                                                 {row.username}
                                             </TableCell>
-                                            {/* <TableCell align="center">{convertToVND(row.price)}</TableCell> */}
                                             <TableCell align="center">
                                                 {
                                                     row.status === 4
@@ -410,9 +463,9 @@ export default function EnhancedTable() {
                                                     {/* <Button aria-label="edit" onClick={() => handleOpenEdit(row.id)}>
                                                     <EditIcon />
                                                 </Button> */}
-                                                    <StyledIconBtn aria-label="east" onClick={() => handleViewDetail(row.id)}>
+                                                    <IconButton aria-label="east" onClick={() => handleViewDetail(row.id)}>
                                                         <EastIcon />
-                                                    </StyledIconBtn>
+                                                    </IconButton>
                                                 </Stack>
                                             </TableCell>
                                         </TableRow>
@@ -434,12 +487,15 @@ export default function EnhancedTable() {
             <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 component="div"
-                count={rows.length}
+                count={filteredRows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 labelRowsPerPage={"Dòng dữ liệu trên trang"}
+                labelDisplayedRows={({ from, to, count }) => {
+                    return `${from} - ${to} của ${count}`;
+                }}
                 sx={{
                     ".MuiTablePagination-selectLabel": {
                         margin: "0px !important",

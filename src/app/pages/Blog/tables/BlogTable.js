@@ -3,11 +3,9 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
-    Box, Chip,
-    styled, Typography,
+    Box, Chip, styled, Typography, Skeleton,
     Table, TableBody, TableCell, TablePagination, TableRow, Stack,
-    Toolbar, Tooltip, CardMedia, Button, useTheme,
-    Backdrop, CircularProgress, TextField
+    Toolbar, Tooltip, CardMedia, Button, useTheme, TextField
 } from "@mui/material";
 import { alpha } from '@mui/material/styles';
 import TableContainer from '@mui/material/TableContainer';
@@ -75,7 +73,7 @@ const StyledIconBtn = styled(IconButton)(({ theme }) => ({
     },
 }));
 
-export default function EnhancedTable() {
+export default function BlogTable({ onSetProgress, onSetLoading }) {
     const placeholderImage = `/assets/images/viet-blog-3.jpg`;
 
     const { palette } = useTheme();
@@ -85,8 +83,8 @@ export default function EnhancedTable() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [rows, setRows] = useState([]);
-    const [filteredRows, setFilteredRows] = useState([]);
+    const [rows, setRows] = useState();
+    const [filteredRows, setFilteredRows] = useState();
     const [filterText, setFilterText] = useState('');
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('header');
@@ -94,11 +92,21 @@ export default function EnhancedTable() {
     const [page, setPage] = useState(0);
     const [isRender, setIsRender] = useState(false);
     const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
+        onSetLoading(true);
         (async () => {
-            await BlogService.getAllBlogs()
+            await BlogService.getAllBlogs({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    onSetProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            onSetLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then((res) => {
                     let blogs = res.data.payload;
                     let rows = blogs.map(blog => ({
@@ -108,7 +116,7 @@ export default function EnhancedTable() {
                         userId: blog.user.id,
                         status: blog.status,
                         image: getImageUrl(blog.content) ? getImageUrl(blog.content) : placeholderImage,
-                        createdAt: convertToDateTimeStr(blog, "createdAt", true)
+                        createdAt: blog.createdAt
                     }));
                     setRows(rows);
                     setFilteredRows(rows);
@@ -124,8 +132,8 @@ export default function EnhancedTable() {
             setFilteredRows(rows);
         } else {
             setFilteredRows(rows.filter((row) =>
-                row.header.toLowerCase().includes(filterText.toLowerCase()) ||
-                row.user.toLowerCase().includes(filterText.toLowerCase())
+                row.header.toLowerCase().indexOf(filterText.toLowerCase()) > -1 ||
+                row.user.toLowerCase().indexOf(filterText.toLowerCase()) > -1
             ))
         }
     }, [filterText]);
@@ -205,13 +213,12 @@ export default function EnhancedTable() {
         })
             .then(result => {
                 if (result.isConfirmed) {
-                    setLoading(true);
                     selectedArr.forEach(async (id) => {
                         await BlogService.deleteBlog(id)
                             .then(async (res) => {
                                 await addDocument("notifications", {
                                     title: "Cập nhật blog",
-                                    message: `Một trong các blog của bạn đã được tạm xóa. Hãy liên hệ nhân viên để biết thêm chi tiết.`,
+                                    message: `Một trong các blog của bạn đã được tạm xóa. Hãy liên hệ quản trị viên để biết thêm chi tiết.`,
                                     usePath: "/my-account/blogs",
                                     staffPath: null,
                                     readBy: [],
@@ -223,7 +230,6 @@ export default function EnhancedTable() {
                                 setIsRender(curr => !curr);
                             });
                     });
-                    setLoading(false);
                     toast.success('Đã xóa blog thành công.', {
                         position: "top-right",
                         autoClose: 2500,
@@ -245,15 +251,25 @@ export default function EnhancedTable() {
 
     const isSelected = (name) => selected.indexOf(name) !== -1;
 
-    // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+    if (!rows || !filteredRows) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"550px"}
+                />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ width: '100%', position: "relative" }}>
             <Box sx={{ display: "flex", alignItems: "center", position: "absolute", top: "-55px", right: "4px" }}>
                 <TextField
-                    label="Search"
+                    label="Tìm kiếm"
                     size="small"
                     sx={{
                         marginRight: "14px",
@@ -382,7 +398,7 @@ export default function EnhancedTable() {
 
                                         </TableCell>
                                         <TableCell align="center">
-                                            {row.createdAt}
+                                            {convertToDateTimeStr(row, "createdAt", true)}
                                         </TableCell>
 
                                         <TableCell align="center">{row.user}</TableCell>
@@ -443,12 +459,6 @@ export default function EnhancedTable() {
 
                 }}
             />
-            <Backdrop
-                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 999 }}
-                open={isLoading}
-            >
-                <CircularProgress color="inherit" />
-            </Backdrop>
         </Box>
     );
 }

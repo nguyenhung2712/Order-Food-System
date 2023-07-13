@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-    Grid, TextField, IconButton, Button,
+    Grid, TextField, IconButton, Button, Skeleton,
     Popper, Grow, Paper, ClickAwayListener, MenuList, MenuItem
 } from "@mui/material";
 import { Box, styled } from "@mui/system";
@@ -13,8 +13,9 @@ import UserInfo from "./forms/UserInfo";
 import BlogInfo from "./forms/BlogInfo";
 import BlogService from "../../services/blog.service";
 import CommentInfo from "./forms/CommentInfo";
-import { H4 } from "../../components/Typography";
+import { Paragraph } from "../../components/Typography";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import { convertToDateTimeStr } from "../../utils/utils";
 
 const Container = styled("div")(({ theme }) => ({
     margin: "30px",
@@ -29,7 +30,9 @@ const BlogDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const anchorRef = useRef(null);
-    const [state, setState] = useState({});
+    const componentRef = useRef(null);
+
+    const [state, setState] = useState();
     const [isFiltered, setFilter] = useState(false);
     const [filterText, setFilterText] = useState("");
     const [filterType, setFilterType] = useState("newest");
@@ -41,7 +44,6 @@ const BlogDetail = () => {
                 .then(async (res) => {
                     let blog = res.data.payload;
                     setState(blog);
-
                 })
                 .catch((err) => {
                     console.log(err);
@@ -81,23 +83,55 @@ const BlogDetail = () => {
     return (
         <Container>
             <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/blog/manage" }, { name: "Thông tin" }]} />
+                <Breadcrumb routeSegments={[{ name: "Quản lý blog", path: "/blog/manage" }, { name: "Thông tin blog" }]} />
             </Box>
             <Grid container spacing={2}>
-                <Grid item lg={5} md={5} sm={12} xs={12} sx={{ mt: 2, height: "fit-content !important" }}>
+                <Grid item lg={8} md={8} sm={12} xs={12} sx={{ justifyContent: "center" }}>
+                    <SimpleCard
+                        title="Thông tin Blog"
+                        sxTitle={{ paddingLeft: "20px" }}
+                        sx={{ paddingRight: 0, paddingLeft: 0, height: "fit-content", position: "relative" }}
+                    >
+                        <Box sx={{ position: "absolute", top: "24px", right: "24px" }}>
+                            {
+                                state
+                                    ? <Paragraph sx={{ color: "rgba(52, 49, 76, 0.54)", fontSize: "14px" }}>
+                                        {convertToDateTimeStr(state, "createdAt", true)}
+                                    </Paragraph>
+                                    : <Skeleton
+                                        variant="text"
+                                        height={"50px"}
+                                    />
+                            }
+
+                        </Box>
+                        <BlogInfo data={state} commentComponent={componentRef.current} />
+                    </SimpleCard>
+                </Grid>
+                <Grid item lg={4} md={4} sm={12} xs={12}>
                     <SimpleCard
                         title="Thông tin người viết"
                         sxTitle={{ paddingLeft: "20px" }}
-                        sx={{ paddingRight: 0, paddingLeft: 0, position: "relative", paddingBottom: 0 }}
+                        sx={{
+                            paddingRight: 0,
+                            paddingLeft: 0,
+                            position: "relative",
+                            paddingBottom: 0,
+                            height: "fit-content !important"
+                        }}
                     >
-                        <UserInfo
-                            data={state.user}
-                        />
-                        <Button
-                            sx={{ position: "absolute", top: "12px", right: "12px" }}
-                            onClick={() => navigate(`/customer/${state.user.id}`)}
-                        >Chi tiết</Button>
+                        <UserInfo data={state} />
+                        {
+                            state &&
+                            <Button
+                                sx={{ position: "absolute", top: "12px", right: "12px" }}
+                                onClick={() => navigate(`/customer/${state.user.id}`)}
+                            >Chi tiết</Button>
+                        }
                     </SimpleCard>
+
+                </Grid>
+                <Grid item lg={8} md={8} sm={12} xs={12} sx={{ mt: 2, height: "fit-content !important" }} ref={componentRef}>
                     <SimpleCard
                         title="Thông tin bình luận"
                         sxTitle={{ paddingLeft: "20px" }}
@@ -114,12 +148,13 @@ const BlogDetail = () => {
                                 position: "absolute",
                                 top: "12px",
                                 right: "12px",
-                                display: "flex"
+                                display: "flex",
+                                alignItems: "center"
                             }}
                         >
                             <TextField
                                 id="outlined-basic"
-                                label="Filter"
+                                label="Lọc bình luận..."
                                 variant="outlined"
                                 sx={{ width: "220px" }}
                                 onChange={(event) => {
@@ -134,6 +169,10 @@ const BlogDetail = () => {
                                 aria-expanded={isOpenFilter ? 'true' : undefined}
                                 aria-haspopup="true"
                                 onClick={handleToggle}
+                                sx={{
+                                    width: "50px",
+                                    height: "50px"
+                                }}
                             >
                                 <FilterAltIcon />
                             </IconButton>
@@ -142,9 +181,7 @@ const BlogDetail = () => {
                                 anchorEl={anchorRef.current}
                                 role={undefined}
                                 placement="bottom-start"
-                                sx={{
-                                    zIndex: 500
-                                }}
+                                sx={{ zIndex: 500 }}
                                 transition
                                 disablePortal
                             >
@@ -164,8 +201,8 @@ const BlogDetail = () => {
                                                     aria-labelledby="composition-button"
                                                     onKeyDown={handleListKeyDown}
                                                 >
-                                                    <MenuItem data-value="oldest" onClick={handleSetFilter}>Oldest</MenuItem>
-                                                    <MenuItem data-value="newest" onClick={handleSetFilter}>Newest</MenuItem>
+                                                    <MenuItem data-value="oldest" onClick={handleSetFilter}>Cũ nhất</MenuItem>
+                                                    <MenuItem data-value="newest" onClick={handleSetFilter}>Mới nhất</MenuItem>
                                                 </MenuList>
                                             </ClickAwayListener>
                                         </Paper>
@@ -187,19 +224,8 @@ const BlogDetail = () => {
                         </Box>
                     </SimpleCard>
                 </Grid>
-                <Grid item lg={7} md={7} sm={12} xs={12} sx={{ mt: 2 }}>
-                    <SimpleCard
-                        title="Thông tin Blog"
-                        sxTitle={{ paddingLeft: "20px" }}
-                        sx={{ paddingRight: 0, paddingLeft: 0, height: "fit-content" }}
-                    >
-                        <BlogInfo
-                            data={state}
-                        />
-                    </SimpleCard>
-                </Grid>
             </Grid>
-        </Container>
+        </Container >
     );
 };
 

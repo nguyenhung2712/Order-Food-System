@@ -1,4 +1,6 @@
 import { differenceInSeconds } from 'date-fns';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
 
 export const convertHexToRGB = (hex) => {
     // check if it's a rgba
@@ -291,3 +293,61 @@ export function getFirstAndLastDate(num, isYear = false) {
         firstDate, lastDate
     }
 }
+
+export async function sweetAlert({ title, text, icon, confirmColor, cancelColor }) {
+    return await Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showCancelButton: true,
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy',
+        confirmButtonColor: confirmColor,
+        cancelButtonColor: cancelColor,
+    });
+}
+
+export async function toastify({ message, type, position }) {
+    const condition = {
+        autoClose: 2500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: false,
+        progress: undefined,
+        theme: "light",
+    };
+    switch (type) {
+        case "success": {
+            toast.success(message, {
+                position: position,
+                ...condition
+            });
+        } break;
+        case "info": {
+            toast.info(message, {
+                position: position,
+                ...condition
+            });
+        } break;
+        case "warning": {
+            toast.warning(message, {
+                position: position,
+                ...condition
+            });
+        } break;
+        case "error": {
+            toast.error(message, {
+                position: position,
+                ...condition
+            });
+        } break;
+        default: {
+            toast(message, {
+                position: position,
+                ...condition
+            });
+        } break;
+    }
+}
+

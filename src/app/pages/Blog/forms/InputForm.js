@@ -151,7 +151,7 @@ const InputForm = ({ id }) => {
     };
 
     const handleStatusChange = (event) => {
-        setState({ ...state, status: state.status === 1 ? 2 : 1 });
+        setState({ ...state, status: state.status === 1 ? 0 : 1 });
     }
 
     const handleEditorChange = (event) => {
@@ -238,12 +238,12 @@ const InputForm = ({ id }) => {
                                     value={state.userId || ""}
                                     label="Người viết"
                                     onChange={handleChange}
-                                    disabled={(state.status === 0 || state.status === 2) ? true : false}
+                                    disabled={state.status === 0 || state.status === 2 || id}
                                 >
                                     <MenuItem
                                         value=""
                                         disabled
-                                    >Chọn loại</MenuItem>
+                                    >Người viết</MenuItem>
                                     {
                                         users && users.map((user, index) =>
                                             <MenuItem

@@ -1,14 +1,35 @@
-import { Box, Card, Grid, Icon, IconButton, styled, Tooltip, useTheme } from '@mui/material';
-import { Paragraph, Span, H4 } from '../../../components/Typography';
+import { Box, Grid, Skeleton, useTheme } from '@mui/material';
+import { Span, H4 } from '../../../components/Typography';
 import React from 'react';
-import { convertToVND } from '../../../utils/utils';
 
 const Cards = ({ data }) => {
     const { palette } = useTheme();
+
+    if (!data) {
+        return (
+            <Grid container spacing={3} sx={{ mb: '24px', height: "80%" }}>
+                {
+                    [1, 2].map((_, idx) => (
+                        <Grid item lg={12} md={12} sm={12} xs={12} key={idx}>
+
+                            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                                <Skeleton
+                                    variant="rounded" width={"100%"}
+                                    height={"60px"}
+                                />
+                            </Box>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        );
+    }
+
     const cardList = [
         { name: 'Đang bán', amount: data.quantityLeft },
         { name: 'Đã bán', amount: data.sold }
     ];
+
     return (
         <Box sx={{ "height": "80%", "display": "flex", "flexDirection": "column" }}>
             {cardList.map((item, index) => (

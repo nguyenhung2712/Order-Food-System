@@ -1,13 +1,12 @@
 import React from 'react'
-import { Divider, lighten } from "@mui/material"
-import { useTheme } from '@mui/system'
 import ReactEcharts from 'echarts-for-react'
-import { SimpleCard, Breadcrumb } from "../../../components";
+import { SimpleCard } from "../../../components";
 import 'echarts/lib/chart/heatmap';
 import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/grid';
 import 'echarts/lib/component/dataZoom';
 import 'echarts/lib/component/visualMap';
+import { Skeleton, Box } from "@mui/material";
 
 const hours = [
     '0h', '1h', '2h', '3h', '4h', '5h', '6h',
@@ -24,8 +23,7 @@ const days = [
 const HeatMap = ({ data }) => {
     const option = {
         visualMap: {
-            min: 1,
-            max: 11,
+            calculable: true,
             type: 'piecewise',
             orient: 'horizontal',
             left: 'center',
@@ -92,6 +90,16 @@ const HeatMap = ({ data }) => {
         textStyle: {
             fontFamily: `"Roboto","Helvetica","Arial",sans-serif`
         }
+    }
+    if (!data.heatmap) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"400px"}
+                />
+            </Box>
+        );
     }
     return (
         <SimpleCard

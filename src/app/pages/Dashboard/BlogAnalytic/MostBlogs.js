@@ -1,31 +1,40 @@
-import { useEffect, useState } from "react";
-import { useParams } from 'react-router-dom';
 import React from 'react';
 
-import {
-    Grid, Card, CardMedia, CardContent, CardActions,
-    Typography, Button, useTheme
-} from "@mui/material";
-import { Box, styled } from "@mui/system";
-
-import { Breadcrumb, SimpleCard } from "../../../components";
+import { Grid, Card, CardMedia, CardContent, Skeleton, useTheme } from "@mui/material";
+import { Box } from "@mui/system";
 
 import { H3, Span, Paragraph } from "../../../components/Typography";
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import CommentIcon from '@mui/icons-material/Comment';
 import { getTimeDifference, numberFormatter } from "../../../utils/utils";
 
-const Container = styled("div")(({ theme }) => ({
-    margin: "30px",
-    [theme.breakpoints.down("sm")]: { margin: "16px" },
-    "& .breadcrumb": {
-        marginBottom: "30px",
-        [theme.breakpoints.down("sm")]: { marginBottom: "16px" },
-    },
-}));
-
 const MostBlogs = ({ data }) => {
     const theme = useTheme();
+
+    if (!data) {
+        return (
+            <Grid container spacing={3} sx={{ mb: '24px', height: "80%" }}>
+                <Grid item lg={12} md={12} sm={12} xs={12} sx={{ height: "fit-content" }} component="div">
+                    <H3 sx={{ margin: 0, fontSize: "1.25rem" }}>
+                        <Span sx={{ color: theme.palette.primary.main }}>Blog</Span> mới nhất
+                    </H3>
+                </Grid>
+                {
+                    [1, 2, 3, 4].map((_, idx) => (
+                        <Grid item lg={3} md={3} sm={6} xs={12} key={idx}>
+
+                            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                                <Skeleton
+                                    variant="rounded" width={"100%"}
+                                    height={"320px"}
+                                />
+                            </Box>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        );
+    }
 
     return (
         <Grid container spacing={2} sx={{ mb: 6 }}>
@@ -35,7 +44,6 @@ const MostBlogs = ({ data }) => {
                 </H3>
             </Grid>
             {
-                data &&
                 data.map(blog => (
                     <Grid item lg={3} md={3} sm={6} xs={12} sx={{ height: "fit-content" }} component="div" key={blog.id}>
                         <Card>

@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
 import React from 'react';
 
-import { Grid, Tab, Tabs, Fade } from "@mui/material";
+import { Grid, Tab, Tabs, LinearProgress } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
 import { Breadcrumb, SimpleCard } from "../../components";
 import BillInfo from "./forms/BillInfo";
-import LogInfo from "./forms/LogInfo";
 import CustomerInfo from "./forms/CustomerInfo";
 import ActionsForm from "./forms/ActionsForm";
 import SendMailForm from "./forms/SendMailForm";
@@ -27,38 +26,38 @@ const Container = styled("div")(({ theme }) => ({
     },
 }));
 
-const OrderDetail = () => {
+const CustomerDetail = () => {
     const { id } = useParams();
-    const [state, setState] = useState({});
-    const [orders, setOrders] = useState([]);
-    const [histories, setHistories] = useState([]);
-    const [logs, setLogs] = useState([]);
+    const [state, setState] = useState();
+    const [orders, setOrders] = useState();
+    const [histories, setHistories] = useState();
     const [value, setValue] = useState(0);
     const [render, setRender] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
     useEffect(() => {
+        setLoading(true);
         (async () => {
             await UserService.getUserById(id)
                 .then(async (res) => {
                     let user = res.data.payload;
                     setState(user);
-                    await TrackerService.getByUserId(user.id)
-                        .then(res => {
-                            let logs = res.data.payload;
-                            logs = logs.map(log => ({
-                                apiText: log.apiText,
-                                ipAddress: log.ipAddress,
-                                createdAt: new Date(log.createdAt),
-                                typeApi: log.typeApi,
-                                statusCode: log.statusCode
-                            }));
-                            setLogs(logs);
-                        });
-                    await TrackerService.getHistoryByUser(user.id)
+                    await TrackerService.getHistoryByUser(user.id, {
+                        onDownloadProgress: function (progressEvent) {
+                            const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                            setProgress(percentage)
+                            if (percentage === 100) {
+                                setTimeout(() => {
+                                    setLoading(false);
+                                }, 600);
+                            }
+                        },
+                    })
                         .then(res => {
                             setHistories(res.data.payload);
                         })
@@ -71,88 +70,75 @@ const OrderDetail = () => {
     }, [render]);
 
     return (
-        <Container>
-            <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/customer/manage" }, { name: "Thông tin" }]} />
-            </Box>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs
-                    value={value}
-                    onChange={handleChange}
-                    aria-label="basic tabs example"
-                >
-                    <Tab label="Thông tin" {...a11yProps(0)} />
-                    <Tab label="Hóa đơn" {...a11yProps(1)} />
-                    <Tab label="Logs" {...a11yProps(2)} />
-                </Tabs>
-            </Box>
-            <TabPanel value={value} index={0}>
-                <Grid container spacing={2}>
-                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }} component="div">
-                        <SimpleCard
-                            title="Thông tin người dùng"
-                            sxTitle={{ paddingLeft: "20px" }}
-                            sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
-                        >
-                            {
-                                state &&
+        <>
+            {
+                loading && <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
+            <Container>
+                <Box className="breadcrumb">
+                    <Breadcrumb routeSegments={[{ name: "Quản lý khách hàng", path: "/customer/manage" }, { name: "Thông tin khách hàng" }]} />
+                </Box>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs
+                        value={value}
+                        onChange={handleChange}
+                        aria-label="basic tabs example"
+                    >
+                        <Tab label="Thông tin" {...a11yProps(0)} />
+                        <Tab label="Hóa đơn" {...a11yProps(1)} />
+                    </Tabs>
+                </Box>
+                <TabPanel value={value} index={0}>
+                    <Grid container spacing={2}>
+                        <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }} component="div">
+                            <SimpleCard
+                                title="Thông tin người dùng"
+                                sxTitle={{ paddingLeft: "20px" }}
+                                sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
+                            >
                                 <CustomerInfo data={state} />
-                            }
-                        </SimpleCard>
-                    </Grid>
-                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
-                        <SimpleCard
-                            title="Gửi mail"
-                            sxTitle={{ paddingLeft: "20px" }}
-                            sx={{ padding: "16px 0 0" }}
-                        >
-                            {
-                                state && histories &&
+                            </SimpleCard>
+                        </Grid>
+                        <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
+                            <SimpleCard
+                                title="Gửi mail"
+                                sxTitle={{ paddingLeft: "20px" }}
+                                sx={{ padding: "16px 0 0" }}
+                            >
                                 <SendMailForm
+                                    user={state}
                                     histories={histories}
                                 />
-                            }
-                        </SimpleCard>
-                    </Grid>
-                    <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
-                        <SimpleCard
-                            title="Các tác vụ khác"
-                            sxTitle={{ paddingLeft: "20px" }}
-                            sx={{ paddingRight: 0, paddingLeft: 0 }}
-                        >
-                            {
-                                state &&
+                            </SimpleCard>
+                        </Grid>
+                        <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
+                            <SimpleCard
+                                title="Các tác vụ khác"
+                                sxTitle={{ paddingLeft: "20px" }}
+                                sx={{ paddingRight: 0, paddingLeft: 0 }}
+                            >
                                 <ActionsForm
                                     data={state}
                                     setRender={setRender}
                                 />
-                            }
-                        </SimpleCard>
+                            </SimpleCard>
+                        </Grid>
                     </Grid>
-                </Grid>
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-                <SimpleCard title="Thông tin hóa đơn" >
-                    {
-                        orders && orders.length !== 0 &&
+                </TabPanel>
+                <TabPanel value={value} index={1}>
+                    <SimpleCard title="Thông tin hóa đơn" >
                         <BillInfo
                             data={orders}
                         />
-                    }
-                </SimpleCard>
-            </TabPanel>
-            <TabPanel value={value} index={2}>
-                <SimpleCard title="Thông tin lịch sử truy cập" >
-                    {
-                        logs && logs.length !== 0 &&
-                        <LogInfo
-                            data={logs}
-                        />
-                    }
-                </SimpleCard>
-            </TabPanel>
-        </Container>
+                    </SimpleCard>
+                </TabPanel>
+            </Container>
+        </>
     );
 };
 
-export default OrderDetail;
+export default CustomerDetail;

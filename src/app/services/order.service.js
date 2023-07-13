@@ -1,11 +1,11 @@
 import axiosInstance from "../../axios";
 
-const getAllOrders = async () => {
-    return await axiosInstance.get("/order/all");
+const getAllOrders = async (config) => {
+    return await axiosInstance.get("/order/all", config);
 };
 
-const getOrderById = async (orderId) => {
-    return await axiosInstance.get("/order/" + orderId);
+const getOrderById = async (orderId, config) => {
+    return await axiosInstance.get("/order/" + orderId, config);
 };
 
 const getOrderByUser = async (userId) => {

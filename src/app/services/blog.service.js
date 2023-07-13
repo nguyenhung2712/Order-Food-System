@@ -1,15 +1,15 @@
 import axiosInstance from "../../axios";
 
-const getAllBlogs = async () => {
-    return await axiosInstance.get("/blog/all");
+const getAllBlogs = async (config) => {
+    return await axiosInstance.get("/blog/all", config);
 };
 
-const getAllReports = async () => {
-    return await axiosInstance.get("/blog/report/all");
+const getAllReports = async (config) => {
+    return await axiosInstance.get("/blog/report/all", config);
 };
 
-const getBlogById = async (blogId) => {
-    return await axiosInstance.get("/blog/" + blogId);
+const getBlogById = async (blogId, config) => {
+    return await axiosInstance.get("/blog/" + blogId, config);
 };
 
 const createBlog = async (blog) => {
@@ -32,9 +32,6 @@ const solveReport = async (blogId, userId) => {
     return await axiosInstance.post("/blog/report/solve", { userId, blogId });
 };
 
-const getSolvedBlogs = async () => {
-    return await axiosInstance.get("/blog/report/solved/all");
-};
 const deleteReport = async (id) => {
     return await axiosInstance.delete("/report/delete/" + id);
 };
@@ -48,7 +45,6 @@ const BlogService = {
     deleteBlog,
     recoverBlog,
     solveReport,
-    getSolvedBlogs,
     deleteReport
 };
 

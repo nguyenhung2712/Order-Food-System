@@ -1,29 +1,17 @@
-import { Card, Grid, styled, useTheme, Box } from '@mui/material';
+import { Grid, styled, useTheme, LinearProgress } from '@mui/material';
 import { Fragment } from 'react';
 import React, { useEffect, useState } from 'react';
 import LineChart from './LineChart';
+import PolarChart from './PolarChart';
+
 import Cards from './Cards';
 import DoughnutChart from './DoughnutChart';
 import TopSellingTable from './TopSellingTable';
 import RowCards from './RowCards';
 import AnalyticService from '../../../services/analytic.service';
-import { convertToDateTimeStr } from '../../../utils/utils';
 
 const ContentBox = styled('div')(({ theme }) => ({
     margin: '-80px 30px 30px',
-    /* [theme.breakpoints.down('sm')]: { margin: '16px' }, */
-}));
-
-const Title = styled('span')(() => ({
-    fontSize: '1rem',
-    fontWeight: '500',
-    marginRight: '.5rem',
-    textTransform: 'capitalize',
-}));
-
-const SubTitle = styled('span')(({ theme }) => ({
-    fontSize: '0.875rem',
-    color: theme.palette.text.secondary,
 }));
 
 const H4 = styled('h4')(({ theme }) => ({
@@ -35,25 +23,38 @@ const H4 = styled('h4')(({ theme }) => ({
 }));
 
 const Analytics = () => {
-    const [monthsRevenue, setMonthsRevenue] = useState([]);
-    const [totalUsers, setTotalUsers] = useState(0);
-    const [weekRevenue, setWeekRevenue] = useState(0);
-    const [typesRevenue, setTypesRevenue] = useState([]);
-    const [highestProduct, setHighestProduct] = useState([]);
-    const [products, setProducts] = useState([]);
-    const [recentSchedule, setRecentSchedule] = useState([]);
+    const [monthsRevenue, setMonthsRevenue] = useState();
+    const [totalUsers, setTotalUsers] = useState();
+    const [weekRevenue, setWeekRevenue] = useState();
+    const [typesRevenue, setTypesRevenue] = useState();
+    const [products, setProducts] = useState();
+    const [recentSchedule, setRecentSchedule] = useState();
+    const [loading, setLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
 
     const { palette } = useTheme();
+
     useEffect(() => {
+        setLoading(true);
         const curDate = new Date();
         (async () => {
-            await AnalyticService.getDbAnalytics()
+            await AnalyticService.getDbAnalytics({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    setProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then(res => {
                     const data = res.data.payload;
                     setMonthsRevenue(data.revenueOf12Month);
                     setTotalUsers(data.newUsers);
+
                     setWeekRevenue(data.weekRevenue);
-                    setTypesRevenue(data.types);
                     setTypesRevenue(data.types);
                     setProducts(data.products.map(product => {
                         let { OrderDetails, ...remains } = product;
@@ -88,15 +89,20 @@ const Analytics = () => {
 
     return (
         <Fragment>
-            <Box sx={{ width: "100%", padding: "28px 32px 60px", backgroundColor: palette.primary.main }}>
-                <LineChart
-                    title="Doanh thu qua 12 tháng"
-                    titleColor={palette.background.paper}
-                    subColor={"#bcc4cd"}
-                    color={"#fff"}
-                    data={monthsRevenue}
+            {
+                loading && <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
                 />
-            </Box>
+            }
+            <LineChart
+                title="Doanh thu qua 12 tháng"
+                titleColor={palette.background.paper}
+                subColor={"#bcc4cd"}
+                color={"#fff"}
+                data={monthsRevenue}
+            />
             <ContentBox className="analytics">
                 <Grid container spacing={3}>
                     <Grid item lg={8} md={8} sm={12} xs={12}>
@@ -108,15 +114,17 @@ const Analytics = () => {
                         <H4>Lịch trình sắp tới</H4>
                         <RowCards data={recentSchedule} />
                     </Grid>
-
                     <Grid item lg={4} md={4} sm={12} xs={12}>
-                        <Card sx={{ px: 3, py: 2, mb: 3 }}>
-                            <DoughnutChart
-                                data={typesRevenue}
-                                height="300px"
-                                color={[palette.primary.dark, palette.primary.main, palette.primary.light]}
-                            />
-                        </Card>
+                        <DoughnutChart
+                            data={typesRevenue}
+                            height="300px"
+                            color={[palette.primary.dark, palette.primary.main, palette.primary.light]}
+                        />
+
+                        <PolarChart
+                            data={typesRevenue}
+                            height="250px"
+                        />
                     </Grid>
                 </Grid>
             </ContentBox>

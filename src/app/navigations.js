@@ -12,11 +12,11 @@ export const navigations = [
     {
         name: 'Đơn hàng',
         icon: 'receipt',
-        path: '/order/manage'
+        path: '/order/manage',
     },
     {
         name: 'Blog',
-        icon: 'feed',
+        icon: 'receipt',
         path: '/blog/manage'
     },
     {

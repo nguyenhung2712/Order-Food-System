@@ -1,6 +1,6 @@
 import {
     Avatar, Box, Card, Icon, IconButton, MenuItem, Select, styled,
-    Table, TableBody, TableCell, TableHead, TableRow, useTheme,
+    Table, TableBody, TableCell, TableHead, TableRow, useTheme, Skeleton
 } from '@mui/material';
 import { Paragraph } from '../../../components/Typography';
 import React, { useState, useEffect } from 'react';
@@ -57,9 +57,9 @@ const TopSellingTable = ({ data }) => {
     const [products, setProducts] = useState();
 
     useEffect(() => {
-        setProducts(
-            data
-                .map(product => {
+        if (data) {
+            setProducts(
+                data.map(product => {
                     return {
                         ...product,
                         revenue: product.revenueWithTime.reduce((acc, rev) => {
@@ -105,11 +105,22 @@ const TopSellingTable = ({ data }) => {
                         }, 0)
                     }
                 })
-                .filter(product => product.revenue !== 0)
-                .sort((a, b) => b.revenue - a.revenue)
-                .slice(0, 5)
-        );
+                    .sort((a, b) => b.revenue - a.revenue)
+                    .slice(0, 4)
+            );
+        }
     }, [data, filterType]);
+
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"450px"}
+                />
+            </Box>
+        );
+    }
 
     return (
         <Card elevation={3} sx={{ pt: '20px', mb: 3 }}>
@@ -179,38 +190,5 @@ const TopSellingTable = ({ data }) => {
         </Card>
     );
 };
-
-const productList = [
-    {
-        imgUrl: '/assets/images/products/headphone-2.jpg',
-        name: 'earphone',
-        price: 100,
-        available: 15,
-    },
-    {
-        imgUrl: '/assets/images/products/headphone-3.jpg',
-        name: 'earphone',
-        price: 1500,
-        available: 30,
-    },
-    {
-        imgUrl: '/assets/images/products/iphone-2.jpg',
-        name: 'iPhone x',
-        price: 1900,
-        available: 35,
-    },
-    {
-        imgUrl: '/assets/images/products/iphone-1.jpg',
-        name: 'iPhone x',
-        price: 100,
-        available: 0,
-    },
-    {
-        imgUrl: '/assets/images/products/headphone-3.jpg',
-        name: 'Head phone',
-        price: 1190,
-        available: 5,
-    },
-];
 
 export default TopSellingTable;

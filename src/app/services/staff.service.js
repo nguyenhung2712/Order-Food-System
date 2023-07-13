@@ -5,12 +5,12 @@ const getAdminProfile = async (accessToken) => {
     return axiosInstance.get("/auth/admin/profile");
 }
 
-const getAllStaffs = async () => {
-    return await axiosInstance.get("/admin/all");
+const getAllStaffs = async (config) => {
+    return await axiosInstance.get("/admin/all", config);
 };
 
-const getStaffById = async (staffId) => {
-    return await axiosInstance.get("/admin/" + staffId);
+const getStaffById = async (staffId, config) => {
+    return await axiosInstance.get("/admin/" + staffId, config);
 };
 
 const createStaff = async (staff) => {

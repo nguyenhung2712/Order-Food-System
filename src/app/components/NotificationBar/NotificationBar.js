@@ -23,7 +23,7 @@ import {
     collection, query, onSnapshot, where, writeBatch, getDocs
 } from 'firebase/firestore';
 import { TabPanel, a11yProps } from "../../components/TabPanel";
-
+import DeleteIcon from '@mui/icons-material/Delete';
 const Notification = styled('div')(() => ({
     padding: '16px',
     marginBottom: '16px',
@@ -166,6 +166,18 @@ const NotificationBar = ({ container }) => {
         })
     }
 
+    async function handleRemoveAllNotification(userId) {
+        const notificationRef = collection(db, 'notifications');
+        const querySnapshot = await getDocs(query(notificationRef, where('receivedId', 'array-contains', id)));
+
+        const batch = writeBatch(db);
+        querySnapshot.forEach((doc) => {
+            batch.update(doc.ref, { receivedId: arrayRemove(userId) });
+        });
+
+        await batch.commit();
+    }
+
     return (
         <Fragment>
             <IconButton onClick={handleDrawerToggle}>
@@ -220,6 +232,13 @@ const NotificationBar = ({ container }) => {
                                 }}>
                                     <CheckIcon sx={{ marginRight: "8px" }} />
                                     <Span>Đánh dấu tất cả đã đọc</Span>
+                                </MenuItem>
+                                <MenuItem onClick={() => {
+                                    handleRemoveAllNotification(id);
+                                    handleCloseGrMenu();
+                                }}>
+                                    <DeleteIcon sx={{ marginRight: "8px" }} />
+                                    <Span>Xóa tất cả</Span>
                                 </MenuItem>
                             </Menu>
                         </Notification>

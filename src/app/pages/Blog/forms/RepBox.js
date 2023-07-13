@@ -31,7 +31,9 @@ const RepBox = ({ rep }) => {
                     secondaryTypographyProps={{
                         backgroundColor: "rgb(240,242,245)",
                         borderRadius: "0 0 10px 10px",
-                        padding: "0 8px 8px"
+                        padding: "8px",
+                        fontWeight: 400,
+                        color: "#5c5c5c",
                     }}
                     primary={rep.user.firstName + " " + rep.user.lastName}
                     secondary={
@@ -42,14 +44,13 @@ const RepBox = ({ rep }) => {
                                 </Paragraph>}
                             {
                                 rep.image &&
-                                // eslint-disable-next-line jsx-a11y/img-redundant-alt
                                 <img
                                     style={{
                                         borderRadius: '10px',
                                         objectFit: "cover", width: "300px",
                                     }}
                                     src={rep.image}
-                                    alt="Product Image"
+                                    alt="Image"
                                 />
                             }
                         </>

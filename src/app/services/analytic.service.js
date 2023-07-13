@@ -1,26 +1,36 @@
 import axiosInstance from "../../axios";
 
-const getDbAnalytics = async () => {
-    return await axiosInstance.get("/analytic/dashboard");
+const getDbAnalytics = async (config) => {
+    return await axiosInstance.get("/analytic/dashboard", config);
 };
 
-const getBlogAnalytics = async () => {
-    return await axiosInstance.get("/analytic/blog");
+const getBlogAnalytics = async (config) => {
+    return await axiosInstance.get("/analytic/blog", config);
 };
 
-const getOrderAnalytics = async () => {
-    return await axiosInstance.get("/analytic/order");
+const getOrderAnalytics = async (config) => {
+    return await axiosInstance.get("/analytic/order", config);
 };
 
-const getReportInfo = async () => {
-    return await axiosInstance.get("/analytic/report");
+const getBlogReportInfo = async (config) => {
+    return await axiosInstance.get("/analytic/report/blog", config);
+};
+
+const getRatingReportInfo = async (config) => {
+    return await axiosInstance.get("/analytic/report/rating", config);
+};
+
+const getProductAnalytics = async (config) => {
+    return await axiosInstance.get("/analytic/product", config);
 };
 
 const AnalyticService = {
     getDbAnalytics,
     getBlogAnalytics,
-    getReportInfo,
-    getOrderAnalytics
+    getOrderAnalytics,
+    getProductAnalytics,
+    getBlogReportInfo,
+    getRatingReportInfo
 };
 
 export default AnalyticService;

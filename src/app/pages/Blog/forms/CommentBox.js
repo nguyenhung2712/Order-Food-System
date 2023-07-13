@@ -21,39 +21,48 @@ const CommentBox = ({ comment }) => {
                     width: "fit-content"
                 }}
             >
-                <ListItemAvatar>
-                    <Avatar src={comment.user.avatar} />
-                </ListItemAvatar>
-                <ListItemText
-                    primaryTypographyProps={{
-                        backgroundColor: "rgb(240,242,245)",
-                        borderRadius: "10px 10px 0 0",
-                        padding: "8px 8px 0",
-                        fontWeight: "bold"
-                    }}
-                    secondaryTypographyProps={{
-                        backgroundColor: "rgb(240,242,245)",
-                        borderRadius: "0 0 10px 10px",
-                        padding: "0 8px 8px"
-                    }}
-                    primary={comment.user.firstName + " " + comment.user.lastName}
-                    secondary={
-                        <>
-                            {comment.message && <Paragraph>{comment.message}</Paragraph>}
-                            {
-                                comment.image &&
-                                <img
-                                    style={{
-                                        borderRadius: '10px',
-                                        objectFit: "cover", width: "300px",
-                                    }}
-                                    src={comment.image}
-                                    alt="Product Image"
-                                />
-                            }
-                        </>
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "column"
+                }}>
+                    <Box sx={{ display: "flex", gap: "6px" }}>
+                        <ListItemAvatar>
+                            <Avatar src={comment.user.avatar} />
+                        </ListItemAvatar>
+                        <ListItemText
+                            sx={{
+                                width: "fit-content",
+                                flex: "none"
+                            }}
+                            primaryTypographyProps={{
+                                backgroundColor: "rgb(240,242,245)",
+                                borderRadius: "10px 10px 0 0",
+                                padding: "8px 8px 0",
+                                fontWeight: "bold"
+                            }}
+                            secondaryTypographyProps={{
+                                backgroundColor: "rgb(240,242,245)",
+                                borderRadius: "0 0 10px 10px",
+                                padding: "8px",
+                                fontWeight: 400,
+                                color: "#5c5c5c",
+                            }}
+                            primary={comment.user.firstName + " " + comment.user.lastName}
+                            secondary={comment.message && <Span>{comment.message}</Span>}
+                        />
+                    </Box>
+                    {
+                        comment.image &&
+                        <img
+                            style={{
+                                borderRadius: '10px',
+                                objectFit: "cover", width: "250px",
+                            }}
+                            src={comment.image}
+                            alt="Product Image"
+                        />
                     }
-                />
+                </Box>
                 <ListItemSecondaryAction
                     sx={{
                         top: "40px"
@@ -69,7 +78,7 @@ const CommentBox = ({ comment }) => {
             </ListItem>
             <Paragraph
                 sx={{
-                    marginTop: "-15px",
+                    marginTop: "-8px",
                     paddingLeft: "80px",
                     fontSize: "14px"
                 }}

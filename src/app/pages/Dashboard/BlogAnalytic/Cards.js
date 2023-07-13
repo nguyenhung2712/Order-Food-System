@@ -1,4 +1,4 @@
-import { Card, Fab, Grid, Icon, lighten, styled, useTheme, Box, Button } from '@mui/material';
+import { Card, Grid, lighten, Skeleton, useTheme, Box, Button } from '@mui/material';
 import React from 'react';
 
 import { H2, Span, Paragraph } from "../../../components/Typography";
@@ -6,52 +6,30 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { numberFormatter } from '../../../utils/utils';
 
-const ContentBox = styled('div')(() => ({
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-}));
-
-const FabIcon = styled(Fab)(() => ({
-    width: '44px !important',
-    height: '44px !important',
-    boxShadow: 'none !important',
-}));
-
-const H3 = styled('h3')(({ textcolor }) => ({
-    margin: 0,
-    color: textcolor,
-    fontWeight: '500',
-    marginLeft: '12px',
-}));
-
-const H1 = styled('h1')(({ theme }) => ({
-    margin: 0,
-    flexGrow: 1,
-    color: theme.palette.text.secondary,
-}));
-
-/* const Span = styled('span')(({ textcolor }) => ({
-    fontSize: '13px',
-    color: textcolor,
-    marginLeft: '4px',
-})); */
-
-const IconBox = styled('div')(() => ({
-    width: 16,
-    height: 16,
-    color: '#fff',
-    display: 'flex',
-    overflow: 'hidden',
-    borderRadius: '300px ',
-    justifyContent: 'center',
-    '& .icon': { fontSize: '14px' },
-}));
-
 const Cards = ({ data }) => {
     const { palette } = useTheme();
     const textError = palette.error.main;
     const bgError = lighten(palette.error.main, 0.85);
+
+    if (!data) {
+        return (
+            <Grid container spacing={3} sx={{ mb: '24px', height: "80%" }}>
+                {
+                    [1, 2, 3, 4].map((_, idx) => (
+                        <Grid item lg={3} md={3} sm={6} xs={12} key={idx}>
+
+                            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                                <Skeleton
+                                    variant="rounded" width={"100%"}
+                                    height={"120px"}
+                                />
+                            </Box>
+                        </Grid>
+                    ))
+                }
+            </Grid>
+        );
+    }
 
     return (
         <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -129,33 +107,33 @@ const Cards = ({ data }) => {
                     </Box>
                     <Button sx={{
                         borderRadius: "2.5rem",
-                        backgroundColor: (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) < 0 ? bgError : "rgba(9,182,109,.17)",
-                        color: (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) < 0 ? textError : "#08ad6c",
+                        backgroundColor: (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) < 0 ? bgError : "rgba(9,182,109,.17)",
+                        color: (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) < 0 ? textError : "#08ad6c",
                         width: "fit-content",
                         padding: "0.3125rem 1.125rem",
                         fontSize: "0.75rem",
                         '&:hover': {
-                            backgroundColor: (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) < 0 ? textError : palette.success.main,
+                            backgroundColor: (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) < 0 ? textError : palette.success.main,
                             color: palette.common.white
                         }
                     }}>
                         {
-                            (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) > 0
+                            (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) > 0
                                 ? <ArrowDropUpIcon />
                                 : <ArrowDropDownIcon />
                         }
                         <Span>
                             {
                                 (
-                                    (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) * 100
-                                    / (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) < 1
+                                    (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) * 100
+                                    / (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) < 1
                                     ? (
-                                        (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) * 100
-                                        / (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)
+                                        (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) * 100
+                                        / (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)
                                     ).toFixed(2)
                                     : numberFormatter((
-                                        (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)) * 100
-                                        / (data.avgLastMonthLikes === 0 ? 0.01 : data.avgLastMonthLikes)
+                                        (data.avgMonthLikes - (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)) * 100
+                                        / (data.avgLastMonthLikes === 0 ? data.avgMonthLikes : data.avgLastMonthLikes)
                                     ), 2)
                                     + " %"
                             }

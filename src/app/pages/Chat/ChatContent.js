@@ -2,18 +2,17 @@ import { useRef, useEffect, useState } from 'react';
 import React from 'react';
 import {
     List, ListItem, Grid, ListItemText, ListItemIcon,
-    Avatar, IconButton, Divider, Box, Tooltip, ImageList, ImageListItem,
-    Dialog, DialogTitle, DialogContent, Menu, MenuItem
+    Avatar, IconButton, Divider, Box, Tooltip,
+    Dialog, DialogContent, Menu, MenuItem
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { AppContext } from '../../contexts/AppContext';
 import useFirestore from '../../hooks/useFirestore';
 import ChatSendMessage from './ChatSendMessage';
-import { getTimeDifference, convertToDateTimeStr } from '../../utils/utils';
+import { getTimeDifference, convertToDateTimeStr, toastify } from '../../utils/utils';
 import useAuth from '../../hooks/useAuth';
 import { useTheme } from '@mui/system';
-import { Span, Paragraph } from "../../components/Typography";
+import { Paragraph } from "../../components/Typography";
 import ChatIcon from '@mui/icons-material/Chat';
 import { db } from '../../services/firebase/config';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -62,6 +61,14 @@ const ChatContent = ({ classes }) => {
         await updateDoc(docRef, {
             status: 0,
         })
+            .then(res => {
+                toastify({
+                    message: "Đã xóa tin nhắn",
+                    type: "success",
+                    position: "top-right"
+                });
+            });
+
     }
 
     return (
@@ -333,11 +340,6 @@ const ChatContent = ({ classes }) => {
                         }}
                     />
                 </DialogContent>
-                {/* <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Đóng
-          </Button>
-        </DialogActions> */}
             </Dialog>
         </>
     )

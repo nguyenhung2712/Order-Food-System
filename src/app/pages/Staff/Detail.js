@@ -2,21 +2,17 @@ import { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
 import React from 'react';
 
-import { Grid, Tab, Tabs, Fade } from "@mui/material";
+import { Grid, LinearProgress } from "@mui/material";
 import { Box, styled } from "@mui/system";
 
 import { Breadcrumb, SimpleCard } from "../../components";
 import StaffInfo from "./forms/StaffInfo";
 import RoleInfo from "./forms/RoleInfo";
-import LogInfo from "./forms/LogInfo";
 import ActionsForm from "./forms/ActionsForm";
 
 import StaffService from "../../services/staff.service";
 import RoleService from "../../services/role.service";
 import PermissService from "../../services/permiss.service";
-import TrackerService from "../../services/tracker.service";
-
-import { TabPanel, a11yProps } from "../../components/TabPanel";
 
 const Container = styled("div")(({ theme }) => ({
     margin: "30px",
@@ -32,9 +28,10 @@ const StaffDetail = () => {
     const [state, setState] = useState({});
     const [roles, setRoles] = useState([]);
     const [permiss, setPermiss] = useState([]);
-    const [logs, setLogs] = useState([]);
     const [value, setValue] = useState(0);
     const [render, setRender] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [progress, setProgress] = useState(0);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -53,42 +50,37 @@ const StaffDetail = () => {
                             setPermiss(res.data.payload);
                         })
                 });
-            await StaffService.getStaffById(id)
+            await StaffService.getStaffById(id, {
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    setProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then((res) => {
                     let staff = res.data.payload;
                     setState(staff);
-                    TrackerService.getByAdminId(staff.id)
-                        .then(res => {
-                            let logs = res.data.payload;
-                            logs = logs.map(log => ({
-                                apiText: log.apiText,
-                                ipAddress: log.ipAddress,
-                                createdAt: new Date(log.createdAt),
-                                typeApi: log.typeApi,
-                                statusCode: log.statusCode
-                            }));
-                            setLogs(logs);
-                        })
                 })
         })()
     }, [render]);
-
+    console.log(roles)
     return (
-        <Container>
-            <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/staff/manage" }, { name: "Thông tin" }]} />
-            </Box>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs
-                    value={value}
-                    onChange={handleChange}
-                    aria-label="basic tabs example"
-                >
-                    <Tab label="Thông tin" {...a11yProps(0)} />
-                    <Tab label="Logs" {...a11yProps(1)} />
-                </Tabs>
-            </Box>
-            <TabPanel value={value} index={0}>
+        <>
+            {
+                loading && <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
+            <Container>
+                <Box className="breadcrumb">
+                    <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/staff/manage" }, { name: "Thông tin" }]} />
+                </Box>
 
                 <Grid container spacing={2}>
                     <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }} component="div">
@@ -97,12 +89,7 @@ const StaffDetail = () => {
                             sxTitle={{ paddingLeft: "20px" }}
                             sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
                         >
-                            {
-                                state &&
-                                <StaffInfo
-                                    data={state}
-                                />
-                            }
+                            <StaffInfo data={state} />
                         </SimpleCard>
                     </Grid>
                     <Grid item lg={4} md={4} sm={12} xs={12} sx={{ height: "fit-content" }}>
@@ -112,7 +99,7 @@ const StaffDetail = () => {
                             sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
                         >
                             {
-                                roles && roles.length !== 0 && permiss && permiss.length !== 0 &&
+                                permiss && roles &&
                                 <RoleInfo
                                     permiss={permiss}
                                     roles={roles}
@@ -126,29 +113,15 @@ const StaffDetail = () => {
                             sxTitle={{ paddingLeft: "20px" }}
                             sx={{ paddingRight: 0, paddingLeft: 0, paddingBottom: 0 }}
                         >
-                            {
-                                state &&
-                                <ActionsForm
-                                    data={state}
-                                    setRender={setRender}
-                                />
-                            }
+                            <ActionsForm
+                                data={state}
+                                setRender={setRender}
+                            />
                         </SimpleCard>
                     </Grid>
                 </Grid>
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-                <SimpleCard title="Thông tin lịch sử truy cập" >
-                    {
-                        logs && logs.length !== 0 &&
-                        <LogInfo
-                            data={logs}
-                        />
-                    }
-                </SimpleCard>
-            </TabPanel>
-
-        </Container>
+            </Container>
+        </>
     );
 };
 

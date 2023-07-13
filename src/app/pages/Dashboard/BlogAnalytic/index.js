@@ -1,4 +1,4 @@
-import { Card, Grid, styled, useTheme, Box } from '@mui/material';
+import { Grid, styled, LinearProgress } from '@mui/material';
 import { Fragment, useEffect, useState } from 'react';
 import React from 'react';
 import MostBlogs from './MostBlogs';
@@ -22,14 +22,27 @@ const hours = [
 ];
 
 const BlogAnalytics = () => {
-    const { palette } = useTheme();
     const [blogs, setBlogs] = useState();
     const [interactsCard, setInteractsCard] = useState();
     const [interactsChart, setInteractsChart] = useState();
     const placeholderImage = `/assets/images/viet-blog-3.jpg`;
+    const [progress, setProgress] = useState(0);
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
+        setLoading(true);
         (async () => {
-            await AnalyticService.getBlogAnalytics()
+            await AnalyticService.getBlogAnalytics({
+                onDownloadProgress: function (progressEvent) {
+                    const percentage = (progressEvent.loaded / progressEvent.total) * 100;
+                    setProgress(percentage)
+                    if (percentage === 100) {
+                        setTimeout(() => {
+                            setLoading(false);
+                        }, 600);
+                    }
+                },
+            })
                 .then(res => {
                     let blogs = res.data.payload.blogs.map(blog => ({
                         ...blog,
@@ -145,53 +158,48 @@ const BlogAnalytics = () => {
     }
     return (
         <Fragment>
+            {
+                loading &&
+                <LinearProgress
+                    sx={{ position: "absolute", width: "100%" }}
+                    variant="determinate"
+                    value={progress}
+                />
+            }
             <ContentBox className="analytics">
                 <MostBlogs data={blogs} />
-                {
-                    interactsCard &&
-                    <Cards data={interactsCard} />
-                }
+                <Cards data={interactsCard} />
                 <Grid container spacing={3}>
                     <Grid item lg={6} md={6} sm={12} xs={12}>
-                        {
-                            interactsChart &&
-                            <LineChart
-                                data={{
-                                    data: interactsChart.comments,
-                                    avgData: interactsChart.avgComments
-                                }}
-                                title={"Số lượng bình luận"}
-                                mainTitle={"Bình luận"}
-                                subTitle={"Trung bình bình luận trong ngày"}
-                                mainColor={"#FF5A70"}
-                            />
-                        }
+                        <LineChart
+                            data={{
+                                data: interactsChart ? interactsChart.comments : null,
+                                avgData: interactsChart ? interactsChart.avgComments : null
+                            }}
+                            title={"Số lượng bình luận"}
+                            mainTitle={"Bình luận"}
+                            subTitle={"Trung bình bình luận trong ngày"}
+                            mainColor={"#FF5A70"}
+                        />
                     </Grid>
                     <Grid item lg={6} md={6} sm={12} xs={12}>
-                        {
-                            interactsChart &&
-                            <LineChart
-                                data={{
-                                    data: interactsChart.likes,
-                                    avgData: interactsChart.avgLikes
-                                }}
-                                title={"Số lượng lượt thích"}
-                                mainTitle={"Lượt thích"}
-                                subTitle={"Trung bình lượt thích trong ngày"}
-                                mainColor={"#2DB982"}
-                            />
-                        }
+                        <LineChart
+                            data={{
+                                data: interactsChart ? interactsChart.likes : null,
+                                avgData: interactsChart ? interactsChart.avgLikes : null
+                            }}
+                            title={"Số lượng lượt thích"}
+                            mainTitle={"Lượt thích"}
+                            subTitle={"Trung bình lượt thích trong ngày"}
+                            mainColor={"#2DB982"}
+                        />
                     </Grid>
                     <Grid item lg={12} md={12} sm={12} xs={12}>
-                        {
-                            interactsChart &&
-                            <HeatMap
-                                data={{
-                                    heatmap: interactsChart.heatmap
-                                }}
-                            />
-                        }
-
+                        <HeatMap
+                            data={{
+                                heatmap: interactsChart ? interactsChart.heatmap : null
+                            }}
+                        />
                     </Grid>
                 </Grid>
             </ContentBox>

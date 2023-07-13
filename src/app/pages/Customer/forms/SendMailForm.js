@@ -1,57 +1,64 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
 import React from 'react';
 import {
     Box, Divider,
     Button, styled,
-    InputLabel, MenuItem,
+    InputLabel, MenuItem, Skeleton,
     FormControl, Select, Pagination,
     TableContainer, TableHead, TableRow, TableCell, Table, Paper
 } from "@mui/material";
 import EmailIcon from '@mui/icons-material/Email';
 
 import { convertToDateTimeStr } from "../../../utils/utils";
-
-const CustomButton = styled(Button)(({ theme }) => ({
-    height: 60,
-    whiteSpace: 'pre',
-    overflow: 'hidden',
-    color: theme.palette.text.primary,
-    fontSize: '16px',
-    '&:hover': { background: 'rgba(255, 255, 255, 0.08)' },
-    '& svg': {
-        width: "50px",
-        fontSize: '24px',
-        paddingLeft: '16px',
-        verticalAlign: 'middle',
-    },
-}));
+import UserService from "../../../services/user.service";
 
 const itemsPerPage = 10;
 
-const SendMailForm = ({ histories }) => {
-    const navigate = useNavigate();
+const SendMailForm = ({ user, histories }) => {
     const [page, setPage] = useState(1);
+    const [value, setValue] = useState(1);
+
+    const handleSendMail = async (event) => {
+        if (value === 1) {
+            await UserService.sendRestoreMail(user.id)
+                .then(res => {
+                    //Thông báo người dùng
+                    //Toastify
+                })
+        }
+        if (value === 2) {
+            await UserService.sendNewestOrder(user.id)
+                .then(res => {
+                    //Thông báo người dùng
+                    //Toastify
+                })
+        }
+    }
+
+    if (!user || !histories) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"450px"}
+                />
+            </Box>
+        );
+    }
+
     return (
         <Box>
             <Divider />
-            <Box
-                sx={{
-                    padding: "0 16px"
-                }}
-            >
+            <Box sx={{ padding: "0 16px" }} >
                 <FormControl fullWidth size="small">
                     <InputLabel id="demo-simple-select-label">Mục đích</InputLabel>
                     <Select
                         labelId="demo-simple-select-label"
                         label="Mục đích"
-                    /* value={age} */
-                    /* onChange={handleChange} */
+                        onChange={(event) => setValue(event.target.value)}
                     >
-                        <MenuItem value={1}>Gửi mail xác thực</MenuItem>
-                        <MenuItem value={2}>Gửi mail khôi phục tài khoản</MenuItem>
-                        <MenuItem value={3}>Gửi hóa đơn mới nhất</MenuItem>
+                        <MenuItem value={1}>Gửi mail khôi phục tài khoản</MenuItem>
+                        <MenuItem value={2}>Gửi hóa đơn mới nhất</MenuItem>
                     </Select>
                 </FormControl>
                 <Button
@@ -64,6 +71,7 @@ const SendMailForm = ({ histories }) => {
                         borderRadius: "6px !important",
                         border: 1
                     }}
+                    onClick={handleSendMail}
                 >
                     <EmailIcon sx={{ marginRight: "10px" }} />Gửi mail
                 </Button>

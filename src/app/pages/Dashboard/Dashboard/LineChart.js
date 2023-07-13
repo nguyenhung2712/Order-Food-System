@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTheme } from '@mui/system'
+import { Skeleton, useTheme, Box } from '@mui/material';
 import ReactEcharts from 'echarts-for-react'
 import { numberFormatter } from "../../../utils/utils"
 
@@ -7,6 +7,7 @@ const months = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Th�
     "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
 
 const LineChart = ({ title, subColor, titleColor, color, data }) => {
+    const { palette } = useTheme();
 
     const option = {
         tooltip: {
@@ -74,17 +75,30 @@ const LineChart = ({ title, subColor, titleColor, color, data }) => {
         ]
     };
 
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%", padding: "28px 32px 60px", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"350px"}
+                />
+            </Box>
+        );
+    }
+
     return (
-        <ReactEcharts
-            style={{
-                width: "100%",
-                height: "350px"
-            }}
-            option={{
-                ...option,
-                color: color,
-            }}
-        />
+        <Box sx={{ width: "100%", padding: "28px 32px 60px", backgroundColor: palette.primary.main }}>
+            <ReactEcharts
+                style={{
+                    width: "100%",
+                    height: "350px"
+                }}
+                option={{
+                    ...option,
+                    color: color,
+                }}
+            />
+        </Box>
     )
 }
 

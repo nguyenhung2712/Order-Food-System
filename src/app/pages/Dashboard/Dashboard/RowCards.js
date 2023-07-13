@@ -1,8 +1,8 @@
 import {
     Box, Card, Fab, Grid, Hidden, Icon, IconButton,
     styled, useTheme, lighten, List, ListItemText,
-    Dialog, DialogTitle, DialogContent, DialogContentText, Chip,
-    ListItemButton, Collapse, ListItemIcon
+    Dialog, DialogTitle, DialogContent, Chip,
+    ListItemButton, Collapse, ListItemIcon, ListItem, Skeleton
 } from '@mui/material';
 import { Span } from '../../../components/Typography';
 import { Fragment, useState } from 'react';
@@ -11,10 +11,15 @@ import { convertToDateTimeStr } from '../../../utils/utils';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
+import { toast } from 'react-toastify';
 
 const ProjectName = styled(Span)(({ theme }) => ({
     marginLeft: 24,
     fontWeight: '500',
+    width: "150px",
+    "textOverflow": "ellipsis", "whiteSpace": "nowrap", "overflow": "hidden",
     [theme.breakpoints.down('sm')]: { marginLeft: 4 },
 }));
 
@@ -28,6 +33,42 @@ const RowCards = ({ data }) => {
     const handleCloseSchedule = async () => {
         setOpenSchedule(false);
     }
+
+    const handleCopy = async (text) => {
+        await navigator.clipboard.writeText(text)
+            .then(res => {
+                toast.success(`Đã sao chép email ${text}`, {
+                    position: "top-right",
+                    autoClose: 2500,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: false,
+                    progress: undefined,
+                    theme: "light",
+                })
+            });
+    }
+
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"150px"}
+                />
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"150px"}
+                />
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"150px"}
+                />
+            </Box>
+        );
+    }
+
     return (
         <>
             {
@@ -42,6 +83,7 @@ const RowCards = ({ data }) => {
                                                 sx={{
                                                     color: "#fff",
                                                     backgroundColor: schedule.color,
+                                                    zIndex: "100",
                                                     '&:hover': {
                                                         backgroundColor: lighten(schedule.color, 0.5)
                                                     }
@@ -136,15 +178,39 @@ const RowCards = ({ data }) => {
                                     {
                                         currentEvent.AdminSchedules && currentEvent.AdminSchedules.length > 0 &&
                                         currentEvent.AdminSchedules.map((adminSchedule, index) => (
-                                            <ListItemButton key={index} sx={{
-                                                pl: 4,
-                                                color: "background.paper",
-                                                "&:hover": {
-                                                    backgroundColor: "#ffffff4d"
+                                            <ListItem key={index}
+                                                sx={{
+                                                    pl: 4,
+                                                    color: "background.paper",
+                                                    "& .MuiListItemSecondaryAction-root .MuiButtonBase-root": {
+                                                        color: "background.paper",
+                                                        margin: "0 4px",
+                                                        opacity: 0
+                                                    },
+                                                    "&:hover .MuiListItemSecondaryAction-root .MuiButtonBase-root": {
+                                                        opacity: 1
+                                                    },
+                                                    "& .MuiListItemSecondaryAction-root .MuiButtonBase-root:hover": {
+                                                        backgroundColor: "#ffffff4d"
+                                                    }
+                                                }}
+                                                secondaryAction={
+                                                    <>
+                                                        <IconButton edge="end" aria-label="delete"
+                                                            onClick={() => handleCopy(adminSchedule.admin.email)}
+                                                        >
+                                                            <ContentCopyIcon />
+                                                        </IconButton>
+                                                        <IconButton edge="end" aria-label="delete"
+                                                            onClick={() => window.location.href = `mailto:${adminSchedule.admin.email}`}
+                                                        >
+                                                            <ForwardToInboxIcon />
+                                                        </IconButton>
+                                                    </>
                                                 }
-                                            }}>
+                                            >
                                                 <ListItemText
-                                                    primary={adminSchedule.admin.fullname}
+                                                    primary={adminSchedule.admin.fullname ? adminSchedule.admin.fullname : <i>Nhân viên chưa cung cấp</i>}
                                                     secondary={adminSchedule.admin.email}
                                                     primaryTypographyProps={{
                                                         fontSize: "15px",
@@ -157,7 +223,7 @@ const RowCards = ({ data }) => {
                                                         fontWeight: "300"
                                                     }}
                                                 />
-                                            </ListItemButton>
+                                            </ListItem>
                                         ))
                                     }
                                 </List>

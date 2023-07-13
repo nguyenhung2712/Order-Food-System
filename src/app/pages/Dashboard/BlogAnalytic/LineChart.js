@@ -1,11 +1,10 @@
-import React from 'react'
-import { Divider } from "@mui/material"
-import { useTheme } from '@mui/system'
-import ReactEcharts from 'echarts-for-react'
+import React from 'react';
+import { Divider, Skeleton, Box } from "@mui/material";
+import ReactEcharts from 'echarts-for-react';
 import { SimpleCard } from "../../../components";
 
 const LineChart = ({ data, title, mainTitle, subTitle, mainColor }) => {
-    const { palette } = useTheme();
+
     const option = {
         tooltip: {
             trigger: 'axis'
@@ -59,16 +58,21 @@ const LineChart = ({ data, title, mainTitle, subTitle, mainColor }) => {
             fontFamily: `"Roboto","Helvetica","Arial",sans-serif`
         }
     };
-
+    if (!data.data || !data.avgData) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"370px"}
+                />
+            </Box>
+        );
+    }
     return (
         <SimpleCard
             title={title}
-            sxTitle={{
-                paddingLeft: "20px"
-            }}
-            sx={{
-                paddingLeft: 0, paddingRight: 0
-            }}
+            sxTitle={{ paddingLeft: "20px" }}
+            sx={{ paddingLeft: 0, paddingRight: 0 }}
         >
             <Divider sx={{ marginBottom: "20px" }} />
             <ReactEcharts

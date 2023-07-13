@@ -12,10 +12,27 @@ const deleteRating = async (rateId) => {
     return await axiosInstance.delete("/rate/delete/" + rateId);
 };
 
+const getAllReports = async (config) => {
+    return await axiosInstance.get("/rate/reports", config);
+};
+
+const deleteReport = async (reportId) => {
+    return await axiosInstance.delete("/rate/report/delete/" + reportId);
+};
+
+const solveReport = async (ratingId, userId) => {
+    return await axiosInstance.put("/rate/report/solve", {
+        userId, ratingId
+    });
+};
+
 const RatingService = {
     getRatingById,
     getRatingWithPaginate,
     deleteRating,
+    getAllReports,
+    deleteReport,
+    solveReport
 };
 
 export default RatingService;

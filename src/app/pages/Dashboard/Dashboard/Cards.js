@@ -1,4 +1,4 @@
-import { Box, Card, Grid, Icon, IconButton, styled, Tooltip } from '@mui/material';
+import { Box, Card, Grid, Icon, IconButton, styled, Tooltip, Skeleton } from '@mui/material';
 import { Small } from '../../../components/Typography';
 import React from 'react';
 import { convertToVND } from '../../../utils/utils';
@@ -37,10 +37,21 @@ const Cards = ({ data }) => {
         { name: 'Đơn hàng đang giao', amount: '305 Đơn', icon: 'shopping_cart' }, */
     ];
 
+    if ((!data.totalUsers || !data.weekRevenue) && data.totalUsers !== 0 && data.weekRevenue !== 0) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"100px"}
+                />
+            </Box>
+        );
+    }
+
     return (
         <Grid container spacing={3} sx={{ mb: '24px' }}>
             {cardList.map((item, index) => (
-                <Grid item xs={12} md={6} key={index}>
+                <Grid item xs={6} md={6} key={index}>
                     <StyledCard elevation={6}>
                         <ContentBox>
                             <Icon className="icon">{item.icon}</Icon>
@@ -50,11 +61,11 @@ const Cards = ({ data }) => {
                             </Box>
                         </ContentBox>
 
-                        <Tooltip title="View Details" placement="top">
+                        {/* <Tooltip title="View Details" placement="top">
                             <IconButton>
                                 <Icon>arrow_right_alt</Icon>
                             </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                     </StyledCard>
                 </Grid>
             ))}

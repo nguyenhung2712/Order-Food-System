@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-    Box, Divider,
+    Box, Divider, Skeleton,
     Button, styled, Backdrop, CircularProgress
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
@@ -103,14 +102,21 @@ const ActionsForm = ({ data, setRender }) => {
             });
     }
 
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"450px"}
+                />
+            </Box>
+        );
+    }
+
     return (
         <Box>
             <Divider />
-            <Box
-                sx={{
-                    padding: "16px"
-                }}
-            >
+            <Box sx={{ padding: "16px" }} >
                 {
                     data.status !== 3 &&
                     <Box>

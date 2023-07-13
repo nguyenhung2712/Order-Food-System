@@ -1,7 +1,7 @@
 import axiosInstance from "../../axios";
 
-const getAllSchedules = async () => {
-    return await axiosInstance.get("/schedule/all");
+const getAllSchedules = async (config) => {
+    return await axiosInstance.get("/schedule/all", config);
 };
 
 const getAllType = async () => {

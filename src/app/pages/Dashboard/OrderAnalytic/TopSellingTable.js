@@ -1,6 +1,6 @@
 import {
     Avatar, Box, Card, Icon, IconButton, MenuItem, Select, styled,
-    Table, TableBody, TableCell, TableHead, TableRow, useTheme,
+    Table, TableBody, TableCell, TableHead, TableRow, useTheme, Skeleton
 } from '@mui/material';
 import { Paragraph } from '../../../components/Typography';
 import React, { useState, useEffect } from 'react';
@@ -51,64 +51,76 @@ const TopSellingTable = ({ data }) => {
     const { palette } = useTheme();
     const bgError = palette.error.main;
     const bgPrimary = palette.primary.main;
-    const bgSecondary = palette.secondary.main;
 
     const [filterType, setFilterType] = useState("this_month");
     const [products, setProducts] = useState();
 
     useEffect(() => {
-        setProducts(
-            data
-                .map(product => {
-                    return {
-                        ...product,
-                        revenue: product.revenueWithTime.reduce((acc, rev) => {
-                            switch (filterType) {
-                                case "last_month": {
-                                    let { firstDate, lastDate } = getFirstAndLastDate(1);
-                                    return acc + (
-                                        new Date(rev.date).getTime() <= lastDate.getTime() &&
-                                            new Date(rev.date).getTime() >= firstDate.getTime()
-                                            ? rev.revenue
-                                            : 0
-                                    );
+        if (data) {
+            setProducts(
+                data
+                    .map(product => {
+                        return {
+                            ...product,
+                            revenue: product.revenueWithTime.reduce((acc, rev) => {
+                                switch (filterType) {
+                                    case "last_month": {
+                                        let { firstDate, lastDate } = getFirstAndLastDate(1);
+                                        return acc + (
+                                            new Date(rev.date).getTime() <= lastDate.getTime() &&
+                                                new Date(rev.date).getTime() >= firstDate.getTime()
+                                                ? rev.revenue
+                                                : 0
+                                        );
+                                    }
+                                    case "last_6_month": {
+                                        let { firstDate, lastDate } = getFirstAndLastDate(6);
+                                        return acc + (
+                                            new Date(rev.date).getTime() <= lastDate.getTime() &&
+                                                new Date(rev.date).getTime() >= firstDate.getTime()
+                                                ? rev.revenue
+                                                : 0
+                                        );
+                                    }
+                                    case "last_year": {
+                                        let { firstDate, lastDate } = getFirstAndLastDate(1, true);
+                                        return acc + (
+                                            new Date(rev.date).getTime() <= lastDate.getTime() &&
+                                                new Date(rev.date).getTime() >= firstDate.getTime()
+                                                ? rev.revenue
+                                                : 0
+                                        );
+                                    }
+                                    default: {
+                                        let lastDate = new Date();
+                                        let firstDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
+                                        return acc + (
+                                            new Date(rev.date).getTime() <= lastDate.getTime() &&
+                                                new Date(rev.date).getTime() >= firstDate.getTime()
+                                                ? rev.revenue
+                                                : 0
+                                        );
+                                    }
                                 }
-                                case "last_6_month": {
-                                    let { firstDate, lastDate } = getFirstAndLastDate(6);
-                                    return acc + (
-                                        new Date(rev.date).getTime() <= lastDate.getTime() &&
-                                            new Date(rev.date).getTime() >= firstDate.getTime()
-                                            ? rev.revenue
-                                            : 0
-                                    );
-                                }
-                                case "last_year": {
-                                    let { firstDate, lastDate } = getFirstAndLastDate(1, true);
-                                    return acc + (
-                                        new Date(rev.date).getTime() <= lastDate.getTime() &&
-                                            new Date(rev.date).getTime() >= firstDate.getTime()
-                                            ? rev.revenue
-                                            : 0
-                                    );
-                                }
-                                default: {
-                                    let lastDate = new Date();
-                                    let firstDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), 1);
-                                    return acc + (
-                                        new Date(rev.date).getTime() <= lastDate.getTime() &&
-                                            new Date(rev.date).getTime() >= firstDate.getTime()
-                                            ? rev.revenue
-                                            : 0
-                                    );
-                                }
-                            }
-                        }, 0)
-                    }
-                })
-                .sort((a, b) => b.revenue - a.revenue)
-                .slice(0, 4)
-        );
+                            }, 0)
+                        }
+                    })
+                    .sort((a, b) => b.revenue - a.revenue)
+                    .slice(0, 4)
+            );
+        }
     }, [data, filterType]);
+
+    if (!data) {
+        return (
+            <Box sx={{ width: "100%", marginBottom: "12px" }}>
+                <Skeleton
+                    variant="rounded" width={"100%"}
+                    height={"310px"}
+                />
+            </Box>
+        );
+    }
 
     return (
         <Card elevation={3} sx={{ pt: '20px', mb: 3 }}>

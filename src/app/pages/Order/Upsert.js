@@ -21,7 +21,7 @@ const OrderUpsert = () => {
     return (
         <Container>
             <Box className="breadcrumb">
-                <Breadcrumb routeSegments={[{ name: "Quản lý", path: "/order/manage" }, { name: id ? "Cập nhật" : "Thêm mới" }]} />
+                <Breadcrumb routeSegments={[{ name: "Quản lý đơn hàng", path: "/order/manage" }, { name: id ? "Cập nhật đơn" : "Thêm mới đơn" }]} />
             </Box>
 
             <Stack spacing={3}>
