@@ -8,5 +8,6 @@ router.get('/:type/:id', [Auth.validateToken, VerifyExists.isExistedLocation], l
 
 router.get('/list/:type/:id', [Auth.validateToken, VerifyExists.areExistedLocations], locationController.getListsByFKId);
 router.get('/provinces', [Auth.validateToken], locationController.getProvinces);
+router.get('/regions', [Auth.validateToken], locationController.getRegions);
 
 module.exports = router;

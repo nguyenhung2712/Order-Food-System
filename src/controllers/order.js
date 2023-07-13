@@ -81,7 +81,7 @@ const exportOrder = async (req, res) => {
         });
         const response = await orderService.getById(id);
         const data = response.payload;
-        const file = fs.readFileSync('./src/utils/invoice-template.html', 'utf8');
+        const file = fs.readFileSync('./src/utils/files/invoice-template.html', 'utf8');
         const template = handlebars.compile(`${file}`);
         const html = template({
             number: (locale === "en" ? "Invoice #: " : "Đơn #: ") + data.number,

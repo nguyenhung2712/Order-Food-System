@@ -1,32 +1,32 @@
 {
-  "development": {
-    "username": "root",
-    "password": null,
-    "database": "FOS",
-    "host": "localhost",
-    "dialect": "mysql",
-    "logging": false,
-    "timezone": "+07:00"
-  },
-  "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
-  },
-  "email": {
-    "base_url": "http://localhost:3000",
-    "host": "localhost",
-    "service": "gmail",
-    "user": "hung.n.61cnttclc@ntu.edu.vn",
-    "password": "Hung27122001"
-  }
+    "development": {
+        "username": "root",
+        "password": null,
+        "database": "fos",
+        "host": "localhost",
+        "dialect": "mysql",
+        "logging": false,
+        "timezone": "+07:00"
+    },
+    "test": {
+        "username": "root",
+        "password": null,
+        "database": "database_test",
+        "host": "127.0.0.1",
+        "dialect": "mysql"
+    },
+    "production": {
+        "username": "root",
+        "password": null,
+        "database": "database_production",
+        "host": "127.0.0.1",
+        "dialect": "mysql"
+    },
+    "email": {
+        "base_url": "http://localhost:3000",
+        "host": "localhost",
+        "service": "gmail",
+        "user": "hung.n.61cnttclc@ntu.edu.vn",
+        "password": "Hung27122001"
+    }
 }

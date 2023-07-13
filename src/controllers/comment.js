@@ -112,6 +112,41 @@ const interactComment = async (req, res) => {
     }
 }
 
+const getAllReports = async (req, res) => {
+    try {
+        const response = await commentService.getAllReports();
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+const solveCmtReport = async (req, res) => {
+    try {
+        const { commentId, userId } = req.body;
+        const response = await commentService.solveCmtReport(commentId, userId);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+const solveRepReport = async (req, res) => {
+    try {
+        const { repId, userId } = req.body;
+        const response = await commentService.solveRepReport(repId, userId);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+const deleteReport = async (req, res) => {
+    try {
+        const response = await commentService.deleteReport(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
 module.exports = {
     getAll,
     getByFKId,
@@ -120,5 +155,10 @@ module.exports = {
     uploadCommentImage,
     updateComment,
     deleteComment,
-    interactComment
+    interactComment,
+
+    getAllReports,
+    solveCmtReport,
+    solveRepReport,
+    deleteReport
 }

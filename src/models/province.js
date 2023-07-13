@@ -7,6 +7,8 @@ module.exports = (sequelize, DataTypes) => {
         static associate(models) {
             Province.hasMany(models.Address, { foreignKey: 'provinceId' });
             Province.hasMany(models.District, { foreignKey: 'provinceId' });
+            Province.belongsTo(models.Region, { foreignKey: 'regionId', targetKey: 'id', as: 'region' });
+            Province.belongsTo(models.Unit, { foreignKey: 'unitId', targetKey: 'id', as: 'unit' });
         }
     }
     Province.init({
@@ -18,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Province',
+        tableName: 'provinces',
         timestamps: false
     });
     return Province;

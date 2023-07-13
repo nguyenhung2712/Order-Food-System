@@ -83,11 +83,42 @@ const deleteRate = async (req, res) => {
     }
 } */
 
+const getAllReports = async (req, res) => {
+    try {
+        const response = await rateService.getAllReports();
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
+const solveReport = async (req, res) => {
+    try {
+        const { ratingId, userId } = req.body;
+        const response = await rateService.solveReport(ratingId, userId);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
+const deleteReport = async (req, res) => {
+    try {
+        const response = await rateService.deleteReport(req.params.id);
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
 module.exports = {
     getById,
     getWithPaginate,
     createRate,
     updateRate,
     deleteRate,
+    getAllReports,
+    deleteReport,
+    solveReport
     /* uploadRatingImage */
 }

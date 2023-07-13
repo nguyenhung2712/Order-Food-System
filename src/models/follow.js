@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     Follow.init({}, {
         sequelize,
         modelName: 'Follow',
+        tableName: 'follows'
     });
     return Follow;
 };

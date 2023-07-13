@@ -18,11 +18,8 @@ const initRoutes = (app) => {
     app.use("/api/cart", require("./Cart"));
     app.use("/api/comment", require("./Comment"));
     app.use("/api/cmtrep", require("./CommentRep"));
-    app.use("/api/conver", require("./Conver"));
     app.use("/api/follow", require("./Follow"));
     app.use("/api/location", require("./Location"));
-    app.use("/api/message", require("./Message"));
-    app.use("/api/notif", require("./Notification"));
     app.use("/api/order", require("./Order"));
     app.use("/api/order-detail", require("./OrderDetail"));
     app.use("/api/payment", require("./Payment"));
@@ -34,6 +31,8 @@ const initRoutes = (app) => {
     app.use("/api/schedule", require("./Schedule"));
     app.use("/api/analytic", require("./Analytic"));
     app.use("/api/reason", require("./Reason"));
+    app.use("/api/topping", require("./Topping"));
+    app.use("/api/message", require("./Message"));
 }
 
 module.exports = initRoutes;

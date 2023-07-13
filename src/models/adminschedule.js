@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     AdminSchedule.init({}, {
         sequelize,
         modelName: 'AdminSchedule',
+        tableName: 'adminschedules'
     });
     return AdminSchedule;
 };

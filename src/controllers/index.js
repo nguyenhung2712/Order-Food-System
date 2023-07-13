@@ -11,19 +11,18 @@ const controller = {
     blogController: require('./blog'),
     commentController: require('./comment'),
     commentRepController: require('./commentrep'),
-    notifController: require('./notification'),
     followController: require('./follow'),
     locationController: require('./location'),
     addressController: require('./address'),
     adminController: require('./admin'),
     roleController: require('./role'),
     permissController: require('./permiss'),
-    messageController: require('./message'),
-    converController: require('./conver'),
     trackerController: require('./tracker'),
     scheduleController: require('./schedule'),
     analyticController: require('./analytic'),
     reasonController: require('./reason'),
+    toppingController: require('./topping'),
+    messageController: require('./message'),
 }
 
 module.exports = controller;

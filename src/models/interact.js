@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
             Interact.belongsTo(models.CommentRep, { foreignKey: 'repId', targetKey: 'id', as: 'rep' });
             Interact.belongsTo(models.Rate, { foreignKey: 'ratingId', targetKey: 'id', as: 'rating' });
             Interact.belongsTo(models.User, { foreignKey: 'reportedUId', targetKey: 'id', as: 'reportedUser' });
+            Interact.belongsTo(models.Dish, { foreignKey: 'dishId', targetKey: 'id', as: 'dish' });
         }
     }
     Interact.init({
@@ -22,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Interact',
+        tableName: 'interacts'
     });
     return Interact;
 };

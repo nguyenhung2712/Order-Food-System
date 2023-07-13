@@ -5,7 +5,10 @@ const fileUploader = require('../config/cloudinary.config');
 const { Auth, VerifyExists } = require("../middlewares");
 const { dishController } = require("../controllers");
 
+router.get('/statistic/:id', [Auth.validateToken], dishController.getStatisticInfo);
 router.get('/all', [VerifyExists.areExistedDishes], dishController.getAll);
+router.get('/type/:id', dishController.getByTypeId);
+
 router.post('/all/available', [VerifyExists.areExistedDishes], dishController.getAllAvailable);
 router.get('/:id', VerifyExists.isExistedDish, dishController.getById);
 router.get('/slug/:slug', dishController.getBySlug);

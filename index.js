@@ -16,8 +16,8 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 app.use(express.json());
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '1024mb', extended: true }));
+app.use(bodyParser.json({ limit: '1024mb' }));
 app.use(cookieParser());
 
 app.use(expressSession({

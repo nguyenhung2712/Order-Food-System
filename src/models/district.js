@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     class District extends Model {
         static associate(models) {
             District.belongsTo(models.Province, { foreignKey: 'provinceId', targetKey: 'id', as: 'province' });
+            District.belongsTo(models.Unit, { foreignKey: 'unitId', targetKey: 'id', as: 'unit' });
 
             District.hasMany(models.Ward, { foreignKey: 'districtId' });
             District.hasMany(models.Address, { foreignKey: 'districtId' });
@@ -20,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'District',
-        timestamps: false
+        timestamps: false,
+        tableName: 'districts'
     });
     return District;
 };

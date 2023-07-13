@@ -11,19 +11,17 @@ const services = {
     blogService: require('./blog'),
     commentService: require('./comment'),
     commentRepService: require('./commentrep'),
-    notifService: require('./notification'),
     followService: require('./follow'),
     locationService: require('./location'),
     addressService: require('./address'),
     adminService: require('./admin'),
     roleService: require('./role'),
     permissService: require('./permiss'),
-    messageService: require('./message'),
-    converService: require('./conver'),
     trackerService: require('./tracker'),
     scheduleService: require('./schedule'),
     analyticService: require('./analytic'),
     reasonService: require('./reason'),
+    toppingService: require('./topping'),
 };
 
 module.exports = services;

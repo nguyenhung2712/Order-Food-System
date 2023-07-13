@@ -40,6 +40,15 @@ module.exports = {
                     as: 'userId',
                 },
             },
+            dishId: {
+                allowNull: false,
+                type: Sequelize.UUID,
+                references: {
+                    model: 'Dishes',
+                    key: 'id',
+                    as: 'dishId',
+                },
+            },
             reasonId: {
                 type: Sequelize.UUID,
                 references: {

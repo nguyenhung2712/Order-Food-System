@@ -19,11 +19,11 @@ module.exports = (sequelize, DataTypes) => {
         content: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT,
-        slug: DataTypes.STRING,
-        views: DataTypes.INTEGER
+        slug: DataTypes.STRING
     }, {
         sequelize,
         modelName: 'Blog',
+        tableName: 'blogs'
     });
     return Blog;
 };

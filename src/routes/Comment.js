@@ -20,6 +20,11 @@ router.put('/update/:id',
     commentController.updateComment
 );
 router.put('/delete/:id', [Auth.validateToken, VerifyExists.isExistedComment], commentController.deleteComment);
-router.post('/interact', /* [Auth.validateToken, VerifyExists.isExistedUser, VerifyExists.isExistedComment], */ commentController.interactComment);
+router.post('/interact', [Auth.validateToken, VerifyExists.isExistedUser, VerifyExists.isExistedComment], commentController.interactComment);
+
+router.get('/report/all', Auth.validateToken, commentController.getAllReports);
+router.post('/report/cmt-solve', Auth.validateToken, commentController.solveCmtReport);
+router.post('/report/rep-solve', Auth.validateToken, commentController.solveRepReport);
+router.delete('/report/delete/:id', Auth.validateToken, commentController.deleteReport);
 
 module.exports = router;

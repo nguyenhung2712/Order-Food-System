@@ -91,7 +91,7 @@ const updateSchedule = (scheduleId, body) => new Promise(async (resolve, reject)
                             await sendEmail(admin.email, "Lịch phân công", `...`);
                         } */
                         await AdminSchedule.destroy({
-                            where: { adminId: { [Op.notIn]: adminIds } }
+                            where: { adminId: { [Op.notIn]: adminIds, scheduleId: schedule.id } }
                         });
                     });
                 }

@@ -36,8 +36,18 @@ const getProvinces = async (req, res) => {
     }
 }
 
+const getRegions = async (req, res) => {
+    try {
+        const response = await locationService.getRegions();
+        return res.json(response);
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+}
+
 module.exports = {
     getById,
     getProvinces,
-    getListsByFKId
+    getListsByFKId,
+    getRegions
 }

@@ -20,13 +20,13 @@
     "express-session": "^1.17.3",
     "firebase-admin": "^11.8.0",
     "fs": "^0.0.1-security",
-    "google-translate-api": "^2.3.0",
     "handlebars": "^4.7.7",
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.1.2",
+    "natural": "^6.5.0",
     "node-cron": "^3.0.2",
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.20",
@@ -39,6 +39,8 @@
     "sequelize": "^6.28.0",
     "sequelize-cli": "^6.6.0",
     "speakeasy": "^2.0.0",
+    "stemmer": "^2.0.1",
+    "translate-google": "^1.5.0",
     "twilio": "^4.7.2"
   }
 }

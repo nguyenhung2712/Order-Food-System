@@ -289,6 +289,116 @@ const interactComment = (userId, commentId, type, reason) => new Promise(async (
     }
 })
 
+const getAllReports = () => new Promise(async (resolve, reject) => {
+    try {
+        await Interact.findAll({
+            where: {
+                commentId: {
+                    [Op.not]: null
+                },
+                repId: {
+                    [Op.not]: null
+                },
+                type: 2,
+                status: {
+                    [Op.or]: [0, 1]
+                },
+            },
+            include: [
+                { model: User, as: "user" },
+                {
+                    model: Comment, as: "comment", include: [
+                        { model: User, as: "user" }
+                    ]
+                },
+                { model: Reason, as: "reason" },
+            ]
+        })
+            .then(async (reports) => {
+                resolve({
+                    status: "success",
+                    message: "Get All Comment's Interact successfully.",
+                    payload: reports
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const solveRepReport = (repId, userId) => new Promise(async (resolve, reject) => {
+    try {
+        await CommentRep.update({ status: 2 }, {
+            where: { id: repId }
+        })
+            .then(async (res) => {
+                await Interact.update({ status: 0, deletedAt: new Date() }, {
+                    where: {
+                        repId,
+                        type: 2
+                    }
+                });
+                await Archive.create({
+                    typeId: solveSessionId,
+                    repId,
+                    adminId: userId
+                });
+                resolve({
+                    status: "success",
+                    message: "Solve report successfully.",
+                    payload: res
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const solveCmtReport = (commentId, userId) => new Promise(async (resolve, reject) => {
+    try {
+        await Comment.update({ status: 2 }, {
+            where: { id: commentId }
+        })
+            .then(async (res) => {
+                await Interact.update({ status: 0, deletedAt: new Date() }, {
+                    where: {
+                        commentId,
+                        type: 2
+                    }
+                });
+                await Archive.create({
+                    typeId: solveSessionId,
+                    commentId,
+                    adminId: userId
+                });
+                resolve({
+                    status: "success",
+                    message: "Solve report successfully.",
+                    payload: res
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const deleteReport = (reportId) => new Promise(async (resolve, reject) => {
+    try {
+        await Interact.destroy({
+            where: { id: reportId }
+        })
+            .then(async (res) => {
+                resolve({
+                    status: "success",
+                    message: "Delete report successfully.",
+                    payload: res
+                });
+            });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     getAll,
     getById,
@@ -296,5 +406,10 @@ module.exports = {
     createComment,
     updateComment,
     deleteComment,
-    interactComment
+    interactComment,
+
+    getAllReports,
+    solveCmtReport,
+    solveRepReport,
+    deleteReport
 }

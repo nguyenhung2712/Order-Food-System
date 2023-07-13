@@ -2,7 +2,7 @@ const {
     User, Order, OrderDetail, Payment,
     DishType, Dish, Schedule, AdminStaff, ScheduleType, AdminSchedule,
     Interact, Comment, CommentRep, Blog,
-    Reason, Archive
+    Reason, Address, Province, Region
 } = require("../models");
 const { Op } = require('sequelize');
 require("dotenv").config();
@@ -40,9 +40,9 @@ const getDashboardInfo = () => new Promise(async (resolve, reject) => {
         const weekPayments = await Payment.findAll({
             where: {
                 status: 1,
-                updatedAt: {
+                /* updatedAt: {
                     [Op.between]: [startOfWeek, curDate]
-                }
+                } */
             }
         });
         let weekRevenue = weekPayments.reduce((acc, payment) => acc + Number(payment.paymentTotal), 0);
@@ -180,7 +180,71 @@ const getOrderInfo = () => new Promise(async (resolve, reject) => {
     }
 });
 
-const getReportInfo = () => new Promise(async (resolve, reject) => {
+const getProductInfo = () => new Promise(async (resolve, reject) => {
+    try {
+        const products = await Dish.findAll({
+            include: [
+                {
+                    model: OrderDetail, include: [
+                        {
+                            model: Order, as: "order",
+                            where: { status: 1 },
+                        }
+                    ]
+                }
+            ]
+        });
+        const details = await OrderDetail.findAll({
+            include: [
+                {
+                    model: Order, as: "order", include: [
+                        {
+                            model: Address, as: "address",
+                            include: [
+                                {
+                                    model: Province, as: "province", include: [
+                                        { model: Region, as: "region" }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                }
+            ]
+        });
+
+        const types = await DishType.findAll({
+            include: [
+                {
+                    model: Dish, include: [
+                        {
+                            model: OrderDetail, include: [
+                                {
+                                    model: Order, as: "order"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+
+
+        resolve({
+            status: "success",
+            message: "Get products info successfully.",
+            payload: {
+                products,
+                details,
+                types,
+            }
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getBlogReportInfo = () => new Promise(async (resolve, reject) => {
     try {
         let blogReasons = await Reason.findAll({
             include: [
@@ -235,10 +299,133 @@ const getReportInfo = () => new Promise(async (resolve, reject) => {
         reject(error);
     }
 });
+const getRatingReportInfo = () => new Promise(async (resolve, reject) => {
+    try {
+        let ratingReasons = await Reason.findAll({
+            include: [
+                {
+                    model: Interact,
+                    where: {
+                        type: 2,
+                        ratingId: {
+                            [Op.not]: null
+                        },
+                    },
+                    required: false
+                }
+            ]
+        });
+        let ratingNoneReason = await Interact.findAll({
+            where: {
+                reasonId: null,
+                type: 2,
+                ratingId: {
+                    [Op.not]: null
+                },
+            }
+        });
+        ratingReasons = ratingReasons.map(reason => ({
+            name: reason.reasonName,
+            value: reason.Interacts.length
+        }));
+        ratingReasons.push({
+            name: "Lý do khác",
+            value: ratingNoneReason.length
+        });
+
+        const ratingReports = await Interact.findAll({
+            where: {
+                ratingId: {
+                    [Op.not]: null
+                },
+                type: 2
+            }
+        });
+
+        resolve({
+            status: "success",
+            message: "Get report info successfully.",
+            payload: {
+                ratingReasons,
+                ratingReports
+            }
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getCmtReportInfo = () => new Promise(async (resolve, reject) => {
+    try {
+        let cmtReasons = await Reason.findAll({
+            include: [
+                {
+                    model: Interact,
+                    where: {
+                        type: 2,
+                        commentId: {
+                            [Op.not]: null
+                        },
+                        repId: {
+                            [Op.not]: null
+                        },
+                    },
+                    required: false
+                }
+            ]
+        });
+        let cmtNoneReason = await Interact.findAll({
+            where: {
+                reasonId: null,
+                type: 2,
+                commentId: {
+                    [Op.not]: null
+                },
+                repId: {
+                    [Op.not]: null
+                },
+            }
+        });
+        cmtReasons = cmtReasons.map(reason => ({
+            name: reason.reasonName,
+            value: reason.Interacts.length
+        }));
+        cmtReasons.push({
+            name: "Lý do khác",
+            value: cmtNoneReason.length
+        });
+
+        const cmtReports = await Interact.findAll({
+            where: {
+                commentId: {
+                    [Op.not]: null
+                },
+                repId: {
+                    [Op.not]: null
+                },
+                type: 2
+            }
+        });
+
+        resolve({
+            status: "success",
+            message: "Get report info successfully.",
+            payload: {
+                cmtReasons,
+                cmtReports
+            }
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
 
 module.exports = {
     getDashboardInfo,
     getBlogInfo,
     getOrderInfo,
-    getReportInfo
+    getProductInfo,
+    getBlogReportInfo,
+    getRatingReportInfo,
+    getCmtReportInfo
 }

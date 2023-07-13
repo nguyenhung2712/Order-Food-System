@@ -2,27 +2,18 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
     async up(queryInterface, Sequelize) {
-        await queryInterface.createTable('Conversations', {
+        await queryInterface.createTable('DishHasSizes', {
             id: {
                 allowNull: false,
+                autoIncrement: true,
                 primaryKey: true,
-                type: Sequelize.UUID,
-                defaultValue: Sequelize.UUIDV4
+                type: Sequelize.INTEGER
             },
-            name: {
-                allowNull: false,
-                type: Sequelize.STRING
+            price: {
+                type: Sequelize.DECIMAL
             },
-            slug: {
-                allowNull: false,
-                type: Sequelize.STRING
-            },
-            deletedAt: {
-                type: Sequelize.DATE
-            },
-            status: {
-                allowNull: false,
-                type: Sequelize.TINYINT
+            quantityInDay: {
+                type: Sequelize.INTEGER
             },
             createdAt: {
                 allowNull: false,
@@ -32,18 +23,27 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE
             },
-            userId: {
+            dishId: {
                 allowNull: false,
                 type: Sequelize.UUID,
                 references: {
-                    model: 'Users',
+                    model: 'Dishes',
                     key: 'id',
-                    as: 'userId',
+                    as: 'dishId',
                 }
-            }
+            },
+            sizeId: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                references: {
+                    model: 'DishSizes',
+                    key: 'id',
+                    as: 'sizeId',
+                }
+            },
         });
     },
     async down(queryInterface, Sequelize) {
-        await queryInterface.dropTable('Conversations');
+        await queryInterface.dropTable('DishHasSizes');
     }
 };

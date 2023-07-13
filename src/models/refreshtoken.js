@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config()
@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'RefreshToken',
+        tableName: 'refreshtokens'
     });
 
     RefreshToken.createToken = async function (type, userId) {
@@ -29,10 +30,10 @@ module.exports = (sequelize, DataTypes) => {
             adminId: type === "user" ? null : userId,
             expiryDate: expiredAt.getTime(),
         });
-        
+
         return refreshToken.token;
-    } 
-    
+    }
+
     RefreshToken.verifyExpiration = (token) => {
         return token.expiryDate.getTime() < new Date().getTime();
     };

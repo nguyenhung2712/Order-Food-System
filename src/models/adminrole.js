@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Admin_Role extends Model {
@@ -10,10 +10,11 @@ module.exports = (sequelize, DataTypes) => {
         }
     }
     Admin_Role.init({
-        
+
     }, {
         sequelize,
         modelName: 'Admin_Role',
+        tableName: 'admin_roles'
     });
     Admin_Role.removeAttribute("id");
     return Admin_Role;

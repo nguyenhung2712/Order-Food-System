@@ -1,4 +1,4 @@
-const { Ward, District, Province } = require("../models");
+const { Ward, District, Province, Region } = require("../models");
 
 const getWardById = (wardId) => new Promise(async (resolve, reject) => {
     try {
@@ -88,6 +88,19 @@ const getProvinces = () => new Promise(async (resolve, reject) => {
     }
 });
 
+const getRegions = () => new Promise(async (resolve, reject) => {
+    try {
+        const regions = await Region.findAll();
+        resolve({
+            status: "success",
+            message: "Get regions successfully.",
+            payload: regions
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
 module.exports = {
     getWardById,
     getWardsByDistrictId,
@@ -95,4 +108,5 @@ module.exports = {
     getDistrictsByProvinceId,
     getProvinces,
     getProvinceById,
+    getRegions
 }

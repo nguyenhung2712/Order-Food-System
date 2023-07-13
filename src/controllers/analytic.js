@@ -29,18 +29,52 @@ const getOrderInfo = async (req, res) => {
     }
 }
 
-const getReportInfo = async (req, res) => {
+const getProductInfo = async (req, res) => {
     try {
-        const response = await analyticService.getReportInfo();
+        const response = await analyticService.getProductInfo();
         return res.json(response);
     } catch (error) {
         console.log(error)
         return res.status(400).json(error);
     }
 }
+
+const getBlogReportInfo = async (req, res) => {
+    try {
+        const response = await analyticService.getBlogReportInfo();
+        return res.json(response);
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json(error);
+    }
+}
+
+const getRatingReportInfo = async (req, res) => {
+    try {
+        const response = await analyticService.getRatingReportInfo();
+        return res.json(response);
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json(error);
+    }
+}
+
+const getCmtReportInfo = async (req, res) => {
+    try {
+        const response = await analyticService.getCmtReportInfo();
+        return res.json(response);
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json(error);
+    }
+}
+
 module.exports = {
     getDashboardInfo,
     getBlogInfo,
     getOrderInfo,
-    getReportInfo
+    getProductInfo,
+    getBlogReportInfo,
+    getRatingReportInfo,
+    getCmtReportInfo
 }

@@ -1,32 +1,183 @@
-const { Dish, DishType, Rate, OrderDetail } = require("../models");
+const {
+    Dish, DishType, Rate, DishTopping, DishHasSize, DishSize,
+    Topping, OrderDetail, Interact, User, Order
+} = require("../models");
 const { v4: uuidv4 } = require("uuid");
 const { QueryTypes, Op } = require('sequelize');
 const sequelize = require("../../connectdb");
+const translate = require('translate-google');
 
-const getAll = () => new Promise(async (resolve, reject) => {
+const getStatisticInfo = (dishId) => new Promise(async (resolve, reject) => {
     try {
-        let date = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
-        const subquery = `(SELECT IFNULL(SUM(quantity), 0) FROM orderdetails WHERE dishId = Dish.id AND DATE(createdAt) >= '${date.slice(0, 10)}')`;
-        const response = await Dish.findAll({
+        const response = await Dish.findOne({
+            where: { id: dishId },
+            include: [
+                {
+                    model: OrderDetail, include: [
+                        {
+                            model: Order, as: "order", include: [
+                                { model: User, as: "user" }
+                            ]
+                        }
+                    ]
+                },
+                { model: Interact },
+                { model: Rate, include: [{ model: User, as: "user" }] },
+            ],
+        })
+        resolve({
+            status: "success",
+            message: "Get dishes statistic info successfully.",
+            payload: response
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getByTypeId = (typeId) => new Promise(async (resolve, reject) => {
+    try {
+        let startDate = new Date(new Date().setHours(0, 0, 0, 0));
+        const dishes = await Dish.findAll({
+            where: { typeId },
             include: [
                 { model: DishType, as: 'type' },
-                { model: Rate }
+                { model: Rate },
+                { model: DishTopping, include: [{ model: Topping, as: "topping" }] },
+                { model: DishHasSize, include: [{ model: DishSize, as: "size" }] },
+                { model: Interact },
             ],
-            attributes: {
-                include: [
-                    [
-                        sequelize.literal(
-                            `(Dish.quantityInDay - ${subquery})`
-                        ),
-                        'quantityLeft'
-                    ]
-                ]
-            }
         });
+
+        const results = [];
+
+        for (const dish of dishes) {
+            const details = await OrderDetail.findAll({
+                where: {
+                    dishId: dish.id,
+                    createdAt: {
+                        [Op.gt]: startDate,
+                    },
+                }
+            });
+            if (dish.DishHasSizes.length > 0) {
+                const defaultQuantity = dish.DishHasSizes.map(dhs => ({
+                    price: dhs.price,
+                    quantityInDay: dhs.quantityInDay,
+                    size: dhs.size
+                }));
+                const priceTotals = new Map();
+                details.forEach(item => {
+                    if (priceTotals.has(Number(item.price))) {
+                        priceTotals.set(Number(item.price), priceTotals.get(Number(item.price)) + item.quantity);
+                    } else {
+                        priceTotals.set(Number(item.price), item.quantity);
+                    }
+                });
+                const soldQuantity = [];
+                priceTotals.forEach((total, price) => {
+                    soldQuantity.push({ price, quantityInDay: total });
+                });
+
+                const dishHasSizes = defaultQuantity.map(item => {
+                    const totalInA = soldQuantity.find(a => a.price === Number(item.price))?.quantityInDay || 0;
+                    return {
+                        price: item.price,
+                        quantityLeft: item.quantityInDay - totalInA,
+                        quantityInDay: item.quantityInDay,
+                        size: item.size
+                    };
+                });
+
+                results.push({
+                    ...dish.toJSON(),
+                    DishHasSizes: dishHasSizes
+                });
+            } else {
+                results.push({
+                    ...dish.toJSON(),
+                    quantityLeft: dish.quantityInDay - details.length
+                });
+            }
+        }
         resolve({
             status: "success",
             message: "Get dishes successfully.",
-            payload: response
+            payload: results
+        });
+    } catch (error) {
+        reject(error);
+    }
+});
+
+const getAll = () => new Promise(async (resolve, reject) => {
+    try {
+        let startDate = new Date(new Date().setHours(0, 0, 0, 0));
+        const dishes = await Dish.findAll({
+            include: [
+                { model: DishType, as: 'type' },
+                { model: Rate },
+                { model: DishTopping, include: [{ model: Topping, as: "topping" }] },
+                { model: DishHasSize, include: [{ model: DishSize, as: "size" }] },
+                { model: Interact },
+            ],
+        });
+
+        const results = [];
+
+        for (const dish of dishes) {
+            const details = await OrderDetail.findAll({
+                where: {
+                    dishId: dish.id,
+                    createdAt: {
+                        [Op.gt]: startDate,
+                    },
+                }
+            });
+            if (dish.DishHasSizes.length > 0) {
+                const defaultQuantity = dish.DishHasSizes.map(dhs => ({
+                    price: dhs.price,
+                    quantityInDay: dhs.quantityInDay,
+                    size: dhs.size
+                }));
+                const priceTotals = new Map();
+                details.forEach(item => {
+                    if (priceTotals.has(Number(item.price))) {
+                        priceTotals.set(Number(item.price), priceTotals.get(Number(item.price)) + item.quantity);
+                    } else {
+                        priceTotals.set(Number(item.price), item.quantity);
+                    }
+                });
+                const soldQuantity = [];
+                priceTotals.forEach((total, price) => {
+                    soldQuantity.push({ price, quantityInDay: total });
+                });
+
+                const dishHasSizes = defaultQuantity.map(item => {
+                    const totalInA = soldQuantity.find(a => a.price === Number(item.price))?.quantityInDay || 0;
+                    return {
+                        price: item.price,
+                        quantityLeft: item.quantityInDay - totalInA,
+                        quantityInDay: item.quantityInDay,
+                        size: item.size
+                    };
+                });
+
+                results.push({
+                    ...dish.toJSON(),
+                    DishHasSizes: dishHasSizes
+                });
+            } else {
+                results.push({
+                    ...dish.toJSON(),
+                    quantityLeft: dish.quantityInDay - details.length
+                });
+            }
+        }
+        resolve({
+            status: "success",
+            message: "Get dishes successfully.",
+            payload: results
         });
     } catch (error) {
         reject(error);
@@ -35,7 +186,8 @@ const getAll = () => new Promise(async (resolve, reject) => {
 
 const getAllAvailable = (sortBy, categories = [], query, rating) => new Promise(async (resolve, reject) => {
     try {
-        let date = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
+        rating = rating.filter(rating => rating || rating === 0);
+        let startDate = new Date(new Date().setHours(0, 0, 0, 0));
         let type = await DishType.findAll({ where: { id: { [Op.or]: categories } } });
         type = JSON.parse(JSON.stringify(type));
         let typeIds = type.map(type => type.id);
@@ -48,47 +200,88 @@ const getAllAvailable = (sortBy, categories = [], query, rating) => new Promise(
         let response;
 
         if (sortType !== "most-order") {
-            const subquery = `(SELECT IFNULL(SUM(quantity), 0) FROM orderdetails WHERE dishId = Dish.id AND DATE(createdAt) >= '${date.slice(0, 10)}')`;
-            const avgScore = sequelize.fn('AVG', sequelize.col('Rates.score'));
-            const avgScoreSafe = sequelize.fn('COALESCE', avgScore, 0);
-            const avgScoreRounded = sequelize.fn('ROUND', avgScoreSafe, 0);
-            const attributes = [
-                ...Object.keys(Dish.rawAttributes),
-                [avgScoreRounded, 'average_rating'],
-                [
-                    sequelize.literal(
-                        `(Dish.quantityInDay - ${subquery})`
-                    ),
-                    'quantityLeft'
-                ]
-            ];
-            const where = {
-                typeId: { [Op.or]: typeIds },
-                dishName: { [Op.like]: `%${query}%` },
-            };
-            const include = [
-                { model: DishType, as: "type" },
-                { model: Rate }
-            ];
-            const group = ['Dish.id'];
-            const having = sequelize.literal(`
-                ROUND(IFNULL(AVG(Rates.score), 0), 0) IN (${rating.join(",")})
-            `);
-            response = await Dish.findAll({
-                attributes: attributes,
-                where: where,
-                include: include,
-                group: group,
-                having: having,
+            const dishes = await Dish.findAll({
+                where: {
+                    [Op.and]: [
+                        { typeId: { [Op.or]: typeIds } },
+                        { dishName: { [Op.like]: `%${query}%` } },
+                    ]
+                },
+                include: [
+                    { model: DishType, as: "type" },
+                    { model: Rate },
+                    { model: DishTopping, include: [{ model: Topping, as: "topping" }] },
+                    { model: DishHasSize, include: [{ model: DishSize, as: "size" }] },
+                    { model: Interact },
+                ],
                 order: [
                     ['price', sortType]
                 ],
-                /* group: ['Dish.id', 'Dish.dishName'],
-                having: sequelize.where(
-                    sequelize.fn('ABS', sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col('rates.score')), 0) - 2.8),
-                    { [Op.lte]: 0.001 }
-                ) */
             });
+            const dishTemp = dishes.map(dish => {
+                const plainDish = dish.get({ plain: true });
+                let { Rates, ...remain } = plainDish;
+                return {
+                    ...remain,
+                    avg_rate: Rates.length > 0
+                        ? Rates.reduce((acc, rate) => acc + Number(rate.score), 0) / Rates.length
+                        : 0
+                }
+            });
+            const dishRes = dishTemp.filter(dish => rating.includes(Math.round(dish.avg_rate)))
+
+            const results = [];
+
+            for (const dish of dishRes) {
+
+                const dishId = dish.id;
+                const details = await OrderDetail.findAll({
+                    where: {
+                        dishId,
+                        createdAt: { [Op.gt]: startDate, },
+                    }
+                });
+                if (dish.DishHasSizes.length > 0) {
+                    const defaultQuantity = dish.DishHasSizes.map(dhs => ({
+                        price: dhs.price,
+                        quantityInDay: dhs.quantityInDay,
+                        size: dhs.size
+                    }));
+                    const priceTotals = new Map();
+                    details.forEach(item => {
+                        if (priceTotals.has(Number(item.price))) {
+                            priceTotals.set(Number(item.price), priceTotals.get(Number(item.price)) + item.quantity);
+                        } else {
+                            priceTotals.set(Number(item.price), item.quantity);
+                        }
+                    });
+                    const soldQuantity = [];
+                    priceTotals.forEach((total, price) => {
+                        soldQuantity.push({ price, quantityInDay: total });
+                    });
+
+                    const dishHasSizes = defaultQuantity.map(item => {
+                        const totalInA = soldQuantity.find(a => a.price === Number(item.price))?.quantityInDay || 0;
+                        return {
+                            price: item.price,
+                            quantityLeft: item.quantityInDay - totalInA,
+                            quantityInDay: item.quantityInDay,
+                            size: item.size
+                        };
+                    });
+
+                    results.push({
+                        ...dish,
+                        DishHasSizes: dishHasSizes
+                    });
+                } else {
+                    results.push({
+                        ...dish,
+                        quantityLeft: dish.quantityInDay - details.length
+                    });
+                }
+            }
+            response = results;
         } else {
             const types = await DishType.findAll();
             let res = [];
@@ -113,9 +306,7 @@ const getAllAvailable = (sortBy, categories = [], query, rating) => new Promise(
                 "GROUP BY d.id " +
                 ` HAVING ROUND(IFNULL(AVG(r.score), 0), 0) IN (${rating.join(",")})`;
             await sequelize.query(orderedQueryStr,
-                {
-                    raw: true, nest: true, type: QueryTypes.SELECT,
-                }
+                { raw: true, nest: true, type: QueryTypes.SELECT, }
             )
                 .then(async (orderedRes) => {
                     let temp = orderedRes.map((order) => {
@@ -157,30 +348,72 @@ const getAllAvailable = (sortBy, categories = [], query, rating) => new Promise(
 
 const getById = (dishId) => new Promise(async (resolve, reject) => {
     try {
-        let date = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
-        const subquery = `(SELECT IFNULL(SUM(quantity), 0) FROM orderdetails WHERE dishId = Dish.id AND DATE(createdAt) >= '${date.slice(0, 10)}')`;
+        let startDate = new Date(new Date().setHours(0, 0, 0, 0));
+        const details = await OrderDetail.findAll({
+            where: {
+                dishId,
+                createdAt: {
+                    [Op.gt]: startDate,
+                },
+            }
+        });
         const dish = await Dish.findOne({
             where: { id: dishId },
             include: [
-                { model: DishType, as: "type" },
                 { model: Rate },
+                { model: DishType, as: "type" },
+                { model: DishTopping, include: [{ model: Topping, as: "topping" }] },
+                { model: DishHasSize, include: [{ model: DishSize, as: "size" }] },
+                { model: Interact }
             ],
-            attributes: {
-                include: [
-                    [
-                        sequelize.literal(
-                            `(Dish.quantityInDay - ${subquery})`
-                        ),
-                        'quantityLeft'
-                    ]
-                ]
-            }
         });
-        resolve({
-            status: "success",
-            message: "Get dish successfully.",
-            payload: dish
-        });
+        if (dish.DishHasSizes.length > 0) {
+            let defaultQuantity = dish.DishHasSizes.map(dhs => ({
+                price: dhs.price,
+                quantityInDay: dhs.quantityInDay,
+                size: dhs.size
+            }));
+            const priceTotals = new Map();
+            details.forEach(item => {
+                if (priceTotals.has(Number(item.price))) {
+                    priceTotals.set(Number(item.price), priceTotals.get(Number(item.price)) + item.quantity);
+                } else {
+                    priceTotals.set(Number(item.price), item.quantity);
+                }
+            });
+            const soldQuantity = [];
+            priceTotals.forEach((total, price) => {
+                soldQuantity.push({ price, quantityInDay: total });
+            });
+
+            const dishHasSizes = defaultQuantity.map(item => {
+                const totalInA = soldQuantity.find(a => a.price === Number(item.price))?.quantityInDay || 0;
+                return {
+                    price: item.price,
+                    quantityLeft: item.quantityInDay - totalInA,
+                    quantityInDay: item.quantityInDay,
+                    size: item.size
+                };
+            });
+            resolve({
+                status: "success",
+                message: "Get dish successfully.",
+                payload: {
+                    ...dish.toJSON(),
+                    DishHasSizes: dishHasSizes
+                }
+            });
+        } else {
+            resolve({
+                status: "success",
+                message: "Get dish successfully.",
+                payload: {
+                    ...dish.toJSON(),
+                    quantityLeft: dish.quantityInDay - details.length
+                }
+            });
+        }
+
     } catch (error) {
         reject(error);
     }
@@ -188,29 +421,63 @@ const getById = (dishId) => new Promise(async (resolve, reject) => {
 
 const getBySlug = (slug) => new Promise(async (resolve, reject) => {
     try {
-        let date = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
-        const subquery = `(SELECT IFNULL(SUM(quantity), 0) FROM orderdetails WHERE dishId = Dish.id AND DATE(createdAt) >= '${date.slice(0, 10)}')`;
         const dish = await Dish.findOne({
             where: { slug: slug },
             include: [
-                { model: DishType, as: "type" }
+                { model: Rate },
+                { model: Interact },
+                { model: DishType, as: "type" },
+                { model: DishTopping, include: [{ model: Topping, as: "topping" }] },
+                { model: DishHasSize, include: [{ model: DishSize, as: "size" }] },
             ],
-            attributes: {
-                include: [
-                    [
-                        sequelize.literal(
-                            `(Dish.quantityInDay - ${subquery})`
-                        ),
-                        'quantityLeft'
-                    ]
-                ]
-            }
         });
-        resolve({
-            status: "success",
-            message: "Get dish successfully.",
-            payload: dish
-        });
+        const details = await OrderDetail.findAll({ where: { dishId: dish.id } });
+        if (dish.DishHasSizes.length > 0) {
+            let defaultQuantity = dish.DishHasSizes.map(dhs => ({
+                price: dhs.price,
+                quantityInDay: dhs.quantityInDay,
+                size: dhs.size
+            }));
+            const priceTotals = new Map();
+            details.forEach(item => {
+                if (priceTotals.has(Number(item.price))) {
+                    priceTotals.set(Number(item.price), priceTotals.get(Number(item.price)) + item.quantity);
+                } else {
+                    priceTotals.set(Number(item.price), item.quantity);
+                }
+            });
+            const soldQuantity = [];
+            priceTotals.forEach((total, price) => {
+                soldQuantity.push({ price, quantityInDay: total });
+            });
+
+            const dishHasSizes = defaultQuantity.map(item => {
+                const totalInA = soldQuantity.find(a => a.price === Number(item.price))?.quantityInDay || 0;
+                return {
+                    price: item.price,
+                    quantityLeft: item.quantityInDay - totalInA,
+                    quantityInDay: item.quantityInDay,
+                    size: item.size
+                };
+            });
+            resolve({
+                status: "success",
+                message: "Get dish successfully.",
+                payload: {
+                    ...dish.toJSON(),
+                    DishHasSizes: dishHasSizes
+                }
+            });
+        } else {
+            resolve({
+                status: "success",
+                message: "Get dish successfully.",
+                payload: {
+                    ...dish.toJSON(),
+                    quantityLeft: dish.quantityInDay - details.length
+                }
+            });
+        }
     } catch (error) {
         reject(error);
     }
@@ -218,10 +485,16 @@ const getBySlug = (slug) => new Promise(async (resolve, reject) => {
 
 const createDish = (typeId, dishBody) => new Promise(async (resolve, reject) => {
     try {
+        let dishNameEn = await translate(dishBody.dishName + " Việt Nam", { from: "auto", to: "en" });
+        dishNameEn = dishNameEn.split(" ").filter(text => text.toLowerCase() !== "vietnamese").join(" ");
+        let ingredientsEn = await translate(dishBody.ingredients, { from: "auto", to: "en" });
+
         await Dish.create(
             {
                 id: uuidv4(),
                 ...dishBody,
+                ingredientsEn,
+                dishNameEn,
                 typeId: typeId
             }
         )
@@ -239,9 +512,22 @@ const createDish = (typeId, dishBody) => new Promise(async (resolve, reject) => 
 
 const updateDish = (dishId, dishBody) => new Promise(async (resolve, reject) => {
     try {
+        const dish = await Dish.findByPk(dishId);
+        let dishNameEn, ingredientsEn;
+        if (dishBody.dishName) {
+            dishNameEn = await translate(dishBody.dishName + " Việt Nam", { from: "auto", to: "en" });
+            dishNameEn = dishNameEn.split(" ").filter(text => text.toLowerCase() !== "vietnamese").join(" ");
+        }
+        if (dishBody.ingredients) {
+            ingredientsEn = await translate(dishBody.ingredients, { from: "auto", to: "en" });
+        }
 
         await Dish.update(
-            { ...dishBody },
+            {
+                ...dishBody,
+                ingredientsEn: ingredientsEn ? ingredientsEn : dish.ingredientsEn,
+                dishNameEn: dishNameEn ? dishNameEn : dish.dishNameEn,
+            },
             { where: { id: dishId } }
         )
             .then(async () => await Dish.findByPk(dishId, {
@@ -324,6 +610,7 @@ const recoverDish = (dishId) => new Promise(async (resolve, reject) => {
 
 module.exports = {
     getAll,
+    getByTypeId,
     getAllAvailable,
     getById,
     getBySlug,
@@ -331,4 +618,5 @@ module.exports = {
     updateDish,
     deleteDish,
     recoverDish,
+    getStatisticInfo
 }

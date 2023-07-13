@@ -1,6 +1,6 @@
 const {
-    Blog, Interact, User, History,
-    Address, UserAddress, Province,
+    Blog, Interact, User, History, Comment,
+    Address, UserAddress, Province, CommentRep,
     District, Ward, Reason, Archive, AdminStaff
 } = require("../models");
 const { v4: uuidv4 } = require("uuid");
@@ -169,6 +169,10 @@ const getByUserId = (userId) => new Promise(async (resolve, reject) => {
                 {
                     model: Interact,
                     include: [{ model: User, as: "user" }]
+                },
+                {
+                    model: Comment,
+                    include: [{ model: CommentRep }]
                 }
             ],
             attributes: { attributes: { exclude: ['userId'] } }
@@ -209,6 +213,10 @@ const getById = (blogId) => new Promise(async (resolve, reject) => {
                 {
                     model: Interact,
                     include: [{ model: User, as: "user" }]
+                },
+                {
+                    model: Comment,
+                    include: [{ model: CommentRep }]
                 }
             ]
         });
@@ -491,7 +499,9 @@ const getAllReports = () => new Promise(async (resolve, reject) => {
                     [Op.not]: null
                 },
                 type: 2,
-                status: 1
+                status: {
+                    [Op.or]: [0, 1]
+                },
             },
             include: [
                 { model: User, as: "user" },
@@ -545,7 +555,7 @@ const solveReport = (blogId, userId) => new Promise(async (resolve, reject) => {
 
 const deleteReport = (reportId) => new Promise(async (resolve, reject) => {
     try {
-        await Blog.destroy({
+        await Interact.destroy({
             where: { id: reportId }
         })
             .then(async (res) => {

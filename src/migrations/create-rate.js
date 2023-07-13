@@ -16,6 +16,9 @@ module.exports = {
             remarks: {
                 type: Sequelize.STRING
             },
+            images: {
+                type: Sequelize.STRING
+            },
             deletedAt: {
                 type: Sequelize.DATE
             },

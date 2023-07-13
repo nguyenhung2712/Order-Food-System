@@ -1,6 +1,6 @@
 'use strict';
 const {
-  Model
+    Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Token extends Model {
@@ -14,14 +14,15 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Token',
+        tableName: 'tokens'
     });
     Token.createToken = async function (user, otpCode) {
         let token = await this.create({
             token: otpCode,
-            expiredAt: new Date((new Date()).getTime() + 5*60000),
+            expiredAt: new Date((new Date()).getTime() + 5 * 60000),
             userId: user.id
         });
         return token;
-    } 
+    }
     return Token;
 };

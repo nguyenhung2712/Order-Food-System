@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'ArchiveType',
+        tableName: 'archivetypes'
     });
     return ArchiveType;
 };

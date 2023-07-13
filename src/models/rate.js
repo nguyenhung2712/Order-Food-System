@@ -8,16 +8,19 @@ module.exports = (sequelize, DataTypes) => {
             Rate.belongsTo(models.User, { foreignKey: 'userId', targetKey: 'id', as: 'user' });
             Rate.belongsTo(models.Dish, { foreignKey: 'dishId', targetKey: 'id', as: 'product' });
             Rate.hasMany(models.Interact, { foreignKey: 'ratingId' });
+            Rate.hasMany(models.Archive, { foreignKey: 'ratingId' });
         }
     }
     Rate.init({
         score: DataTypes.DECIMAL,
         remarks: DataTypes.STRING,
+        images: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT
     }, {
         sequelize,
         modelName: 'Rate',
+        tableName: 'rates'
     });
     return Rate;
 };

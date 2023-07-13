@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
 
             Dish.hasMany(models.Rate, { foreignKey: 'dishId' });
             Dish.hasMany(models.OrderDetail, { foreignKey: 'dishId' });
+            Dish.hasMany(models.DishTopping, { foreignKey: 'dishId' });
+            Dish.hasMany(models.Interact, { foreignKey: 'dishId' });
+            Dish.hasMany(models.DishHasSize, { foreignKey: 'dishId' });
         }
     }
     Dish.init({
@@ -23,11 +26,11 @@ module.exports = (sequelize, DataTypes) => {
         slug: DataTypes.STRING,
         deletedAt: DataTypes.DATE,
         status: DataTypes.TINYINT,
-        views: DataTypes.INTEGER,
         quantityInDay: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'Dish',
+        tableName: 'dishes'
     });
     return Dish;
 };

@@ -44,10 +44,6 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.TINYINT
             },
-            views: {
-                allowNull: false,
-                type: Sequelize.INTEGER
-            },
             quantityInDay: {
                 allowNull: false,
                 type: Sequelize.INTEGER

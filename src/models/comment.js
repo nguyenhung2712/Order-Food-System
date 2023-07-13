@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
 
             Comment.hasMany(models.CommentRep, { foreignKey: 'commentId' });
             Comment.hasMany(models.Interact, { foreignKey: 'commentId' });
+            Comment.hasMany(models.Archive, { foreignKey: 'commentId' });
         }
     }
     Comment.init({
@@ -18,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         sequelize,
         modelName: 'Comment',
+        tableName: 'comments'
     });
     return Comment;
 };
