@@ -1,0 +1,14 @@
+.range-input-container .input-range__label-container {
+  font-size: 20px;
+}
+
+.input-range__label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+}
+
+.input-range__slider,
+.input-range__track .input-range__track--active {
+  background-color: #02b290 !important;
+  border-color: #02b290 !important;
+}
